@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="provinceArrStatis">
+    <typeAlias alias="provinceArrStatisObj" type="com.jd.cms.domain.appManagement.ProvinceArrStatisObj"/>
+    <typeAlias alias="provinceArrStatisParameter" type="com.jd.cms.domain.appManagement.ProvinceArrStatisParameter"/>
+
+
+    <select id="provinceArrStatTotal" parameterClass="provinceArrStatisParameter" resultClass="provinceArrStatisObj">
+        SELECT
+            sum(rec_app_counts) AS recCounts,
+            sum(need_app_counts) AS needCounts,
+            sum(arr_counts) AS arrCounts
+        FROM
+            tb_income_statistic AS incomeStats,
+            tb_pad_channel as padChannel
+        WHERE
+            STR_TO_DATE(
+            incomeStats.install_time,
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+           padChannel.id = incomeStats.cid
+        <isNotEmpty prepend="and" property="cid">
+            cid=#cid#
+        </isNotEmpty>
+    </select>
+
+    <select id="provinceArrStatisByCid" parameterClass="ProvinceArrStatisParameter" resultClass="provinceArrStatisObj">
+        SELECT
+            sum(rec_app_counts) AS recCounts,
+            sum(need_app_counts) AS needCounts,
+            sum(arr_counts) AS arrCounts,
+            padChannel.cname as channelName,
+            padChannel.id as  cid
+        FROM
+           tb_income_statistic as incomeStats,
+           tb_pad_channel as padChannel
+        WHERE
+             padChannel.id = incomeStats.cid
+            <isNotEmpty prepend="and" property="cid">
+                cid=#cid#
+            </isNotEmpty>
+        AND STR_TO_DATE(
+        incomeStats.install_time,
+        '%Y-%c-%e'
+        ) BETWEEN STR_TO_DATE(
+        #startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(
+        #endTime#, '%Y-%c-%e')
+
+        group by
+            cid
+    </select>
+
+
+    <select id="provinceArrStatisBySaler" parameterClass="ProvinceArrStatisParameter" resultClass="provinceArrStatisObj">
+        SELECT
+            sum(rec_app_counts) AS recCounts,
+            sum(need_app_counts) AS needCounts,
+            sum(arr_counts) AS arrCounts,
+            padChannel.cname as channelName,
+            saler_name as salerName
+        FROM
+           tb_income_statistic as incomeStats,
+           tb_pad_channel as padChannel
+        WHERE
+            cid=#cid#
+        AND STR_TO_DATE(
+        incomeStats.install_time,
+        '%Y-%c-%e'
+        ) BETWEEN STR_TO_DATE(
+        #startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(
+        #endTime#, '%Y-%c-%e')
+        AND
+          padChannel.id = incomeStats.cid
+        group by
+          saler
+    </select>
+</sqlMap>

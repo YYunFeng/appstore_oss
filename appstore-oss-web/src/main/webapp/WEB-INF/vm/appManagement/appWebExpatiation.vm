@@ -1,0 +1,104 @@
+#set($layout="content.vm")
+<script language="javascript">
+    $(document).ready(function(){
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+</script>
+<div class="pop-top">
+    <div class="ac">
+            <h2>网页应用详情</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+      <div class="con">
+        <table border="0" cellspacing="0" cellpadding="0">
+
+          <input type="hidden" name="AppPageInput.appid" value="$!AppPageOutput.appid">
+          <input type="hidden" name="AppPageInput.accountid" value="$!AppPageOutput.accountid">
+          <tr>
+            <td width="230" rowspan="6"><p>
+
+              <div class="app-icon">
+                <img src="$imgserver.getTarget('')cover/${AppPageOutput.logoUrl}" />
+              </div>
+              </p>
+              <p class="ac">
+                #if ("4" != $AppPageOutput.appType)
+                    <input type="hidden" value="$!AppPageOutput.resUrl" name="DownUrl">
+                    #*<input style=" margin-right: 52px" class="btn" type="button" value="下 载" onclick="downloadApp1()">*#
+                    <a href="$imgserver.getTarget('')swf/$!AppPageOutput.resUrl">下载</a>
+                #end
+
+              </p>
+            </td>
+            <td width="190"><p>
+              <span>
+              <h1>$!stringEscapeUtils.escapeHtml($!AppPageOutput.appName)</h1>
+              </span><span class="red">
+                #if ("" != $AppPageOutput.adText)
+                    ($!stringEscapeUtils.escapeHtml($!AppPageOutput.adText))
+                #end
+              </span>
+              </p></td>
+          </tr>
+          <tr>
+            <td><p>作者：
+                $!stringEscapeUtils.escapeHtml($!AppPageOutput.cpName)
+              </p></td>
+            <td><p>应用编号：$!AppPageOutput.appid</p></td>
+          </tr>
+          <tr>
+            <td><p>版本：$!stringEscapeUtils.escapeHtml($!AppPageOutput.appVersion)</p></td>
+            <td><p>发布时间：$!dateFormatUtils.format($!AppPageOutput.pubTime,"yyyy/MM/dd")</p></td>
+          </tr>
+          <tr>
+            <td>
+                <p>
+                所属类目：
+                    #if($mobileGameId == $!AppPageOutput.categoryidl2) 移动游戏 #elseif($mobileSoftId == $!AppPageOutput.categoryidl2) 移动软件 #elseif($webAppId == $!AppPageOutput.categoryidl2) 网页应用 #end
+                - #foreach($c3 in $Category3)
+                    #if($!AppPageOutput.categoryid1 == $!c3.categoryId) $!c3.categoryName  #end
+                  #end
+                  #foreach($c3 in $Category3)
+                    #if($!AppPageOutput.categoryid2 == $!c3.categoryId) $!c3.categoryName  #end
+                  #end
+                </p>
+            </td>
+          </tr>
+          <tr>
+            <td><p>使用次数：$!{DownloadCount}</p></td>
+          </tr>
+          <tr>
+            <td colspan="2"><p>评分：<span class="m_star m_$!{CommentSummaryBo.star}"></span>（已有$!{CommentSummaryBo.commentCount}人评价）</p></td>
+          </tr>
+          <tr>
+            <td colspan="3"><p> 标签：$!stringEscapeUtils.escapeHtml($!AppPageOutput.appTag)</p></td>
+          </tr>
+
+           #if ("4" == $AppPageOutput.appType)
+           <tr>
+            <td colspan="3"><p> 应用地址：$!stringEscapeUtils.escapeHtml($!AppPageOutput.resUrl)</p></td>
+          </tr>
+          #end
+
+
+          <tr>
+            <td colspan="3"><p>
+              <h1>应用介绍</h1>
+              </p></td>
+          </tr>
+          <tr>
+            <td colspan="3"><p style="text-align: justify;white-space: normal;">$!AppPageOutput.appIntroduce</p></td>
+          </tr>
+          <tr>
+            <td colspan="3"><div class="fr">
+              </div></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="btn-box">
+    <input class="close" type="button" value="关 闭">
+  </div>

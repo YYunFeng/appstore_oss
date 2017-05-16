@@ -1,0 +1,49 @@
+#*<body>*#
+<div class="w">
+    <div id="warp">
+        <div class="content">
+            <!--left_start-->
+            <div class="menu-box rounded fl" id="red">
+                <div id="menu-box">
+                    <div class="box">
+                        <div class="title_1">CP资质管理<span class="menu1"></span></div>
+                        <div class="list">
+                            <ul class="treeview-red">
+                                <li onclick="selCpAllTree()"><span id="menu_1" class="selected">ＣＰ账号管理</span>
+                                </li>
+                           #*     <li onclick="selChargeAllTree()"><span id="menu_2">收费资质管理</span>
+                                </li>*#
+                                <li ><span id="menu_3">PAD渠道管理</span>
+                                    <ul>
+                                        <li onclick="getPadChannel();">
+                                            <span id="menu_3.0" >渠道维护</span>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--left_end-->
+            <!--right_start-->
+            <input type="hidden" name="markPage"/>
+
+            <div id="cpTable" class="fr"></div>
+            <!--right_end-->
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/cpQualityManagement/cpQualityManagement.js")"></script>
+<!--弹出框-->
+<div id="Loading" class="hide"
+     style="width:100px;height:100px;position:fixed;left:50%;top:50%;margin: -50px -50px 0 0;z-index: 1001;">
+    <img src="$assetModule.getTarget("/appstore-man/images/loading.gif")"/>
+</div>
+<div id="Loading2" class="hide"
+     style="text-align:center;position:fixed;z-index: 1000;filter:alpha(opacity=10);background-color:#666;opacity: 0.1;-moz-opacity: 0.1;width:100%;height: 100%;top:0;left:0;">
+</div>
+<div id="EjectTable" class="classPop" style="width:423px;height: 500px">
+</div>

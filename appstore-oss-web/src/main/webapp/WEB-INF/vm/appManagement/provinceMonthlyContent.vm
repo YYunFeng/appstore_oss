@@ -1,0 +1,70 @@
+#set($layout="content.vm")
+<div class="tb-box" id="content">
+    <table class="tb" cellspacing="0" cellpadding="0">
+        #if($provinceRes.size()==0)
+            <tr>
+                <td width="120" colspan="4">暂无统计信息</td>
+            </tr>
+        #else
+            <tr class="tit-bg">
+                <td width="65">省份</td>
+                #if($provinceRes.get(0).flag==1)
+                    <td width="65">总收入</td>
+                #else
+                    <td width="65">当日收入</td>
+                #end
+                <td width="65">收入目标</td>
+                <td width="65">完成率</td>
+                <td width="65">部署人数</td>
+                #if($provinceRes.get(0).flag==1)
+                    <td width="65">安装台数</td>
+                #else
+                    <td width="65">当日安装台数</td>
+                #end
+                <td width="65">人均日安装台数</td>
+                <td width="65">人均日安装台数目标</td>
+                <td width="65">台数达成率</td>
+                #if($provinceRes.get(0).flag==1)
+                    <td width="65">日均活跃人数</td>
+                #else
+                    <td width="65">当日有安装量的人数</td>
+                #end
+                <td width="65">日均活跃人数比例</td>
+            #*#if($provinceRes.get(0).flag==1)
+                <td width="65">到达率</td>
+            #else
+                <td width="65">人均安装量</td>
+            #end*#
+            </tr>
+            #foreach($provinceStatisRes in $provinceRes)
+                <tr>
+                    <td>$provinceStatisRes.province</td>
+                    <td>$provinceStatisRes.income</td>
+                    <td>
+                        <input style="width:65px" type="text" value="$!provinceStatisRes.incomeTarget"
+                               onblur="instaisticNorm($provinceStatisRes.cid)" id="target$provinceStatisRes.cid"/>
+                    </td>
+                    <td>$provinceStatisRes.completionRate</td>
+                    <td><input style="width:65px" type="text" value="$!provinceStatisRes.deployPeople"
+                               onblur="instaisticNorm($provinceStatisRes.cid)" id="deployPeople$provinceStatisRes.cid"/>
+                    </td>
+                    <td>$provinceStatisRes.phoneTimes</td>
+                    <td>$provinceStatisRes.everyPerPhones</td>
+                    <td><input style="width:65px" type="text" value="$!provinceStatisRes.everyPerPhonesTarget"
+                               onblur="instaisticNorm($provinceStatisRes.cid)"
+                               id="everyPerphonesTarget$provinceStatisRes.cid"/></td>
+                    <td>$provinceStatisRes.phoneCompletionRate</td>
+                    <td>$!provinceStatisRes.intallSalerTimes</td>
+                    <td>$provinceStatisRes.activeRatio</td>
+                #*  #if($provinceStatisRes.flag==1)
+                      <td>$provinceStatisRes.arrRate</td>
+                  #else
+                      <td>$provinceStatisRes.perInstallTimes</td>
+                  #end*#
+                </tr>
+            #end
+        #end
+    </table>
+</div>
+
+

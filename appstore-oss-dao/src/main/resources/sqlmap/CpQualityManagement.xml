@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CpQualityManagement">
+
+    <typeAlias alias="SelCpPageOutPut" type="com.jd.cms.domain.cpQualityManagement.SelCpPageOutPut"/>
+    <typeAlias alias="SelCpPageInPut" type="com.jd.cms.domain.cpQualityManagement.SelCpPageInPut"/>
+    <typeAlias alias="PadChannel" type="com.jd.cms.domain.cpQualityManagement.PadChannel"/>
+
+    <!--取得cp的总记录数-->
+    <select id="getCpCount" resultClass="int" parameterClass="SelCpPageInPut">
+        select
+            count(*) as value
+        from
+            tb_cp_baseinfo b
+        left join
+            tb_cp_reginfo r
+        on
+            b.id = r.accountid
+        <dynamic prepend="where">
+            <isNotEmpty prepend="AND" property="account" >
+                b.account like #account#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="cpName" >
+                b.cp_name like #cpName#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="contacter" >
+                r.contacter like #contacter#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="mobile" >
+                r.mobile like #mobile#
+            </isNotEmpty>
+            <isNotEqual prepend="AND" property="cpProperty" compareValue = "0" >
+                b.cp_property = #cpProperty#
+            </isNotEqual>
+            <!--accountStatus为-1时查询全部-->
+            <isNotEqual prepend="AND" property="accountStatus" compareValue = "-1" >
+                b.account_status = #accountStatus#
+            </isNotEqual>
+        </dynamic>
+    </select>
+
+   <!--获取渠道信息-->
+    <select id="getChannelCp" resultClass="PadChannel" parameterClass="PadChannel">
+        SELECT
+            pc.id AS id,
+            pc.cname AS cName,
+            pc.intro AS intro,
+            pc.gw as gw,
+            cb.id  AS cId,
+            cc.id AS ccId,
+            cb.cp_name as cpName,
+            pc.created AS created
+        FROM
+            tb_pad_channel as pc
+        LEFT JOIN
+             tb_channel_cp as cc
+        on
+           pc.id = cc.id
+        LEFT JOIN
+           tb_cp_baseinfo as cb
+        on
+           cb.id = cc.cpid
+         limit #endRow# offset #startRow#
+    </select>
+    <!--获取渠道信息总条数-->
+    <select id="getChannelCpCount" resultClass="int" >
+         select
+            count(*)
+         from
+           tb_pad_channel
+    </select>
+    <!--添加渠道-->
+    <insert id="createPadChannel" parameterClass="PadChannel">
+        insert into tb_pad_channel
+         (id,cname,intro,gw,created,modified)
+        values(
+         #id#,
+        #cname#,
+        #intro#,
+        #gw#,
+        now(),
+        now()
+        );
+    </insert>
+    <!--删除渠道-->
+    <delete id="deletePadChannel" parameterClass="int">
+        delete from tb_pad_channel where id =#id#
+    </delete>
+    <!--删除渠道关联CP-->
+    <delete id="deleteChannelCp" parameterClass="int">
+        delete from tb_channel_cp where id =#id#
+    </delete>
+    <!--关联CP-->
+    <select id="relevanceCp" parameterClass="int" resultClass="int">
+        SELECT
+           count(id)
+        FROM
+            tb_channel_cp
+        WHERE
+           id = #id#
+    </select>
+    <update id="updatePadChannel" parameterClass="PadChannel">
+        UPDATE
+		    tb_pad_channel
+		SET
+            cname = #cname#,
+            intro = #intro#,
+            gw = #gw#,
+            modified = now()
+        where
+             id = #id#
+    </update>
+    <select id="getPadChannelById" parameterClass="int" resultClass="PadChannel">
+        select
+            id as id,
+            cname as cname,
+            intro as intro,
+             gw as gw
+         from
+            tb_pad_channel
+        where
+           id = #id#
+    </select>
+    <insert id="createRelevanceCp" parameterClass="PadChannel">
+        INSERT INTO `tb_channel_cp` (`id`, `cpid`, `created`, `modified`) VALUES (#id#, #cpId#, now(),now())
+    </insert>
+    <update id="updateRelevanceCp" parameterClass="PadChannel">
+         UPDATE
+		    tb_channel_cp
+		SET
+            cpid = #cpId#
+        where
+             id = #id#
+    </update>
+    <!--取得cp信息集合-->
+    <select id="findCpPage" parameterClass="SelCpPageInPut" resultClass="SelCpPageOutPut">
+        select
+            b.id as id,
+            b.account as account,
+            b.cp_property as cpProperty,
+            b.cp_name as cpName,
+            r.contacter as contacter,
+            r.mobile as mobile,
+            b.account_status as accountStatus,
+            r.created as created
+        from
+            tb_cp_baseinfo b
+        left join
+            tb_cp_reginfo r
+        on
+            b.id = r.accountid
+        <dynamic prepend="where">
+            <isNotEmpty prepend="AND" property="account" >
+                b.account like #account#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="cpName" >
+                b.cp_name like #cpName#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="contacter" >
+                r.contacter like #contacter#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="mobile" >
+                r.mobile like #mobile#
+            </isNotEmpty>
+            <isNotEqual prepend="AND" property="cpProperty" compareValue = "0" >
+                b.cp_property = #cpProperty#
+            </isNotEqual>
+            <!--accountStatus为-1时查询全部-->
+            <isNotEqual prepend="AND" property="accountStatus" compareValue = "-1" >
+                b.account_status = #accountStatus#
+            </isNotEqual>
+        </dynamic>
+        order by r.created desc
+        limit #endRow# offset #startRow#
+    </select>
+
+    <!--更新cp的帐号状态-->
+    <update id="upAccountStatus" parameterClass="SelCpPageInPut" >
+		UPDATE
+		    tb_cp_baseinfo
+		SET
+            account_status = #upAccountStatus#,
+            modified = now()
+	    WHERE
+		    id in ($idList$)
+	</update>
+
+    <!--根据ID取得单条cp信息-->
+    <select id="selCpExpatiation" parameterClass="int" resultClass="SelCpPageOutPut">
+        select
+            b.account as account,
+            b.cp_property as cpProperty,
+            b.cp_name as cpName,
+            b.supplier_no as supplierNo,
+            b.created as created,
+            b.contract_number as contractNumber,
+            b.valid_period_begin as validPeriodBegin,
+            b.valid_period_end as validPeriodEnd,
+            b.default_fee_mode as defaultFeeMode,
+            b.default_percent as defaultPercent,
+            b.account_status as accountStatus,
+            r.ename as ename,
+            r.webadd as webadd,
+            r.address as address,
+            r.phone as phone,
+            r.mobile as mobile,
+            r.mobile_binded as mobileBinded,
+            r.fax as fax,
+            r.email as email,
+            r.email_checked as emailChecked,
+            r.intro as intro,
+            r.contacter as contacter,
+            r.other_contact as otherContact,
+            r.certificate_type as certificateType,
+            r.certificate_no as certificateNo,
+            r.certificate_photo as certificatePhoto,
+            b.fee_status as feeStatus
+        from
+            tb_cp_baseinfo b
+        left join
+            tb_cp_reginfo r
+        on
+            b.id = r.accountid
+        where
+            b.id = #id#
+    </select>
+
+    <!--根据ID删除cp日志表信息-->
+    <delete id="delLog" parameterClass="int">
+        delete from
+            tb_cp_log
+        where
+            accountid = #accountid#
+    </delete>
+
+    <!--根据ID删除cp注册信息表信息-->
+    <delete id="delReginfo" parameterClass="int">
+        delete from
+            tb_cp_reginfo
+        where
+            accountid = #accountid#
+    </delete>
+
+    <!--根据ID删除cp基本信息表信息-->
+    <delete id="delBaseinfo" parameterClass="int">
+        delete from
+            tb_cp_baseinfo
+        where
+            id = #accountid#
+    </delete>
+
+    <!--取得cp的应用数-->
+    <select id="getAppCount" resultClass="Integer" parameterClass="int">
+        select
+            count(*) as value
+        from
+            tb_app_details
+        where
+            accountid = #accountid#
+    </select>
+
+</sqlMap>

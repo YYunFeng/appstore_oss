@@ -1,0 +1,116 @@
+#set($layout="content.vm")
+<div class="fr">
+    <div class="right-box rounded" id="slidingBlock">
+        <div class="form-row">
+            <input id="add" class="to-select fr open" type="button" value="添 加" onclick="addAndroidDrive();">
+        </div>
+        <div class="tb-box">
+            <table class="tb" cellspacing="0" cellpadding="0" style='TBBLE-LBYOUT: fixed'>
+                <tr class="tit-bg">
+                    <td width="80">厂商编号</td>
+                    <td width="120">厂商名字</td>
+                    <td width="80">产品编号</td>
+                    <td width="120">产品名字</td>
+                    <td width="170">驱动下载地址</td>
+                    <td width="80">创建时间</td>
+                    <td width="140">操作</td>
+                </tr>
+                #foreach($androidDriver in $androidDrivers)
+                    <tr>
+                        <td>$!androidDriver.vid</td>
+                        <td><p style="width:120px; overflow: hidden;">$!androidDriver.vname</p></td>
+                        <td>$!androidDriver.pid</td>
+                        <td><p style="width:120px; overflow: hidden;">$!androidDriver.pname</p></td>
+                        <td><p style="width:170px; overflow: hidden;">$androiddriverserver.getTarget("")$!androidDriver.driverUrl</p></td>
+                        <td>$dateFormatUtils.format($!androidDriver.created)</td>
+                        <td><a href="javascript:void(0);" class="pa open" onclick="editAndroidDriver($androidDriver.id);">编辑</a>
+                &nbsp;|&nbsp;
+                <a class="pa" href="$imgserver.getTarget("androidDriver/")$!androidDriver.driverUrl">下载</a>
+                &nbsp;|&nbsp;
+                <a class="pa" href="javascript:void(0);" onclick="deleteAndroidDriver($androidDriver.id);">删除</a></td>
+                    </tr>
+                #end
+            </table>
+        </div>
+        <div class="paging fr">
+            <div class="paging-box_2"> #set($pageModule=$domain.getTarget("/driverManager/findAndroidDriver.action").addQueryData("pageSize",$!pageSize))
+        #showPage($pageModule $androidDrivers) </div>
+        </div>
+    </div>
+</div>
+#*<div class="classPop" style="width:640px;height: 500px;" id="confirmPop">
+
+</div>*#
+<script type="text/javascript">
+    $(document).ready(function(){
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+    function addAndroidDrive(){
+        jQuery("#confirmPop").css("width", "640px");
+        jQuery("#confirmPop").css("height", "450px");
+        document.getElementById("Loading").style.display = "block";
+        document.getElementById("Loading2").style.display = "block";
+        jQuery.ajax({
+                    type:'POST',
+                    async:false,
+                    url:'/driverManager/addAndroidDriver.action',
+                    dataType:'html',
+                    success:function(data){
+                        document.getElementById("Loading").style.display = "none";
+                        document.getElementById("Loading2").style.display = "none";
+                        jQuery('#confirmPop').html(data);
+                    }
+                });
+    };
+
+    function editAndroidDriver(id){
+        jQuery("#confirmPop").css("width", "640px");
+        jQuery("#confirmPop").css("height", "450px");
+        document.getElementById("Loading").style.display = "block";
+        document.getElementById("Loading2").style.display = "block";
+        jQuery.ajax({
+                    type:'POST',
+                    async:false,
+                    url:'/driverManager/findAndroidDriverById.action',
+                    data:'androidDriver.id='+id,
+                    dataType:'html',
+                    success:function(data){
+                        document.getElementById("Loading").style.display = "none";
+                        document.getElementById("Loading2").style.display = "none";
+                        jQuery('#confirmPop').html(data);
+                    }
+                });
+    }
+
+    function deleteAndroidDriver(id){
+        if (confirm("是否确定删除？")) {
+            jQuery.ajax({
+                        type:'POST',
+                        url:'/driverManager/deleteAndroidDriver.action',
+                        data:'androidDriver.id=' + id,
+                        dataType:'html',
+                        success:function(data) {
+                            findAndroidDriver();
+                        }
+                    });
+        }
+    }
+
+    function download(url){
+     /*   if(url==null||url == ''){
+            alert('下载链接为空，请先上传驱动');
+        }else{
+            jQuery.ajax({
+                        type:'POST',
+                        url:'/driverManager/downloadDriver.action',
+                        data:'url='+url,
+                        dataType:'json',
+                        complete:function(data){
+                            window.open(data.responseText);
+                        }
+                    });
+        }*/
+      window.location.href = url;
+    }
+</script>

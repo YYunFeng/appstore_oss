@@ -1,0 +1,60 @@
+#set($layout="content.vm")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+
+</script>
+
+<div class="tb-box">
+    <table class="tb" cellspacing="0" cellpadding="0">
+        <tr class="tit-bg">
+            <td width="80">版本</td>
+            <td width="40">versionCode</td>
+            <td width="350">版本描述</td>
+            <td width="80">状态</td>
+            <td width="180">操作</td>
+        </tr>
+        #foreach($clientVersion in $clientVersions)
+            <tr>
+                <td>
+                    <div><label>$clientVersion.version</label></div>
+                </td>
+                <td>
+                    <div><label>$!clientVersion.versionCode</label></div>
+                </td>
+                <td>
+                    <p style="width:350px; overflow: hidden;margin-left:10px;">$subStrUtil.sub($!clientVersion.intro)</p>
+                </td>
+                <td>
+                    #if($clientVersion.valid==1)
+                        <span style="color:#F65D00"> 已上线</span>
+                    #else
+                        已下线
+                    #end
+                </td>
+                <td><a href="javascript:void(0);" class="pa open" onclick="editClientVersion($clientVersion.id);">编辑</a>
+                    &nbsp;|&nbsp;
+                    <a class="pa" href="$imgserver.getTarget('')androidClient/$clientVersion.packageUrl">下载</a>
+                    &nbsp;|&nbsp;
+                    <a class="pa" href="javascript:void(0);" onclick="deleteClientVersion($clientVersion.id);">删除</a>
+                    &nbsp;|&nbsp;
+                    #if($clientVersion.valid==1)
+                        <a class="pa" href="javascript:void(0);"
+                           onclick="updateVersion(0,$clientVersion.id,$clientVersion.clientType);">下线</a>
+                    #else
+                        <a class="pa" href="javascript:void(0);"
+                           onclick="updateVersion(1,$clientVersion.id,$clientVersion.clientType);">上线</a>
+                    #end
+
+                </td>
+            </tr>
+        #end
+    </table>
+</div>
+<div class="paging fr">
+    <div class="paging-box_2">#set($pageModule=$domain.getTarget("/versionManager/getVersionList.action").addQueryData("pageSize",$!pageSize))
+        #showPage($pageModule $clientVersions) </div>
+</div>

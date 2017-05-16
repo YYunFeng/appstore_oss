@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Apps">
+    <typeAlias alias="Apps" type="com.jd.appstore.domain.Apps"/>
+    <typeAlias alias="AppLog" type="com.jd.appstore.domain.AppLog"/>
+    <typeAlias alias="AppDetailsLog" type="com.jd.appstore.domain.AppDetailsLog"/>
+    <typeAlias alias="AppDetails" type="com.jd.appstore.domain.AppDetails"/>
+    <typeAlias alias="AppResource" type="com.jd.appstore.domain.AppResource"/>
+    <typeAlias alias="ImportAppLog" type="com.jd.appstore.domain.ImportAppLog"/>
+
+    <select id="findAppsByPkg" parameterClass="String" resultClass="int">
+        select count(*) from tb_apps where package = #value#
+    </select>
+
+     <insert id="createApps" parameterClass="Apps">
+        insert into tb_apps(
+            appid, app_name, package, app_type, categoryid_l2, categoryid1, categoryid2, online, zhuowangMark,created, modified
+        ) values(
+            #appId#, #appName#, #appPackage#, #appType#, #categoryIdl2#, #categoryId1#, #categoryId2#,1,#zhuoWangMark#,now(), now()
+        )
+    </insert>
+      <insert id="createAppsFromZhuoWang" parameterClass="Apps">
+        insert into tb_apps(
+            appid, app_name, package, app_type, categoryid_l2, categoryid1, categoryid2, online, created, modified,zhuowangMark,default_detail_id
+        ) values(
+            #appId#, #appName#, #appPackage#, #appType#, #categoryIdl2#, #categoryId1#, #categoryId2#,1,now(), now(),1,#defaultDetailId#
+        )
+    </insert>
+ 
+    <insert id="insertAppLog" parameterClass="AppLog">
+        insert into tb_app_log(
+            id, appid, app_name, package, app_type, categoryid_l2, categoryid1, categoryid2, base_check_status,
+            base_sync_flag, online_sync_flag, online_opt_type, created, modified, newst_flag
+        ) values (
+            #id#,#appId#,#appName#,#appPackage#,#appType#,#categoryIdl2#, #categoryId1#, #categoryId2#, 3, 1, 1, 1,now(), now(), 1
+        )
+    </insert>
+
+      <insert id="insertAppLogFromZhuoWang" parameterClass="AppLog">
+        insert into tb_app_log(
+            id, appid, app_name, package, app_type, categoryid_l2, categoryid1, categoryid2, base_check_status,
+            base_sync_flag, online_sync_flag, online_opt_type, created, modified, newst_flag
+        ) values (
+            #id#,#appId#,#appName#,#appPackage#,#appType#,#categoryIdl2#, #categoryId1#, #categoryId2#, 3, 0, 0, 1,now(), now(), 1
+        )
+    </insert>
+
+    <insert id="insertAppDetailsLogFromZhuoWang" parameterClass="AppDetailsLog">
+        insert into tb_app_detail_log(
+            id, appid, accountid, logo_url, app_version,os_version_id, pkg_size, pub_time, app_tag, app_introduce, created,
+            fee_mode, price, modified, update_status, online, valid, app_version_code, is_app_logo, price_sync_flag,zhuowangMark
+        ) values (
+            #id#, #appId#, #accountId#, #logoUrl#, #appVersion#, #osVersionId#, #pkgSize#, now(), #appTag#, #appIntroduce#, now(),
+            0, 0, now(), 3, 0, 1, #appVersioCode#, 0, 1,#zhuoWangMark#
+        )
+    </insert>
+
+    <!--创建应用详情-->
+    <insert id="createAppDetailFromZhuoWang" parameterClass="AppDetails" >
+        insert into
+            tb_app_details
+        (id,appid,accountid,fee_mode,price,percent,period1_begin,period1_end,percent2,period2_begin,period2_end,percent3,period3_begin,period3_end,prepay,buyout,buyout_begin,buyout_end,app_version,app_version_code,logo_url,is_app_logo,os_version_id,pkg_size,online,update_status,pub_time,ad_text,app_tag,new_features,app_introduce,zhuowangMark,created,modified)
+        values
+        (#id#,#appId#,#accountId#,#feeMode#,#price#,#percent#,#period1Begin#,#period1End#,#percent2#,#period2Begin#,#period2End#,#percent3#,#period3Begin#,#period3End#,#prepay#,#buyout#,#buyoutBegin#,#buyoutEnd#,#appVersion#,#appVersioCode#,#logoUrl#,#appLogo#,#osVersionId#,#pkgSize#,#online#,#updateStatus#,now(),#adText#,#appTag#,#newFeatures#,#appIntroduce#,#zhuoWangMark#,now(),now())
+    </insert>
+   
+    
+    <insert id="insertAppResourceFromZhuoWang"  parameterClass="AppResource">
+        insert into tb_app_resource(
+            res_id, appid, accountid, res_type, cap_seq, res_url, is_copy,zhuowangMark, created
+        ) values (
+            #resId#, #appId#, #accountId#, #resType#, 0, #resUrl#,0,#zhuoWangMark#,  now()
+        )
+    </insert>
+
+
+    <insert id="insertAppDetailsLog" parameterClass="AppDetailsLog">
+        insert into tb_app_detail_log(
+            id, appid, accountid, logo_url, app_version,os_version_id, pkg_size, pub_time, app_tag, app_introduce, created,
+            fee_mode, price, modified, update_status, online, valid, app_version_code, is_app_logo, price_sync_flag,zhuowangMark,apkcode
+        ) values (
+            #id#, #appId#, #accountId#, #logoUrl#, #appVersion#, #osVersionId#, #pkgSize#, now(), #appTag#, #appIntroduce#, now(),
+            0, 0, now(), 3, 1, 1, #appVersioCode#, 0,1,#zhuoWangMark#,#apkCode#
+        )
+    </insert>
+
+    <select id="getAppId" parameterClass="String" resultClass="Integer">
+          select appid as AppId from tb_apps where package=#package#
+    </select>
+    
+    <insert id="insertAppResource"  parameterClass="AppResource">
+        insert into tb_app_resource(
+            res_id, appid, accountid, res_type, cap_seq, res_url, is_copy, zhuowangMark,created
+        ) values (
+            #resId#, #appId#, #accountId#, #resType#, 0, #resUrl#, 1, #zhuoWangMark#,now()
+        )
+    </insert>
+
+    <select id="findOsVersionId" parameterClass="int" resultClass="int">
+        select os_version_id from tb_android_app_osversion where os_version_code = #id#
+    </select>
+
+    <insert id="insertImportAppLog" parameterClass="ImportAppLog">
+        insert into
+            tb_import_app_log(
+                id, adminid, cp_account, app_type, total, processed, succeed, failed, excel_url, status, downloaded, created, modified
+            ) values (
+                #id#, #adminId#, #cpAccount#, #appType#, #total#, #processed#, #succeed#, #failed#, #excelUrl#, #status#, #downloaded#, now(),now()
+            )
+    </insert>
+
+    <update id="processImport" parameterClass="ImportAppLog">
+        update tb_import_app_log
+            set
+                processed = #processed#,
+                succeed = #succeed#,
+                failed = #failed#,
+                modified = now()
+            where
+                id = #id#
+
+    </update>
+
+    <update id="completeImport" parameterClass="ImportAppLog">
+        update tb_import_app_log
+            set
+                processed = #processed#,
+                succeed = #succeed#,
+                failed = #failed#,
+                status = #status#,
+                modified = now()
+            where
+                id = #id#
+    </update>
+
+    <delete id="deleteImportLog" parameterClass="ImportAppLog">
+        delete from
+                tb_import_app_log
+        where
+            adminid = #adminId#
+    </delete>
+
+    <update id="uploadExcelLog" parameterClass="ImportAppLog">
+        update tb_import_app_log
+            set excel_url = #excelUrl#,
+                status = #status#
+            where id = #id#
+    </update>
+
+    <select id="findSuperRoleId" parameterClass="String" resultClass="int">
+        select id from tb_support_users where account = #value#
+    </select>
+
+    <select id="loadUpload" parameterClass="String" resultClass="ImportAppLog">
+        select
+            tial.id as id,
+            tial.adminid as adminId,
+            tial.total as total,
+            tial.processed as processed,
+            tial.succeed as succeed,
+            tial.failed as failed,
+            tial.excel_url as excelUrl,
+            tial.status as status,
+            tial.created as created,
+            tial.downloaded as downloaded
+        from
+            tb_import_app_log as tial,
+            tb_support_users as tsu
+        where
+            tial.adminid = tsu.id and tsu.account = #value#
+    </select>
+
+    <update id="updateImport" parameterClass="int">
+        update tb_import_app_log set downloaded = 1, modified = now()
+        where id = #id#
+    </update>
+     <!--删除从卓望导入的数据 -->
+     <delete id="deleteApps">
+           DELETE FROM tb_apps  WHERE zhuoWangMark = 1
+     </delete>
+
+    <delete id="deleteAppsDetail">
+           DELETE FROM tb_app_details  WHERE zhuoWangMark = 1
+     </delete>
+
+    <delete id="deleteAppResource">
+           DELETE FROM tb_app_resource  WHERE zhuoWangMark = 1
+     </delete>
+
+
+      <!--删除从卓望导入的数据 -->
+     <delete id="deleteAppsByAppId" parameterClass="Integer">
+           DELETE FROM tb_apps  WHERE zhuoWangMark = 1 and appid=#appId#
+     </delete>
+
+    <delete id="deleteAppsDetailByAppId"  parameterClass="Integer">
+           DELETE FROM tb_app_details  WHERE zhuoWangMark = 1 and appid=#appId#
+     </delete>
+
+    <delete id="deleteAppResourceByAppId"  parameterClass="Integer">
+           DELETE FROM tb_app_resource  WHERE zhuoWangMark = 1 and appid=#appId#
+     </delete>
+</sqlMap>

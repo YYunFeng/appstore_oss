@@ -1,0 +1,742 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="appBrowse">
+
+    <typeAlias alias="appPageInput" type="com.jd.cms.domain.appManagement.AppPageInput"/>
+    <typeAlias alias="appPageOutput" type="com.jd.cms.domain.appManagement.AppPageOutput"/>
+    <typeAlias alias="category" type="com.jd.appstore.domain.Category"/>
+    <typeAlias alias="cpBaseInfo" type="com.jd.appstore.domain.CpBaseInfo"/>
+    <typeAlias alias="changeCpInput" type="com.jd.cms.domain.appManagement.ChangeCpInput"/>
+
+    <!--取得应用级别为3的类目集合-->
+    <select id="findCategory3" resultClass="category" parameterClass="int">
+        select
+        categoryid as categoryId,
+        category_name as categoryName
+        from
+        tb_category d
+        where
+        <!--类目级别-->
+        level = 3
+        and
+        <!--发布状态为发布-->
+        pubed_status = 1
+        and
+        parent_id = #parentId#
+    </select>
+
+    <!--取得移动游戏,软件信息的总记录数-->
+    <select id="getAppBrowseCount" resultClass="int" parameterClass="appPageInput">
+        select
+        count(*)
+        from
+        tb_apps a
+        left join
+        tb_app_details d
+        on
+        a.default_detail_id = d.id
+        left join
+        tb_cp_baseinfo b
+        on
+        d.accountid = b.id
+        where
+        <!--账户开通状态为启用-->
+        b.account_status = 1
+        and
+        a.categoryid_l2 = #categoryidl2#
+        <isNotEmpty prepend="AND" property="cpName">
+            b.cp_name like #cpName#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="appName">
+            a.app_name like #appName#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="packageName">
+            a.package like #packageName#
+        </isNotEmpty>
+        <!--category3初始为-1，代表全部-->
+        <isNotEqual prepend="AND" property="category3" compareValue="-1">
+            (a.categoryid1 = #category3# or a.categoryid2 = #category3#)
+        </isNotEqual>
+        <!--nullPrice为0则查询所有-->
+        <isNotEqual property="nullPrice" compareValue="0">
+            <!--price不为0则查询收费应用-->
+            <isNotEqual prepend="AND" property="price" compareValue="0">
+                d.price != 0
+            </isNotEqual>
+            <!--price为0则查询免费应用-->
+            <isEqual prepend="AND" property="price" compareValue="0">
+                d.price = 0
+            </isEqual>
+        </isNotEqual>
+    </select>
+
+    <!--取得网页软件的信息总记录数-->
+    <select id="getAppWebBrowseCount" resultClass="int" parameterClass="appPageInput">
+        select
+        count(*)
+        from
+        tb_apps a
+        left join
+        tb_app_details d
+        on
+        a.default_detail_id = d.id
+        left join
+        tb_cp_baseinfo b
+        on
+        d.accountid = b.id
+        where
+        <!--账户开通状态为启用-->
+        b.account_status = 1
+        and
+        a.categoryid_l2 = #categoryidl2#
+        <isNotEmpty prepend="AND" property="cpName">
+            b.cp_name like #cpName#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="appName">
+            a.app_name like #appName#
+        </isNotEmpty>
+        <!--category3初始为-1，代表全部-->
+        <isNotEqual prepend="AND" property="category3" compareValue="-1">
+            (a.categoryid1 = #category3# or a.categoryid2 = #category3#)
+        </isNotEqual>
+        <!--appType初始为-1，代表全部-->
+        <isEqual prepend="AND" property="appType" compareValue="-1">
+            a.app_type in (3,4)
+        </isEqual>
+        <isNotEqual prepend="AND" property="appType" compareValue="-1">
+            a.app_type = #appType#
+        </isNotEqual>
+    </select>
+
+    <!--取得移动游戏,软件的信息集合-->
+    <select id="findAppBrowsePage" resultClass="appPageOutput" parameterClass="appPageInput">
+        select
+        a.appid as appid,
+        a.zhuoWangMark as zhuoWangMark,
+        d.accountid as accountid,
+        b.cp_name as cpName,
+        d.logo_url as logoUrl,
+        a.app_name as appName,
+        d.app_version as appVersion,
+        a.package as packageName,
+        d.price as price,
+        a.categoryid1 as categoryid1,
+        a.categoryid2 as categoryid2,
+        a.online as online,
+        a.created as created,
+        d.is_app_logo as appLogo
+        from
+        tb_apps a
+        left join
+        tb_app_details d
+        on
+        a.default_detail_id = d.id
+        left join
+        tb_cp_baseinfo b
+        on
+        d.accountid = b.id
+        where
+        <!--账户开通状态为启用-->
+        b.account_status = 1
+        and
+        a.categoryid_l2 = #categoryidl2#
+        <isNotEmpty prepend="AND" property="cpName">
+            b.cp_name like #cpName#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="appName">
+            a.app_name like #appName#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="packageName">
+            a.package like #packageName#
+        </isNotEmpty>
+        <!--category3初始为-1，代表全部-->
+        <isNotEqual prepend="AND" property="category3" compareValue="-1">
+            (a.categoryid1 = #category3# or a.categoryid2 = #category3#)
+        </isNotEqual>
+        <!--nullPrice为0则查询所有-->
+        <isNotEqual property="nullPrice" compareValue="0">
+            <!--price不为0则查询收费应用-->
+            <isNotEqual prepend="AND" property="price" compareValue="0">
+                d.price != 0
+            </isNotEqual>
+            <!--price为0则查询免费应用-->
+            <isEqual prepend="AND" property="price" compareValue="0">
+                d.price = 0
+            </isEqual>
+        </isNotEqual>
+        order by a.created desc
+        limit #endRow# offset #startRow#
+    </select>
+
+    <!--取得网页软件的信息集合-->
+    <select id="findAppWebBrowsePage" resultClass="appPageOutput" parameterClass="appPageInput">
+        select
+        a.appid as appid,
+        d.accountid as accountid,
+        a.app_type as appType,
+        a.zhuoWangMark as zhuoWangMark,
+        b.cp_name as cpName,
+        d.logo_url as logoUrl,
+        a.app_name as appName,
+        d.app_version as appVersion,
+        a.categoryid1 as categoryid1,
+        a.categoryid2 as categoryid2,
+        a.online as online,
+        a.created as created
+        from
+        tb_apps a
+        left join
+        tb_app_details d
+        on
+        a.default_detail_id = d.id
+        left join
+        tb_cp_baseinfo b
+        on
+        d.accountid = b.id
+        where
+        <!--账户开通状态为启用-->
+        b.account_status = 1
+        and
+        a.categoryid_l2 = #categoryidl2#
+        <isNotEmpty prepend="AND" property="cpName">
+            b.cp_name like #cpName#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="appName">
+            a.app_name like #appName#
+        </isNotEmpty>
+        <!--category3初始为-1，代表全部-->
+        <isNotEqual prepend="AND" property="category3" compareValue="-1">
+            (a.categoryid1 = #category3# or a.categoryid2 = #category3#)
+        </isNotEqual>
+        <!--appType初始为-1，代表全部-->
+        <isEqual prepend="AND" property="appType" compareValue="-1">
+            a.app_type in (3,4)
+        </isEqual>
+        <isNotEqual prepend="AND" property="appType" compareValue="-1">
+            a.app_type = #appType#
+        </isNotEqual>
+        order by a.created desc
+        limit #endRow# offset #startRow#
+    </select>
+
+
+    <!--浏览-默认详情浏览-->
+    <select id="findAppDetailsFormal" parameterClass="appPageInput" resultClass="appPageOutput">
+        select
+        a.appid as appid,
+        a.default_detail_id as defaultDetailId,
+        a.package as packageName,
+        a.zhuoWangMark as zhuoWangMark,
+        a.app_type as appType,
+        a.categoryid_l2 as categoryidl2,
+        a.categoryid1 as categoryid1,
+        a.categoryid2 as categoryid2,
+        d.id as did,
+        d.accountid as accountid,
+        d.logo_url as logoUrl,
+        a.app_name as appName,
+        d.ad_text as adText,
+        d.app_tag as appTag,
+        a.online as aOnline,
+        d.online as dOnline,
+        b.cp_name as cpName,
+        d.app_version as appVersion,
+        d.os_version_id as osVersionId,
+        d.pkg_size as pkgSize,
+        d.pub_time as pubTime,
+        d.price as price,
+        d.fee_mode as feeMode,
+        a.categoryid_l2 as categoryidl2,
+        a.categoryid1 as categoryid1,
+        a.categoryid2 as categoryid2,
+        d.percent as percent,
+        d.period1_begin as period1Begin,
+        d.period1_end as period1End,
+        d.percent2 as percent2,
+        d.logo_url as logoUrl,
+        d.period2_begin as period2Begin,
+        d.period2_end as period2End,
+        d.percent3 as percent3,
+        d.period3_begin as period3Begin,
+        d.period3_end as period3End,
+        d.prepay as prepay,
+        d.buyout as buyout,
+        d.buyout_begin as buyoutBegin,
+        d.buyout_end as buyoutEnd,
+        r.res_url as resUrl,
+        d.app_introduce as appIntroduce,
+        b.account_status as accountStatus,
+        d.is_app_logo as appLogo
+        from
+        tb_apps a
+        left join
+        tb_app_details d
+        on
+        a.default_detail_id = d.id
+        left join
+        tb_cp_baseinfo b
+        on
+        d.accountid = b.id
+        left join
+        tb_app_resource r
+        on
+        d.appid = r.appid
+        and
+        d.accountid = r.accountid
+        where
+        a.appid = #appid#
+        and
+        <!--不是副本-->
+        (r.is_copy = 0 or r.is_copy is null)
+        <!--resTypeList等于1，则查询apk-->
+        <isEqual prepend="AND" property="resTypeList" compareValue="1">
+            (r.res_type = #resTypeList# or r.res_type is null)
+        </isEqual>
+        <!--resTypeList不等于1，则查询iframe和flash-->
+        <isNotEqual prepend="AND" property="resTypeList" compareValue="1">
+            ( r.res_type in ($resTypeList$) or r.res_type is null)
+        </isNotEqual>
+    </select>
+
+    <!--编辑-默认详情浏览-->
+    <select id="findAppDetailsFormalEdit" parameterClass="appPageInput" resultClass="appPageOutput">
+        select
+        a.appid as appid,
+        a.package as packageName,
+        d.zhuoWangMark as zhuoWangMark,
+        a.app_type as appType,
+        a.categoryid_l2 as categoryidl2,
+        a.categoryid1 as categoryid1,
+        a.categoryid2 as categoryid2,
+        d.id as did,
+        d.accountid as accountid,
+        d.logo_url as logoUrl,
+        a.app_name as appName,
+        d.ad_text as adText,
+        d.app_tag as appTag,
+        a.online as aOnline,
+        d.online as dOnline,
+        b.cp_name as cpName,
+        d.app_version as appVersion,
+        d.os_version_id as osVersionId,
+        d.pkg_size as pkgSize,
+        d.pub_time as pubTime,
+        d.price as price,
+        d.fee_mode as feeMode,
+        a.categoryid_l2 as categoryidl2,
+        a.categoryid1 as categoryid1,
+        a.categoryid2 as categoryid2,
+        d.percent as percent,
+        d.period1_begin as period1Begin,
+        d.period1_end as period1End,
+        d.percent2 as percent2,
+        d.logo_url as logoUrl,
+        d.period2_begin as period2Begin,
+        d.period2_end as period2End,
+        d.percent3 as percent3,
+        d.period3_begin as period3Begin,
+        d.period3_end as period3End,
+        d.prepay as prepay,
+        d.buyout as buyout,
+        d.buyout_begin as buyoutBegin,
+        d.buyout_end as buyoutEnd,
+        d.app_introduce as appIntroduce,
+        d.is_app_logo as appLogo
+        from
+        tb_apps a
+        left join
+        tb_app_details d
+        on
+        a.default_detail_id = d.id
+        left join
+        tb_cp_baseinfo b
+        on
+        d.accountid = b.id
+        where
+        a.appid = #appid#
+    </select>
+
+    <!--取得一对多详情的CpName集合-->
+    <select id="getCpNameCount" resultClass="appPageOutput" parameterClass="int">
+        select
+        cp_name as cpName,
+        b.id as accountid
+        from
+        tb_apps a
+        left join
+        tb_app_details d
+        on
+        a.appid = d.appid
+        left join
+        tb_cp_baseinfo b
+        on
+        d.accountid = b.id
+        where
+        a.appid = #appid#
+    </select>
+
+    <!--CP应用对应的截图集合-->
+    <select id="findPicture" resultClass="appPageOutput" parameterClass="appPageInput">
+        select
+        res_url as resUrl
+        FROM
+        tb_app_resource
+        WHERE
+        <!--资源类型为图片-->
+        res_type = 0
+        and
+        appid = #appid#
+        AND
+        accountid = #accountid#
+        and
+        is_copy = 0
+        order by
+        cap_seq
+    </select>
+
+    <!--通过2级类目查找3级类目-->
+    <select id="findCategory" resultClass="category" parameterClass="int">
+        select
+        categoryid as categoryId,
+        category_name as categoryName
+        from
+        tb_category d
+        where
+        <!--类目级别-->
+        level = 3
+        and
+        <!--发布状态为发布-->
+        pubed_status = 1
+        and
+        parent_id = #parentId#
+    </select>
+
+    <!--详情上下架修改-->
+    <update id="upAppDetailsOnline" parameterClass="appPageInput">
+        UPDATE
+        tb_app_details
+        SET
+        online = #online#,
+        modified = now()
+        WHERE
+        id = #did#
+    </update>
+
+    <!--浏览-通过CpName查找详情-->
+    <select id="findAppDetailsFormalByCp" parameterClass="appPageInput" resultClass="appPageOutput">
+        select
+        a.appid as appid,
+        a.default_detail_id as defaultDetailId,
+        d.id as did,
+        a.app_type as appType,
+        a.zhuoWangMark as zhuoWangMark,
+        a.package as packageName,
+        d.accountid as accountid,
+        a.app_type as appType,
+        a.categoryid_l2 as categoryidl2,
+        a.categoryid1 as categoryid1,
+        a.categoryid2 as categoryid2,
+        d.logo_url as logoUrl,
+        a.app_name as appName,
+        d.ad_text as adText,
+        d.app_tag as appTag,
+        a.online as aOnline,
+        d.online as dOnline,
+        b.cp_name as cpName,
+        d.app_version as appVersion,
+        d.os_version_id as osVersionId,
+        d.pkg_size as pkgSize,
+        d.pub_time as pubTime,
+        d.price as price,
+        d.fee_mode as feeMode,
+        a.categoryid_l2 as categoryidl2,
+        a.categoryid1 as categoryid1,
+        a.categoryid2 as categoryid2,
+        d.percent as percent,
+        d.period1_begin as period1Begin,
+        d.period1_end as period1End,
+        d.percent2 as percent2,
+        d.logo_url as logoUrl,
+        d.period2_begin as period2Begin,
+        d.period2_end as period2End,
+        d.percent3 as percent3,
+        d.period3_begin as period3Begin,
+        d.period3_end as period3End,
+        d.prepay as prepay,
+        d.buyout as buyout,
+        d.buyout_begin as buyoutBegin,
+        d.buyout_end as buyoutEnd,
+        r.res_url as resUrl,
+        d.app_introduce as appIntroduce,
+        b.account_status as accountStatus,
+        d.is_app_logo as appLogo
+        from
+        tb_apps a
+        left join
+        tb_app_details d
+        on
+        a.appid = d.appid
+        left join
+        tb_cp_baseinfo b
+        on
+        d.accountid = b.id
+        left join
+        tb_app_resource r
+        on
+        d.appid = r.appid
+        and
+        d.accountid = r.accountid
+        where
+        a.appid = #appid#
+        and
+        b.id = #accountid#
+        and
+        <!--只有移动免费详情有一对多，所以resType只能为1-->
+        (r.res_type = #resType# or r.res_type is null)
+        and
+        <!--不是副本-->
+        (r.is_copy = 0 or r.is_copy is null)
+    </select>
+
+    <!--编辑-通过CpName查找详情-->
+    <select id="findAppDetailsFormalEditByCp" parameterClass="appPageInput" resultClass="appPageOutput">
+        select
+        a.appid as appid,
+        d.id as did,
+        a.app_type as appType,
+        a.package as packageName,
+        a.zhuoWangMark as zhuoWangMark,
+        d.accountid as accountid,
+        a.app_type as appType,
+        a.categoryid_l2 as categoryidl2,
+        a.categoryid1 as categoryid1,
+        a.categoryid2 as categoryid2,
+        d.logo_url as logoUrl,
+        a.app_name as appName,
+        d.ad_text as adText,
+        d.app_tag as appTag,
+        a.online as aOnline,
+        d.online as dOnline,
+        b.cp_name as cpName,
+        d.app_version as appVersion,
+        d.os_version_id as osVersionId,
+        d.pkg_size as pkgSize,
+        d.pub_time as pubTime,
+        d.price as price,
+        d.fee_mode as feeMode,
+        a.categoryid_l2 as categoryidl2,
+        a.categoryid1 as categoryid1,
+        a.categoryid2 as categoryid2,
+        d.percent as percent,
+        d.period1_begin as period1Begin,
+        d.period1_end as period1End,
+        d.percent2 as percent2,
+        d.logo_url as logoUrl,
+        d.period2_begin as period2Begin,
+        d.period2_end as period2End,
+        d.percent3 as percent3,
+        d.period3_begin as period3Begin,
+        d.period3_end as period3End,
+        d.prepay as prepay,
+        d.buyout as buyout,
+        d.buyout_begin as buyoutBegin,
+        d.buyout_end as buyoutEnd,
+        d.app_introduce as appIntroduce,
+        d.is_app_logo as appLogo
+        from
+        tb_apps a
+        left join
+        tb_app_details d
+        on
+        a.appid = d.appid
+        left join
+        tb_cp_baseinfo b
+        on
+        d.accountid = b.id
+        where
+        a.appid = #appid#
+        and
+        b.id = #accountid#
+    </select>
+
+    <!--创建应用上下架后台任务-->
+    <insert id="createAppOnlineErp" parameterClass="backendTask">
+        insert into
+        tb_backend_task
+        (id,task_type_id,related_id,status,admin_id,ip,start_time_plan,start_time_fact,comment,retry_times,auto_retry,created,modified)
+        values
+        (#id#,#taskTypeId#,
+        #relatedId#,#status#,#adminId#,#ip#,#startTimePlan#,#startTimeFact#,#comment#,#retryTimes#,#autoRetry#,now(),now())
+    </insert>
+
+    <!--创建应用日志-->
+    <insert id="createAppLog" parameterClass="AppPageInput">
+        insert into
+        tb_app_log
+        (id,appid,app_name,package,app_type,categoryid_l2,categoryid1,categoryid2,default_detail_id,base_check_status,base_sync_flag,online_sync_flag,online_opt_type,newst_flag,created,modified)
+        values
+        (#id#,#appid#,#appName#,#packageName#,#appType#,#categoryidl2#,#categoryid1#,#categoryid2#,#defaultDetailId#,#baseCheckStatus#,#baseSyncFlag#,#onlineSyncFlag#,#onlineOptType#,#newstFlag#,now(),now())
+    </insert>
+
+    <!--通过ID查找对应的应用-->
+    <select id="findAppByAppid" resultClass="AppPageInput" parameterClass="int">
+        select
+        appid as appid,
+        app_name as appName,
+        package as packageName,
+        app_type as appType,
+        categoryid_l2 as categoryidl2,
+        categoryid1 as categoryid1,
+        categoryid2 as categoryid2,
+        default_detail_id as defaultDetailId,
+        online as online
+        from
+        tb_apps
+        where
+        appid = #appid#
+    </select>
+
+    <!--修改最新标记为0-->
+    <update id="upAppNewstFlag" parameterClass="int">
+        UPDATE
+        tb_app_log
+        SET
+        newst_flag = 0,
+        modified = now()
+        WHERE
+        newst_flag = 1
+        and
+        appid = #appid#
+    </update>
+
+    <!--取得应用当前在线状态-->
+    <select id="getCurrentStatus" resultClass="Integer" parameterClass="int">
+        select
+        online
+        from
+        tb_apps
+        where
+        appid = #appid#
+    </select>
+
+
+    <!--应用日志读erp信息-->
+    <select id="findAppSynchronismStatus" resultClass="appPageOutput" parameterClass="int">
+        select
+        online_sync_flag as onlineSyncFlag,
+        online_opt_type as onlineOptType,
+        base_sync_flag as baseSyncFlag,
+        base_check_status as baseCheckStatus
+        from
+        tb_app_log
+        WHERE
+        newst_flag = 1
+        and
+        appid = #appid#
+    </select>
+
+    <!--查找对应的平台名-->
+    <select id="findOsVersion" resultClass="androidAppOsversion" parameterClass="int">
+        select
+        os_version_name as osVersionName
+        from
+        tb_android_app_osversion
+        where
+        os_version_id = #osVersionId#
+    </select>
+
+    <!--查找下载次数-->
+    <select id="findAppDownloadCount" resultClass="Integer" parameterClass="int">
+        select
+        download_times as downloadTimes
+        from
+        tb_download_totalstat
+        where
+        appid = #appid#
+    </select>
+
+    <!--更改默认详情-->
+    <update id="upAppDefaultDetaild" parameterClass="AppPageInput">
+        UPDATE
+        tb_apps
+        SET
+        default_detail_id = #defaultDetailId#,
+        modified = now()
+        WHERE
+        appid = #appid#
+    </update>
+
+    <!--保存详情-->
+    <update id="saveDetailInformation" parameterClass="AppPageInput">
+        UPDATE
+        tb_app_details
+        SET
+        ad_text = #adText#,
+        <isNotEmpty property="versionName">
+            app_version = #versionName#,
+        </isNotEmpty>
+        app_introduce = #appIntroduce#,
+        app_tag = #appTag#,
+        percent = #percent#,
+        period1_begin = #period1Begin#,
+        period1_end = #period1End#,
+        percent2 = #percent2#,
+        period2_begin = #period2Begin#,
+        period2_end = #period2End#,
+        percent3 = #percent3#,
+        period3_begin = #period3Begin#,
+        period3_end = #period3End#,
+        prepay = #prepay#,
+        buyout = #buyout#,
+        buyout_begin = #buyoutBegin#,
+        buyout_end = #buyoutEnd#,
+        modified = now()
+        WHERE
+        id = #did#
+    </update>
+
+    <!--创建应用基本信息后台任务-->
+    <insert id="createAppBaseErp" parameterClass="backendTask">
+        insert into
+        tb_backend_task
+        (id,task_type_id,related_id,status,admin_id,ip,start_time_plan,start_time_fact,comment,retry_times,auto_retry,created,modified)
+        values
+        (#id#,#taskTypeId#,
+        #relatedId#,#status#,#adminId#,#ip#,now(),now(),#comment#,#retryTimes#,#autoRetry#,now(),now())
+    </insert>
+
+    <!--更新应用类型-->
+    <update id="upAppType" parameterClass="appPageInput">
+        UPDATE
+        tb_apps
+        SET
+        app_type = #appType#,
+        package = #packageName#,
+        <!--<isNotNull property="appName">-->
+        <!--app_name = #appName#,-->
+        <!--</isNotNull>-->
+        modified = now()
+        WHERE
+        appid = #appid#
+    </update>
+
+    <select id="getCpList" resultClass="cpBaseInfo">
+        select
+        id as id,
+        account as accout
+        from tb_cp_baseinfo
+    </select>
+
+
+    <update id="updateAppDetails" parameterClass="changeCpInput">
+        update tb_app_details set accountid=#newCpId# where appid=#appid# and accountid=#currCpId#;
+    </update>
+    <update id="updateAppDetailsLog" parameterClass="changeCpInput">
+        update tb_app_detail_log set accountid=#newCpId# where appid=#appid# and accountid=#currCpId#;
+    </update>
+    <update id="updateAppResource" parameterClass="changeCpInput">
+        update tb_app_resource set accountid=#newCpId# where appid=#appid# and accountid=#currCpId#;
+    </update>
+</sqlMap>

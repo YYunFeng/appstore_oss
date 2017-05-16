@@ -1,0 +1,47 @@
+#set($layout="content.vm")
+
+<script type="text/javascript">
+    function macroAjaxSubmit(url) {
+//        var appName = document.getElementById('appName').value.trim();
+        var appName = jQuery.trim(document.getElementById('appName').value);
+        if (appName != '') {
+            jQuery.ajax({
+                        type:'POST',
+                        url:url,
+                        data:'appName=' + appName,
+                        success:function(data) {
+                            jQuery('#result').html(data);
+                        }
+                    });
+        } else {
+            alert('请输入搜索关键字');
+        }
+    }
+    ;
+
+</script>
+
+<table class="tb" cellpadding="0" cellspacing="0" style="margin-left: 8px;">
+    <tr>
+        <td><p class="ac">选择</p></td>
+        <td width="158"><p class="ac">名称</p></td>
+        <td><p class="ac">图标</p></td>
+    </tr>
+    #foreach($app in $apps)
+        <tr>
+            <td>
+                <label><input name="appResult" type="radio" value="$app.appName,$app.appId,$app.logo,$app.appLogo"></label>
+            </td>
+            <td><p class="ac">$!stringEscapeUtils.escapeHtml($app.appName)</p></td>
+            <td><label><div class="app-ico">
+                    <img src="$imgserver.getTarget('')cover/$app.logo"/>
+            </div></label></td>
+            <div class="hide"><input type="text" id="appId" value="$app.appId"/></div>
+        </tr>
+    #end
+</table>
+<div class="paging fr">
+    <div class="paging-box_2">
+        #set($pageModule=$domain.getTarget("/search/SearchAppForRecommend.action").addQueryData("pageSize",$!pageSize))
+        #showPage($pageModule $apps) </div>
+</div>

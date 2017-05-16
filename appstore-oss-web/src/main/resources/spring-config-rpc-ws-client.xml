@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--suppress SpringModelInspection -->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       default-autowire="byName">
+
+    <bean id="logIn" class="org.apache.cxf.interceptor.LoggingInInterceptor"/>
+    <bean id="logOut" class="org.apache.cxf.interceptor.LoggingOutInterceptor"/>
+
+    <!-- 供应商接口 -->
+    <bean id="quetyHeader" class="com.jd.common.ws.AuthHeader">
+        <property name="key" value="AuthenticationHeader"/>
+        <property name="qName" value="${appstore.oss.vendor.domain.name}"/>
+        <property name="seed" value="${appstore.oss.vendor.ws.seed}"/>
+        <property name="content" value="${appstore.oss.vendor.ws.content}"/>
+    </bean>
+
+    <bean id="querySOAPHeaderIntercepter" class="com.jd.common.ws.SOAPHeaderIntercepter">
+        <property name="authHeader" ref="quetyHeader"/>
+    </bean>
+    <bean id="vendorWebService" class="com.jd.digital.common.rpc.client.vendor.VendorWebService"
+          factory-bean="vendorFactory"
+          factory-method="create"/>
+
+    <bean id="vendorFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+        <property name="serviceClass" value="com.jd.digital.common.rpc.client.vendor.VendorWebService"/>
+        <property name="address" value="${appstore.oss.vendor.ws.address}"/>
+        <property name="inInterceptors">
+            <list>
+                <ref bean="logIn"/>
+            </list>
+        </property>
+        <property name="outInterceptors">
+            <list>
+                <ref bean="logOut"/>
+                <ref bean="querySOAPHeaderIntercepter"/>
+            </list>
+        </property>
+    </bean>
+    <!-- 供应商接口end -->
+
+
+    <!-- 类目接口 -->
+    <bean id="categoryWebService" class="com.jd.digital.common.rpc.client.category.CategoryWebService"
+          factory-bean="categoryClientFactory"
+          factory-method="create"/>
+    <bean id="categoryClientFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+        <property name="serviceClass" value="com.jd.digital.common.rpc.client.category.CategoryWebService"/>
+        <property name="address" value="${appstore.oss.category.ws.address}"/>
+        <property name="inInterceptors">
+            <list>
+                <ref bean="logIn"/>
+            </list>
+        </property>
+        <property name="outInterceptors">
+            <list>
+                <ref bean="logOut"/>
+                <ref bean="categorySOAPHeaderIntercepter"/>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="categoryAuthHeader" class="com.jd.common.ws.AuthHeader">
+        <property name="key" value="AuthenticationHeader"/>
+        <property name="qName" value="${appstore.oss.category.domain.name}"/>
+        <property name="content" value="${appstore.oss.category.ws.content}"/>
+        <property name="seed" value="${appstore.oss.category.ws.seed}"/>
+    </bean>
+    <bean id="categorySOAPHeaderIntercepter" class="com.jd.common.ws.SOAPHeaderIntercepter">
+        <property name="authHeader" ref="categoryAuthHeader"/>
+    </bean>
+    <!-- 类目接口end -->
+
+
+
+
+    <!-- 上传主图 -->
+    <bean id="myServiceSoap" class="com.jd.digital.common.rpc.client.cover.MyServiceSoap"
+          factory-bean="coverClientFactory" factory-method="create"/>
+    <bean id="coverClientFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+        <property name="serviceClass" value="com.jd.digital.common.rpc.client.cover.MyServiceSoap"/>
+        <property name="address" value="${appstore.oss.upload.cover.ws.address}"/>
+    </bean>
+    <!-- 上传主图end -->
+
+
+    <!--价格修改接口-->
+    <bean id="skuPriceService" class="com.jd.digital.common.rpc.client.sync.price.SkuPriceService"
+          factory-bean="priceClientFactory"
+          factory-method="create"/>
+    <bean id="priceClientFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+        <property name="serviceClass" value="com.jd.digital.common.rpc.client.sync.price.SkuPriceService"/>
+        <property name="address" value="${appstore.oss.update.price.ws.address}"/>
+        <property name="inInterceptors">
+            <list>
+                <ref bean="logIn"/>
+            </list>
+        </property>
+        <property name="outInterceptors">
+            <list>
+                <ref bean="logOut"/>
+                <ref bean="priceSOAPHeaderIntercepter"/>
+            </list>
+        </property>
+    </bean>
+    <bean id="priceHeader" class="com.jd.common.ws.AuthHeader">
+        <property name="key" value="AuthenticationHeader"/>
+        <property name="qName" value="${appstore.oss.update.price.domain.name}"/>
+        <property name="content" value="${appstore.oss.update.price.ws.content}"/>
+    </bean>
+    <bean id="priceSOAPHeaderIntercepter" class="com.jd.common.ws.SOAPHeaderIntercepter">
+        <property name="authHeader" ref="priceHeader"/>
+    </bean>
+    <!--价格修改接口end-->
+
+
+    <!--评论保存接口： zhaoxiangjian 提供-->
+    <bean id="commentHeader" class="com.jd.common.ws.AuthHeader">
+        <property name="content" value="${appstore.oss.comment.ws.content}"/>
+        <property name="seed" value="${appstore.oss.comment.ws.seed}"/>
+    </bean>
+
+    <bean id="commentHeaderIntercepter" class="com.jd.common.ws.SOAPHeaderIntercepter">
+        <property name="authHeader" ref="commentHeader"/>
+    </bean>
+
+    <bean id="commentWebservice" class="com.jd.digital.common.rpc.client.comment.CommentWebservice"
+          factory-bean="commentWebserviceFactory" factory-method="create"/>
+
+    <bean id="commentWebserviceFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+        <property name="serviceClass" value="com.jd.digital.common.rpc.client.comment.CommentWebservice"/>
+        <property name="address" value="${appstore.oss.comment.ws.address}"/>
+        <property name="inInterceptors">
+            <list>
+                <ref bean="logIn"/>
+            </list>
+        </property>
+        <property name="outInterceptors">
+            <list>
+                <ref bean="logOut"/>
+                <ref bean="commentHeaderIntercepter"/>
+            </list>
+        </property>
+    </bean>
+
+
+
+    <!-- send mail -->
+    <bean id="customizeMailSoap" class="com.jd.digital.common.rpc.client.email.CustomizeMailInterfaceSoap"
+          factory-bean="customizeMailFactory"
+          factory-method="create"/>
+    <bean id="customizeMailFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+        <property name="serviceClass" value="com.jd.digital.common.rpc.client.email.CustomizeMailInterfaceSoap"/>
+        <property name="address" value="${appstore.oss.email.ws.address}"/>
+        <property name="inInterceptors">
+            <list>
+                <ref bean="logIn"/>
+            </list>
+        </property>
+        <property name="outInterceptors">
+            <list>
+                <ref bean="logOut"/>
+            </list>
+        </property>
+    </bean>
+    <!-- email end-->
+</beans>

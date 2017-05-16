@@ -1,0 +1,151 @@
+#set($layout="content.vm")
+<script language="javascript">
+    function macroAjaxSubmit(url) {
+    jQuery.ajax({
+                type:'post',
+                url:url,
+                data:{
+                    "selCpPageInPut.account":jQuery.trim(jQuery("[name=selCpPageInPut.account]").val()),
+                    "selCpPageInPut.cpName":jQuery.trim(jQuery("[name=selCpPageInPut.cpName]").val()),
+                    "selCpPageInPut.contacter":jQuery.trim(jQuery("[name=selCpPageInPut.contacter]").val()),
+                    "selCpPageInPut.mobile":jQuery.trim(jQuery("[name=selCpPageInPut.mobile]").val()),
+                    "selCpPageInPut.cpProperty":jQuery.trim(jQuery("[name=selCpPageInPut.cpProperty]").val()),
+                    "selCpPageInPut.accountStatus":jQuery.trim(jQuery("[name=selCpPageInPut.accountStatus]").val())
+                    },
+                success:function(data) {
+                    jQuery('#cpTable').html(data);
+                }
+            });
+    };
+    
+    $(document).ready(function(){
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+    var img = new Array();
+        #foreach($SelCpPageOutPut in $SelCpPageOutPuts)
+        img[$SelCpPageOutPut.id] = false;
+        #end
+
+    function img_chk(sb) {
+        if (eval("img[" + sb + "]") == false) {
+            document.getElementById(sb).src = "$assetModule.getTarget("/appstore-man/images/checkbox_hover.png")";
+            eval("img[" + sb + "]=true");
+        } else {
+            document.getElementById(sb).src = "$assetModule.getTarget("/appstore-man/images/checkbox.png")";
+            eval("img[" + sb + "]=false");
+        }
+    }
+</script>
+<!--right_start-->
+<div class="right-box rounded">
+        <div class="form-row">
+          <label class="label">CP帐号:</label>
+          <input id="account" class="input" type="text"
+               name="selCpPageInPut.account" value="$!selCpPageInPut.account"/>
+          <label class="label">CP用户名:</label>
+          <input id="cpName" class="input" type="text"
+               name="selCpPageInPut.cpName" value="$!selCpPageInPut.cpName"/>
+          <label class="label">联系人:</label>
+          <input id="contacter" class="input" type="text"
+               name="selCpPageInPut.contacter" value="$!selCpPageInPut.contacter"/>
+          <label class="label">联系电话:</label>
+          <input id="mobile" class="input" type="text"
+               name="selCpPageInPut.mobile" value="$!selCpPageInPut.mobile"/>
+          <input id="sel" class="to-select" type="button" value="查 询" onclick="selCpTree()">
+        </div>
+        <div class="form-row">
+          <label class="label">选中项:</label>
+          <input id="enabled" class="to-del" type="button" value="启 用" onclick="upCpAccountStatus(1)">
+          <input id="disabled" class="to-del" type="button" value="停 用" onclick="upCpAccountStatus(2)">
+          <input id="del" class="to-del" type="button" value="移 除" onclick="delCp()">
+          <div class="paging fr">
+            <div class="paging-box_2">
+                #set($pageModule = $domain.getTarget("/cpQualityManagement/findCpPage.action").addQueryData("pageSize",$!pageSize))
+                #showPage($pageModule $SelCpPageOutPuts)
+            </div>
+          </div>
+        </div>
+        <div class="tb-box">
+          <table class="tb" cellspacing="0" cellpadding="0">
+            <tr class="tit-bg">
+              <td width="40">选择</td>
+              <td width="90">CP帐号</td>
+              <td width="80">
+                CP性质<br>
+                <select name="selCpPageInPut.cpProperty" onchange="selCpTree()">
+                    <option value="0" #if($!selCpPageInPut.cpProperty == 0) selected #end>全部
+                    </option>
+                    <option value="1" #if($!selCpPageInPut.cpProperty == 1) selected #end>个人
+                    </option>
+                    <option value="2" #if($!selCpPageInPut.cpProperty == 2) selected #end>公司
+                    </option>
+                </select>
+              </td>
+              <td width="100">CP用户名</td>
+              <td width="80">联系人</td>
+              <td width="100">联系电话</td>
+              <td width="100">
+                账号状态<br>
+                <select name="selCpPageInPut.accountStatus" onchange="selCpTree()">
+                    <option value="-1" #if($!selCpPageInPut.accountStatus == -1) selected  #end>全部
+                    </option>
+                    <option value="0" #if($!selCpPageInPut.accountStatus == 0) selected  #end>未启用
+                    </option>
+                    <option value="1" #if($!selCpPageInPut.accountStatus == 1) selected  #end>启用
+                    </option>
+                    <option value="2" #if($!selCpPageInPut.accountStatus == 2) selected  #end>停用
+                    </option>
+                </select>
+              </td>
+              <td width="100">注册时间</td>
+              <td>操作</td>
+            </tr>
+            #foreach($SelCpPageOutPut in $SelCpPageOutPuts)
+            <tr>
+              <td><img id="$!SelCpPageOutPut.id" name="chkUpdatePrompt"
+                         src="$assetModule.getTarget("/appstore-man/images/checkbox.png")"
+                         onclick="img_chk(this.id);"/></td>
+              <td>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.account)</td>
+              <td>
+                  #if($!SelCpPageOutPut.cpProperty == 0)
+                        全部
+                  #elseif($!SelCpPageOutPut.cpProperty == 1)
+                        个人
+                  #elseif($!SelCpPageOutPut.cpProperty == 2)
+                        公司
+                  #end
+              </td>
+              <td>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.cpName)</td>
+              <td><div><label>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.contacter)</label></div></td>
+              <td><div><label>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.mobile)</label></div></td>
+              <td>
+                  #if($!SelCpPageOutPut.accountStatus == -1)
+                        全部
+                  #elseif($!SelCpPageOutPut.accountStatus == 0)
+                        未启用
+                  #elseif($!SelCpPageOutPut.accountStatus == 1)
+                        启用
+                  #elseif($!SelCpPageOutPut.accountStatus == 2)
+                        停用
+                  #end
+              </td>
+              <td>
+                  $!dateFormatUtils.format($!SelCpPageOutPut.created,"yyyy-MM-dd")<br>
+                  $!dateFormatUtils.format($!SelCpPageOutPut.created,"HH:mm")<br>
+              </td>
+              <td><a href="javascript:void(0);" onclick="selCpExpatiation($!SelCpPageOutPut.id)" class="open">查看详情</a></td>
+            </tr>
+            #end
+          </table>
+        </div>
+      </div>
+      <!--right_end-->
+      <!--paging_start-->
+      <div class="paging fr">
+            <div class="paging-box_2">
+                #set($pageModule = $domain.getTarget("/cpQualityManagement/findCpPage.action").addQueryData("pageSize",$!pageSize))
+                #showPage($pageModule $SelCpPageOutPuts)
+            </div>
+      </div>
+      <!--paging_end-->

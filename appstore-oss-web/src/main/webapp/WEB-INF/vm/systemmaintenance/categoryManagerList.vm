@@ -1,0 +1,156 @@
+#set($title = "系统维护-类目管理")
+#set($layout="content.vm")
+#*
+<link rel="stylesheet" href="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/uploadify.css")" type="text/css"
+      media="screen"/>
+<script type="text/javascript" src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/swfobject.js")"></script>
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/jquery.uploadify.v2.1.4.min.js")"></script>
+*#
+
+<div class="fr">
+    <div class="right-box rounded">
+        <div class="form-row">
+            <div align="right">
+                <input class="to-del open" type="button" value="增加类目" onclick="addCategory();"/>
+            </div>
+        </div>
+        
+     #*   <div class="form-row">
+            <!--paging_start-->
+            <div class="paging fr">
+                <div class="paging-box_1">
+                    #set($pageModule = $domain.getTarget("/categoryMaintenance/list.action").addQueryData("pageSize",$!pageSize))
+                            #showPage($pageModule $categorys)
+                </div>
+            </div>
+            <!--paging_end-->
+        </div>*#
+
+        <div class="tb-box" id="userList">
+            <table class="tb" cellspacing="0" cellpadding="0">
+                <tr class="tit-bg">
+                    #*<td width="120"><label>类目图标</label></td>*#
+                    <td width="100"><label>类目名称</label></td>
+                    <td width="400"><label>类目描述</label></td>
+                    <td width="170"><label>操作</label></td>
+                </tr>
+                #foreach($category in $categorys)
+                    <tr>
+                        #*<td>
+                            <div style="padding: 5px;" id="category">
+                                <div id="$!category.categoryId">
+                                    #if($category.logoUrl)
+                                        <img src="$categoryserver.getTarget('')$!category.logoUrl" width="53px"
+                                             height="53px" style="margin-left: 10px;">
+                                        <a href="javascript:void(0)"
+                                           onclick="deleteImage('$!category.categoryId','$!category.parentId')">删除</a>
+                                    #end
+                                </div>
+                            </div>
+                        </td>*#
+                        <td>
+                            <div><label>$!category.categoryName</label></div>
+                        </td>
+                        <td>
+                            <div align="left"><p style="width:400px; overflow: hidden;"><label>$!category.intro</label>
+                            </p></div>
+                        </td>
+                        <td>
+                            <div>
+                                <label>
+                                    <a class="open" href="javascript:void(0)"
+                                           onclick="openCategoryIntro('$!category.categoryId');">编辑</a>  |
+                                    <a href="javascript:void(0)" onclick="deleteCategory('$!category.categoryId');">删除</a>
+                               </label>
+                            </div>
+                        </td>
+                    </tr>
+                #end
+
+            </table>
+        </div>
+        <!--paging_start-->
+        <div class="paging fr">
+            <div class="paging-box_2">
+                #set($pageModule = $domain.getTarget("/categoryMaintenance/categoryList.action").addQueryData("pageSize",$!pageSize))
+                        #showPage($pageModule $categorys)
+            </div>
+        </div>
+        <!--paging_end-->
+    </div>
+    <!--right_end-->
+</div>
+<div id="QueuePic" class="uploadifyQueue"></div>
+<input type="hidden" id="parentId" value="$!parentId"/>
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        #*#foreach($category in $categorys)
+            #if(!$category.logoUrl)
+                PicUpload('$!category.categoryId', 'QueuePic', '$assetModule.getTarget("/appstore-man/images/click.png")', '$!category.parentId');
+            #end
+        #end*#
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.2 });
+    });
+
+    function PicUpload(node, queueID, picUrl, parentId) {
+        jQuery(jQuery('#' + node)).uploadify({
+                    'uploader' : '/appstore-man/js/uploadify-v2.1.4/uploadify.swf',
+                    'script' : '/categoryMaintenance/uploadPic.action',//后台处理的请求
+                    'scriptData':{'categoryId':node,"parentId":parentId},
+                    'cancelImg' : '/appstore-man/js/uploadify-v2.1.4/cancel.png',
+                    'fileDataName':'uploadFile',//服务器端根据这个接收文件
+                    'queueID' : queueID,//与下面的id对应
+                    'fileDesc' : '请选择jpg,png文件',
+                    'fileExt' : '*.png;*.jpg', //控制可上传文件的扩展名，启用本项时需同时声明fileDesc
+                    'auto' : true,
+                    'multi' : true,
+                    'simUploadLimit' : 1,
+                    'buttonImg' : picUrl,
+                    'width':53,
+                    'height':53,
+                    'onError' : function(event, queueID, fileObj, errorObj) {
+                        alert(" 上传失败" + errorObj.info + "错误类型" + errorObj.type);
+                    },
+                    'onComplete' : function(event, queueID, fileObj, response, data) {
+                        if (response != '') {
+                            var imgUrl = '$categoryserver.getTarget('')' + response
+                            var html = '<div id="' + node + '"><img src="' + imgUrl + '" width="53px" height="53px" style="margin-left: 26px;">';
+                            html += '<a href="javascript:void(0)"  onclick="deleteImage(' + node + ',' + parentId + ')">删除</a></div>';
+                            jQuery("#" + node).parent("#category").html(html);
+                        } else {
+                            alert('上传失败!');
+                        }
+                    }
+                });
+    }
+
+    function deleteImage(categoryId, parentId) {
+        jQuery.ajax({
+                    type:"post",
+                    url:"/categoryMaintenance/deleteImage.action",
+                    data:{"categoryId":categoryId},
+                    dataType:"json",
+                    success:function(data) {
+                        if ("error" == data) {
+                            alert("删除失败");
+                        } else {
+                            PicUpload(categoryId, 'QueuePic', '$assetModule.getTarget("/appstore-man/images/click.png")', parentId);
+                        }
+                        ;
+                    }
+                });
+    }
+    //分页
+    function macroAjaxSubmit(url) {
+        jQuery.ajax({
+                    type:'post',
+                    url:url,
+                    data:{"taskInfoQuery.appName":jQuery('input[name="taskInfoQuery.appName"]').val()},
+                    success:function(data) {
+                        jQuery('#content').html(data);
+                    }
+                });
+    }
+
+</script>

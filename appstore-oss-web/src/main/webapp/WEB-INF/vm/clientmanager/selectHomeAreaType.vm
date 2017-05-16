@@ -1,0 +1,80 @@
+#set($layout="content.vm")
+<script type="text/javascript">
+    var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+
+    function doAddHomeAreaType(id){
+        var homeAreaId = document.getElementById('homeAreaId').value;
+        var pubedStatus = document.getElementById('pubedStatus').value;
+        jQuery.ajax({
+                    type:'POST',
+                    url:'/recommendManager/doAddHomeAreaType.action',
+                    data:'recommendManagerResult.clientType=0&recommendManagerResult.moduleId=0&recommendManagerResult.areaId=10&recommendManagerResult.homeAreaId='+
+                            homeAreaId + '&recommendManagerResult.pubedStatus='+pubedStatus+'&recommendManagerResult.homeAreaType='+id,
+                    dataType:'html',
+                    success:function(data){
+                        jQuery('#close').click();
+                        getPhoneRecommend();
+                    }
+                });
+    }
+
+</script>
+<div class="pop-top">
+    <div class="ac">
+        <h2>请选择要增加的版型</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+    <div class="con">
+        <div class="vot hide">
+            <table width="0" border="0" cellpadding="3" cellspacing="0">
+                <tr>
+                    <td width="177">
+                        <label>
+                            排序：<input type="text" id="homeAreaId" style="width: 32px;" value="1"/>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            发布状态：<select id="pubedStatus">
+                                <option value="0">下线</option>
+                                <option value="1">上线</option>
+                            </select>
+                        </label>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="vot" onclick="doAddHomeAreaType(1);">
+            <table width="0" border="0" cellspacing="3" cellpadding="0">
+                <tr>
+                    <td><p><img class="voth_img" src="/appstore-man/images/vot/vot_1.png"/></p></td>
+                </tr>
+            </table>
+        </div>
+        <div class="vot" onclick="doAddHomeAreaType(2);">
+            <table width="0" border="0" cellspacing="3" cellpadding="0">
+                <tr>
+                    <td><img class="vot_img" src="/appstore-man/images/vot/vot_2.png"/></td>
+                    <td rowspan="2"><img class="voth_img" src="/appstore-man/images/vot/vot_4.png"/></td>
+                </tr>
+                <tr>
+                    <td><img class="vot_img" src="/appstore-man/images/vot/vot_3.png"/></td>
+                </tr>
+            </table>
+        </div>
+        <div class="vot" onclick="doAddHomeAreaType(3);">
+            <table width="0" border="0" cellspacing="3" cellpadding="0">
+                <tr>
+                    <td><img class="vot_img" src="/appstore-man/images/vot/vot_5.png"/></td>
+                    <td><img class="vot_img" src="/appstore-man/images/vot/vot_6.png"/></td>
+                    <td><img class="vot_img" src="/appstore-man/images/vot/vot_7.png"/></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div></div>
+<div class="btn-box">
+    <input id="close" class="close" type="button" value="关 闭"/>
+</div>

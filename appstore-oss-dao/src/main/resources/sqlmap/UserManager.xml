@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="UserManager">
+    <!--返回用户账号结果集信息-->
+    <typeAlias alias="AccountManagerResult" type="com.jd.cms.domain.usermanager.AccountManagerResult"/>
+    <!--返回角色及角色下模块信息-->
+    <typeAlias alias="RoleManagerResult" type="com.jd.cms.domain.usermanager.RoleManagerResult"/>
+    <!--模块返回类-->
+    <typeAlias alias="ModuleResult" type="com.jd.cms.domain.usermanager.ModuleResult"/>
+    <!--运营支撑系统角色表-->
+    <typeAlias alias="SupportRole" type="com.jd.appstore.domain.SupportRole"/>
+    <!--运营支撑系统用户表-->
+    <typeAlias alias="SupportUsers" type="com.jd.appstore.domain.SupportUsers"/>
+    <!--运营支撑系统功能模块表-->
+    <typeAlias alias="SupportModule" type="com.jd.appstore.domain.SupportModule"/>
+    <!--角色模块关联表-->
+    <typeAlias alias="SupportRoleModule" type="com.jd.appstore.domain.SupportRoleModule"/>
+    <typeAlias alias="channelUser" type="com.jd.cms.domain.usermanager.ChannelUser"/>
+
+
+     <!--返回用户账号结果集信息Map-->
+    <resultMap id="AccountManagerResultMap" class="AccountManagerResult">
+        <result property="id" column="id" />
+        <result property="account" column="account"/>
+        <result property="password" column="password"/>
+        <result property="roleId" column="roleId" />
+        <result property="roleName" column="roleName"/>
+        <result property="accountStatus" column="accountStatus"/>
+        <result property="created" column="created"/>
+        <result property="modified" column="modified"/>
+    </resultMap>
+    <!--运营支撑系统角色Map-->
+    <resultMap id="SupportRoleResultMap" class="SupportRole">
+        <result property="roleId" column="roleId" />
+        <result property="roleName" column="roleName"/>
+    </resultMap>
+    <!--返回角色及角色下模块信息Map-->
+    <resultMap id="RoleManagerResultMap" class="RoleManagerResult">
+        <result property="roleId" column="roleId" />
+        <result property="roleName" column="roleName"/>
+        <result property="moduleName" column="moduleName"/>
+        <result property="created" column="created"/>
+        <result property="modified" column="modified"/>
+    </resultMap>
+    <!--一级模块返回Map-->
+    <resultMap id="FristModuleResultMap" class="ModuleResult">
+        <result property="moduleId" column="moduleId" />
+        <result property="moduleName" column="moduleName"/>
+        <result property="parentId" column="parentId"/>
+        <result property="chileModules" column="moduleId" select="UserManager.findSecondModules"/>
+    </resultMap>
+    <!--二级模块返回Map-->
+    <resultMap id="SecondModuleResultMap" class="ModuleResult">
+        <result property="moduleId" column="moduleId" />
+        <result property="moduleName" column="moduleName"/>
+        <result property="parentId" column="parentId"/>
+        <result property="chileModules" column="moduleId" select="UserManager.findThirdModules"/>
+    </resultMap>
+    <!--三级模块返回Map-->
+    <resultMap id="ThirdModuleResultMap" class="ModuleResult">
+        <result property="moduleId" column="moduleId" />
+        <result property="moduleName" column="moduleName"/>
+        <result property="moduleStatus" column="moduleStatus"/>
+        <result property="parentId" column="parentId"/>
+        <result property="chileModules" column="moduleId" select="UserManager.findFourthModules"/>
+    </resultMap>
+    <!--四级模块返回Map-->
+    <resultMap id="FourthModuleResultMap" class="ModuleResult">
+        <result property="moduleId" column="moduleId" />
+        <result property="moduleName" column="moduleName"/>
+        <result property="moduleStatus" column="moduleStatus" />
+        <result property="parentId" column="parentId"/>
+    </resultMap>
+    <!--返回用户所属角色模块Map-->
+    <resultMap id="SupportRoleModuleResultMap" class="SupportRoleModule">
+        <result property="moduleId" column="moduleId" />
+    </resultMap>
+    <!--查询用户列表-->
+    <select id="findAccountManagerResult" parameterClass="com.jd.common.util.Query" resultMap="UserManager.AccountManagerResultMap">
+        select
+            <!--运营支撑系统用户表主键-->
+            tsu.id as id,
+            <!--用户名-->
+            tsu.account as account,
+            <!--密码-->
+            tsu.password as password,
+            <!--角色ID-->
+            tsu.roleid as roleId,
+            <!--角色名称-->
+            tsr.role_name as roleName,
+            <!--账户状态-->
+            tsu.account_status as accountStatus,
+            <!--记录创建时间-->
+            tsu.created as created,
+            <!--记录修改时间-->
+            tsu.modified as modified
+        from
+            tb_support_users tsu
+        left join
+            tb_support_role tsr
+        on
+            tsu.roleid=tsr.roleid
+        order by
+            tsu.created desc
+        limit
+            #endRow#
+        offset
+            #startRow#
+    </select>
+    <!--查询用户列表记录数-->
+    <select id="getAccountsCount" resultClass="int">
+        select
+            count(*) as value
+        from
+            tb_support_users
+    </select>
+    <!--查询全部角色-->
+    <select id="findSupportRoles"  resultMap="UserManager.SupportRoleResultMap">
+        select
+                <!--角色ID-->
+                roleid as roleId,
+                <!--角色名称-->
+                role_name as roleName
+        from
+            tb_support_role
+    </select>
+    <!--检证用户名-->
+    <select id="checkedAccount" parameterClass="SupportUsers" resultClass="SupportUsers">
+        select
+            *
+        from
+            tb_support_users
+        where
+            account=#account#
+        limit 1
+    </select>
+    <!--查询角色列表-->
+    <select id="findRoleManagerResult" parameterClass="com.jd.common.util.Query" resultMap="UserManager.RoleManagerResultMap">
+        select
+            <!--角色ID-->
+            tsr.roleid as roleId,
+            <!--角色名称-->
+            tsr.role_name as roleName,
+            <!--角色所属模块名集合-->
+			group_concat(tsm.module_name) as moduleName,
+            <!--记录创建时间-->
+            tsr.created as created,
+            <!--记录修改时间-->
+            tsr.modified as modified
+        from
+            tb_support_role tsr
+	    left join
+			tb_support_role_module tsrm
+		on
+			tsr.roleid=tsrm.roleid
+        left join
+            tb_support_module tsm
+        on
+            tsrm.moduleid=tsm.moduleid
+        and
+            tsm.module_status=0
+        group by
+			tsr.roleid,
+            tsr.role_name,
+            tsr.created,
+            tsr.modified
+        order by
+            tsr.created desc
+        limit
+            #endRow#
+        offset
+            #startRow#
+    </select>
+    <!--查询总记录数-->
+    <select id="getRolesCount" resultClass="int">
+        select
+            count(*) as value
+        from
+            tb_support_role
+    </select>
+    <!--查询所有模块-->
+    <select id="findSupportModules"  resultMap="UserManager.FristModuleResultMap">
+        select
+                <!--模块ID-->
+                moduleid as moduleId,
+                <!--模块名-->
+                module_name as moduleName,
+                <!--父ID-->
+                parentid as parentId
+        from
+            tb_support_module
+        where
+            module_status=0
+		and
+			parentid=0
+    </select>
+    <select id="findSecondModules" parameterClass="int"  resultMap="UserManager.SecondModuleResultMap">
+        select
+                <!--模块ID-->
+                moduleid as moduleId,
+                <!--模块名-->
+                module_name as moduleName,
+                <!--父ID-->
+                parentid as parentId
+        from
+            tb_support_module
+        where
+            module_status=0
+        and
+            parentid=#moduleId#
+    </select>
+    <select id="findThirdModules" parameterClass="int"  resultMap="UserManager.ThirdModuleResultMap">
+        select
+                <!--模块ID-->
+                moduleid as moduleId,
+                <!--模块名-->
+                module_name as moduleName,
+                <!--父ID-->
+                parentid as parentId,
+                <!--模块状态-->
+                module_status as moduleStatus
+        from
+            tb_support_module
+        where
+            parentid=#moduleId#
+    </select>
+    <select id="findFourthModules" parameterClass="int"  resultMap="UserManager.FourthModuleResultMap">
+        select
+                <!--模块ID-->
+                moduleid as moduleId,
+                <!--模块名-->
+                module_name as moduleName,
+                <!--父ID-->
+                parentid as parentId,
+                <!--模块状态-->
+                module_status as moduleStatus
+        from
+            tb_support_module
+        where
+            parentid=#moduleId#
+    </select>
+    <!--查询角色是否存在-->
+    <select id="checkedRole" parameterClass="SupportRole" resultClass="SupportRole">
+        select
+            *
+        from
+            tb_support_role
+        where
+            role_name=#roleName#
+        limit 1
+    </select>
+    <!--查询用户所属模块-->
+    <select id="findSupportRoleModule" parameterClass="SupportRole" resultMap="UserManager.SupportRoleModuleResultMap">
+        select
+            <!--模块ID-->
+            moduleid as moduleId
+        from
+            tb_support_role_module
+        where
+            roleid=#roleId#
+    </select>
+    <!--增加新用户-->
+    <insert id="createSupportUsers" parameterClass="SupportUsers" >
+        insert into tb_support_users
+        (id
+        ,account
+        ,password
+        ,roleId
+        ,account_status
+        ,created
+        ,modified)
+        values
+        (#id#
+        ,#account#
+        ,#password#
+        ,#roleId#
+        ,#accountStatus#
+        ,now()
+        ,now())
+    </insert>
+    <!--创建角色-->
+    <insert id="createSupportRole" parameterClass="SupportRole" >
+        insert into tb_support_role
+        (roleid
+        ,role_name
+        ,created
+        ,modified)
+        values
+        (#roleId#
+        ,#roleName#
+        ,now()
+        ,now())
+    </insert>
+    <!--插入角色所属模块-->
+    <insert id="createSupportRoleModule" parameterClass="SupportRoleModule" >
+        insert into tb_support_role_module
+        (id
+        ,roleid
+        ,moduleid
+        ,created
+        ,modified)
+        values
+        (#id#
+        ,#roleId#
+        ,#moduleId#
+        ,now()
+        ,now())
+    </insert>
+    <!--修改用户密码-->
+    <update id="modifiedSupportUsersPwd" parameterClass="SupportUsers">
+        update
+            tb_support_users
+        set
+            <!--密码-->
+            password=#password#,
+            <!--修改时间-->
+            modified=now()
+        where
+            account=#account#
+    </update>
+    <!--修改用户角色-->
+    <update id="modifiedSupportUsersRole" parameterClass="SupportUsers">
+        update
+            tb_support_users
+        set
+            <!--角色ID-->
+            roleId=#roleId#,
+            <!--修改时间-->
+            modified=now()
+        where
+            account=#account#
+    </update>
+    <!--修改用户状态-->
+    <update id="modifiedSupportUsersStatus" parameterClass="SupportUsers">
+        update
+            tb_support_users
+        set
+            <!--用户状态-->
+            account_status=#accountStatus#,
+            <!--修改时间-->
+            modified=now()
+        where
+            account=#account#
+    </update>
+    <!--修改角色-->
+    <update id="modifiedSupportRole" parameterClass="SupportRole">
+        update
+            tb_support_role
+        set
+            <!--角色名-->
+            role_name=#roleName#,
+            <!--修改时间-->
+            modified=now()
+        where
+            roleid=#roleId#
+    </update>
+    <!--修改用户角色-->
+    <update id="modifiedUsersRole" parameterClass="SupportRole">
+        update
+            tb_support_users
+        set
+            <!--角色ID-->
+            roleid=0,
+            <!--修改时间-->
+            modified=now()
+        where
+            roleid=#roleId#
+    </update>
+    <!--删除已有权限-->
+    <delete id="deleteSupportRoleModule" parameterClass="SupportRole">
+        delete from tb_support_role_module where roleid=#roleId#
+    </delete>
+    <!--删除角色-->
+    <delete id="deleteSupportRole" parameterClass="SupportRole">
+        delete from tb_support_role where roleid=#roleId#
+    </delete>
+
+    <insert id="createChannelUser" parameterClass="channelUser">
+        INSERT INTO `tb_channel_user`
+        (`cid`, `user_id`, `created`)
+        VALUES
+        (#cid#, #userId#,now())
+    </insert>
+    <delete id="deleteChannelUser" parameterClass="int">
+        delete from
+        tb_channel_user
+        where
+        user_id = #userId#
+    </delete>
+    <select id="getChannelUser" parameterClass="int" resultClass="channelUser">
+        select cid as cid from tb_channel_user where user_id = #userId#
+    </select>
+
+
+</sqlMap>

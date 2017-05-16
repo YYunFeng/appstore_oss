@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap namespace="ValidMachineStatistics">
+    <typeAlias alias="validMachineStatistic" type="com.jd.cms.domain.appManagement.ValidMachineStatistic"/>
+    <typeAlias alias="validMachineStatisticsParameter" type="com.jd.cms.domain.appManagement.ValidMachineStatisticsParameter"/>
+    <!--公司总有效装机数-->
+    <select id="getTotalMachine" parameterClass="validMachineStatisticsParameter" resultClass="validMachineStatistic">
+        SELECT
+            count(saleLog.appid)  as installAppsCounts
+        FROM
+           tb_offlineapp_install_stat AS saleLog,
+           tb_pad_channel AS pacChannel
+        WHERE
+        saleLog.appid IN (
+            select c.appid from (
+                SELECT
+                appid
+                FROM
+                tb_topic_app
+                WHERE
+                topicid IN (67, 75)) as c
+             )
+        AND saleLog.cid = pacChannel.id
+        <isNotEmpty prepend="and" property="startTime">
+            STR_TO_DATE(
+            CONCAT(
+            saleLog. YEAR,
+            '-',
+            saleLog. MONTH,
+            '-',
+            saleLog. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(
+            #startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(
+            #endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+    </select>
+
+
+    <!--精彩推荐应用总安装数-->
+    <select id="getNiceAppTotalCounts" parameterClass="validMachineStatisticsParameter" resultClass="Integer">
+        SELECT
+            count(saleLog.appid)  as installAppsCounts
+        FROM
+            tb_offlineapp_install_stat AS saleLog,
+            tb_pad_channel AS pacChannel
+        WHERE
+            saleLog.appid IN (
+            select c.appid from (
+            SELECT
+            appid
+            FROM
+            tb_topic_app
+            WHERE
+            topicid IN (67)) as c
+            )
+        AND saleLog.cid = pacChannel.id
+        <isNotEmpty prepend="and" property="startTime">
+            STR_TO_DATE(
+            CONCAT(
+            saleLog. YEAR,
+            '-',
+            saleLog. MONTH,
+            '-',
+            saleLog. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(
+            #startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(
+            #endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+    </select>
+    <!--卖场专区应用总安装数-->
+    <select id="getSaleAppTotalCounts" parameterClass="validMachineStatisticsParameter" resultClass="Integer">
+        SELECT
+            count(saleLog.appid)  as installAppsCounts
+        FROM
+            tb_offlineapp_install_stat AS saleLog,
+            tb_pad_channel AS pacChannel
+        WHERE
+           saleLog.appid IN (
+                select c.appid from (
+                SELECT
+                appid
+                FROM
+                tb_topic_app
+                WHERE
+                topicid IN (75)) as c
+                )
+        AND saleLog.cid = pacChannel.id
+        <isNotEmpty prepend="and" property="startTime">
+            STR_TO_DATE(
+            CONCAT(
+            saleLog. YEAR,
+            '-',
+            saleLog. MONTH,
+            '-',
+            saleLog. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(
+            #startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(
+            #endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+    </select>
+
+    <!--按渠道查看-->
+    <select id="getChannelMachines" parameterClass="validMachineStatisticsParameter" resultClass="validMachineStatistic">
+        SELECT
+            count(saleLog.appid)  as installAppsCounts,
+            saleLog.cid AS cid,
+            pacChannel.cname as channelName
+        FROM
+            tb_offlineapp_install_stat AS saleLog,
+            tb_pad_channel AS pacChannel
+        WHERE
+            saleLog.appid IN (
+            select c.appid from (
+            SELECT
+            appid
+            FROM
+            tb_topic_app
+            WHERE
+            topicid IN (67, 75)) as c
+            )
+        AND saleLog.cid = pacChannel.id
+        <isNotEmpty prepend="and" property="startTime">
+             STR_TO_DATE(
+                CONCAT(
+                  saleLog. YEAR,
+                '-',
+                 saleLog. MONTH,
+                '-',
+                   saleLog. DAY
+                ),
+                '%Y-%c-%e'
+                ) BETWEEN STR_TO_DATE(
+                #startTime#, '%Y-%c-%e')
+                AND STR_TO_DATE(
+                #endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+              GROUP BY
+                 cid
+    </select>
+
+    <!--按渠道查看精彩推荐应用安装数和卖场专区应用安装数-->
+    <select id="getAppCountsByChannelNiceAndSale" parameterClass="validMachineStatisticsParameter" resultClass="validMachineStatistic">
+        SELECT
+            c.installAppsCounts AS installAppsCounts,
+            c.cid AS cid,
+            c.channelName AS channelName,
+            c.flag AS flag
+        FROM (
+            SELECT
+                count(saleLog.appid)  as installAppsCounts,
+                saleLog.cid AS cid,
+                pacChannel.cname as channelName,
+                0 as flag
+            FROM
+                tb_offlineapp_install_stat AS saleLog,
+                tb_pad_channel AS pacChannel
+            WHERE
+            saleLog.appid IN (
+                select c.appid from (
+                SELECT
+                appid
+                FROM
+                tb_topic_app
+                WHERE
+                topicid IN (67)) as c
+                )
+            AND saleLog.cid = pacChannel.id
+            <isNotEmpty prepend="and" property="startTime">
+                STR_TO_DATE(
+                CONCAT(
+                saleLog. YEAR,
+                '-',
+                saleLog. MONTH,
+                '-',
+                saleLog. DAY
+                ),
+                '%Y-%c-%e'
+                ) BETWEEN STR_TO_DATE(
+                #startTime#, '%Y-%c-%e')
+                AND STR_TO_DATE(
+                #endTime#, '%Y-%c-%e')
+            </isNotEmpty>
+            GROUP BY
+                cid
+            UNION ALL
+            SELECT
+                count(saleLog.appid)  as installAppsCounts,
+                saleLog.cid AS cid,
+                pacChannel.cname as channelName,
+                1 as flag
+            FROM
+                tb_offlineapp_install_stat AS saleLog,
+                tb_pad_channel AS pacChannel
+            WHERE
+                saleLog.appid IN (
+                select c.appid from (
+                SELECT
+                appid
+                FROM
+                tb_topic_app
+                WHERE
+                topicid IN (75)) as c
+                )
+            AND saleLog.cid = pacChannel.id
+                <isNotEmpty prepend="and" property="startTime">
+                    STR_TO_DATE(
+                    CONCAT(
+                    saleLog. YEAR,
+                    '-',
+                    saleLog. MONTH,
+                    '-',
+                    saleLog. DAY
+                    ),
+                    '%Y-%c-%e'
+                    ) BETWEEN STR_TO_DATE(
+                    #startTime#, '%Y-%c-%e')
+                    AND STR_TO_DATE(
+                    #endTime#, '%Y-%c-%e')
+                </isNotEmpty>
+             GROUP BY
+               cid) as c
+           ORDER BY
+              c.cid
+     </select>
+
+
+    <!--按促销员查看-->
+    <select id="statisBySaler" parameterClass="validMachineStatisticsParameter" resultClass="validMachineStatistic">
+        SELECT
+            count(saleLog.appid) as installAppsCounts,
+            saleLog.saler as salerNo,
+            saleLog.saler_name as salerName,
+            saleLog.shop_name as shopName,
+            saleLog.cid as cid
+        FROM
+            tb_offlineapp_install_stat  as saleLog
+        WHERE
+          appid IN (
+            select c.appid from ( SELECT
+            appid
+            FROM
+            tb_topic_app
+            WHERE
+            topicid IN (67, 75)) as c
+            )
+        and cid =#cid#
+        <isNotEmpty prepend="and" property="startTime">
+             STR_TO_DATE(
+            CONCAT(
+            saleLog. YEAR,
+            '-',
+            saleLog. MONTH,
+            '-',
+            saleLog. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(
+            #startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(
+            #endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+        GROUP BY
+           saler
+    </select>
+
+
+    <!--按促销员查看精彩推荐应用安装数和卖场专区应用安装数-->
+    <select id="statisBySalerNiceAndSale" parameterClass="validMachineStatisticsParameter" resultClass="validMachineStatistic">
+        SELECT
+            c.installAppsCounts AS installAppsCounts,
+            c.salerNo AS salerNo,
+            c.salerName AS salerName,
+            c.shopName AS shopName,
+            c.cid AS cid,
+            c.flag as flag
+        FROM
+        (SELECT
+            count(saleLog.appid) as installAppsCounts,
+            saleLog.saler as salerNo,
+            saleLog.saler_name as salerName,
+            saleLog.shop_name as shopName,
+            saleLog.cid as cid,
+            0 as flag
+        FROM
+            tb_offlineapp_install_stat  as saleLog
+        WHERE
+            appid IN (
+                select c.appid from ( SELECT
+                appid
+                FROM
+                tb_topic_app
+                WHERE
+                topicid IN (67)) as c
+            )
+        AND cid =#cid#
+            <isNotEmpty prepend="and" property="startTime">
+                STR_TO_DATE(
+                CONCAT(
+                saleLog. YEAR,
+                '-',
+                saleLog. MONTH,
+                '-',
+                saleLog. DAY
+                ),
+                '%Y-%c-%e'
+                ) BETWEEN STR_TO_DATE(
+                #startTime#, '%Y-%c-%e')
+                AND STR_TO_DATE(
+                #endTime#, '%Y-%c-%e')
+            </isNotEmpty>
+         GROUP BY
+           saler
+         UNION ALL
+          SELECT
+            count(saleLog.appid) as installAppsCounts,
+            saleLog.saler as salerNo,
+            saleLog.saler_name as salerName,
+            saleLog.shop_name as shopName,
+            saleLog.cid as cid,
+            1 as flag
+          FROM
+             tb_offlineapp_install_stat  as saleLog
+          WHERE
+            appid IN (
+                select c.appid from ( SELECT
+                appid
+                FROM
+                tb_topic_app
+                WHERE
+                topicid IN (75)) as c
+            )
+        AND cid =#cid#
+            <isNotEmpty prepend="and" property="startTime">
+                STR_TO_DATE(
+                CONCAT(
+                saleLog. YEAR,
+                '-',
+                saleLog. MONTH,
+                '-',
+                saleLog. DAY
+                ),
+                '%Y-%c-%e'
+                ) BETWEEN STR_TO_DATE(
+                #startTime#, '%Y-%c-%e')
+                AND STR_TO_DATE(
+                #endTime#, '%Y-%c-%e')
+            </isNotEmpty>
+        GROUP BY
+            saler) as c
+        ORDER BY
+          salerNo
+    </select>
+
+    <!--按时间查看-->
+    <select id="statisByTime" parameterClass="validMachineStatisticsParameter" resultClass="validMachineStatistic">
+        SELECT
+            STR_TO_DATE(
+            CONCAT(
+            saleLog. YEAR,
+            '-',
+            saleLog. MONTH,
+            '-',
+            saleLog. DAY
+            ),
+            '%Y-%c-%e'
+            ) AS time,
+            count(saleLog.appid) as installAppsCounts,
+            saleLog.cid AS cid,
+            pacChannel.cname as channelName
+        FROM
+            tb_offlineapp_install_stat AS saleLog,
+            tb_pad_channel AS pacChannel
+        WHERE
+        saleLog.appid IN (
+        select c.appid from (
+                SELECT
+                appid
+                FROM
+                tb_topic_app
+                WHERE
+                topicid IN (67, 75)
+              ) as c
+        )
+        AND saleLog.cid = pacChannel.id
+        <isNotEmpty prepend="and" property="startTime">
+             STR_TO_DATE(
+                CONCAT(
+                saleLog. YEAR,
+                '-',
+                saleLog. MONTH,
+                '-',
+                saleLog. DAY
+                ),
+              '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(
+            #startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(
+            #endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+        AND
+          cid=#cid#
+        GROUP BY
+            time
+            ORDER BY
+            time
+            DESC
+    </select>
+
+    <!--按时间查看精彩推荐应用安装数和卖场专区应用安装数-->
+    <select id="statisByTimeNiceAndSale" parameterClass="validMachineStatisticsParameter" resultClass="validMachineStatistic">
+        SELECT
+            c.time as time,
+            c.installAppsCounts as installAppsCounts,
+            c.cid as cid,
+            c.channelName as channelName,
+            c.flag as flag
+        FROM (
+            SELECT
+                STR_TO_DATE(
+                CONCAT(
+                saleLog. YEAR,
+                '-',
+                saleLog. MONTH,
+                '-',
+                saleLog. DAY
+                ),
+                '%Y-%c-%e'
+                ) AS time,
+                count(saleLog.appid) as installAppsCounts,
+                saleLog.cid AS cid,
+                pacChannel.cname as channelName,
+                0 as flag
+            FROM
+                tb_offlineapp_install_stat AS saleLog,
+                tb_pad_channel AS pacChannel
+            WHERE
+             saleLog.appid IN (
+                  select c.appid from (
+                    SELECT
+                    appid
+                    FROM
+                    tb_topic_app
+                    WHERE
+                    topicid IN (67)
+                    ) as c
+                 )
+            AND saleLog.cid = pacChannel.id
+            <isNotEmpty prepend="and" property="startTime">
+                STR_TO_DATE(
+                CONCAT(
+                saleLog. YEAR,
+                '-',
+                saleLog. MONTH,
+                '-',
+                saleLog. DAY
+                ),
+                '%Y-%c-%e'
+                ) BETWEEN STR_TO_DATE(
+                #startTime#, '%Y-%c-%e')
+                AND STR_TO_DATE(
+                #endTime#, '%Y-%c-%e')
+            </isNotEmpty>
+            AND
+              cid=#cid#
+            GROUP BY
+              time
+            UNION ALL
+            SELECT
+                STR_TO_DATE(
+                CONCAT(
+                saleLog. YEAR,
+                '-',
+                saleLog. MONTH,
+                '-',
+                saleLog. DAY
+                ),
+                '%Y-%c-%e'
+                ) AS time,
+                count(saleLog.appid) as installAppsCounts,
+                saleLog.cid AS cid,
+                pacChannel.cname as channelName,
+                1 as flag
+            FROM
+                tb_offlineapp_install_stat AS saleLog,
+                tb_pad_channel AS pacChannel
+            WHERE
+            saleLog.appid IN (
+            select c.appid from (
+                SELECT
+                  appid
+                FROM
+                  tb_topic_app
+                WHERE
+                  topicid IN (75)
+                ) as c
+              )
+            AND saleLog.cid = pacChannel.id
+            <isNotEmpty prepend="and" property="startTime">
+                STR_TO_DATE(
+                CONCAT(
+                saleLog. YEAR,
+                '-',
+                saleLog. MONTH,
+                '-',
+                saleLog. DAY
+                ),
+                '%Y-%c-%e'
+                ) BETWEEN STR_TO_DATE(
+                #startTime#, '%Y-%c-%e')
+                AND STR_TO_DATE(
+                #endTime#, '%Y-%c-%e')
+            </isNotEmpty>
+            AND  cid=#cid#
+            GROUP BY
+               time) as c
+          ORDER BY
+             c.time
+           DESC
+    </select>
+
+    <!--取得专题下的应用总数-->
+    <select resultClass="Integer" id="getAppsCounst">
+        SELECT count(*) from tb_topic_app where topicid in (67, 75)
+    </select>
+
+</sqlMap>

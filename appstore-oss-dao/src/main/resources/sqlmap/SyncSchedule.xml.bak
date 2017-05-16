@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="SyncSchedule">
+
+    <!--后台任务返回信息-->
+    <typeAlias alias="TaskInfoResult" type="com.jd.cms.domain.taskmanager.TaskInfoResult"/>
+    <!--后台任务查询条件-->
+    <typeAlias alias="TaskInfoQuery" type="com.jd.cms.domain.taskmanager.TaskInfoQuery"/>
+    <!--应用类目表-->
+    <typeAlias alias="Category" type="com.jd.appstore.domain.Category"/>
+    <!--应用下载统计结果表-->
+    <typeAlias alias="AppDownloadStat" type="com.jd.appstore.domain.AppDownloadStat"/>
+    <!--应用排行榜表-->
+    <typeAlias alias="RankingApp" type="com.jd.appstore.domain.RankingApp"/>
+    <!--cp信息返回类-->
+    <typeAlias alias="CpInfoResult" type="com.jd.cms.domain.taskmanager.CpInfoResult"/>
+    <!--CP基本信息表-->
+    <typeAlias alias="CpBaseInfo" type="com.jd.appstore.domain.CpBaseInfo"/>
+    <!--应用下载汇总表-->
+    <typeAlias alias="DownloadTotalstat" type="com.jd.appstore.domain.DownloadTotalstat"/>
+    <!--营销日志统计-->
+    <typeAlias alias="InstallStat" type="com.jd.appstore.domain.InstallStat"/>
+
+    <!--后台任务返回信息Map-->
+    <resultMap id="TaskInfoResultMap" class="TaskInfoResult">
+        <result property="id" column="id"/>
+        <result property="taskTypeId" column="taskTypeId"/>
+        <result property="taskTypeName" column="taskTypeName"/>
+        <result property="status" column="status"/>
+        <result property="adminId" column="adminId"/>
+        <result property="startTimePlan" column="startTimePlan"/>
+        <result property="startTimeFact" column="startTimeFact"/>
+        <result property="comment" column="comment"/>
+        <result property="retryTimes" column="retryTimes"/>
+        <result property="autoRetry" column="autoRetry"/>
+        <result property="isLoop" column="isLoop"/>
+        <result property="loopPeriod" column="loopPeriod"/>
+        <result property="created" column="created"/>
+        <result property="modified" column="modified"/>
+    </resultMap>
+    <!--应用下载统计结果表Map-->
+    <resultMap id="AppDownloadStatMap" class="AppDownloadStat">
+        <result property="appId" column="appId"/>
+        <result property="year" column="year"/>
+        <result property="month" column="month"/>
+        <result property="day" column="day"/>
+        <result property="downloadTimes" column="downloadTimes"/>
+    </resultMap>
+    <!--应用排行榜表Map-->
+    <resultMap id="RankingAppMap" class="RankingApp">
+        <result property="id" column="id"/>
+        <result property="appId" column="appId"/>
+        <result property="orderSeq" column="orderSeq"/>
+    </resultMap>
+    <!--应用排行榜表Map-->
+    <resultMap id="RankingAppByTypeMap" class="RankingApp">
+        <result property="appId" column="appId"/>
+    </resultMap>
+    <!--查询周期性同步任务信息-->
+    <select id="findTaskInfoResult" parameterClass="TaskInfoQuery" resultClass="TaskInfoResult">
+        select
+        tbt.id as id,
+        tbt.task_type_id as taskTypeId,
+        tat.task_type_name as taskTypeName,
+        tbt.status as status,
+        tbt.admin_id as adminId,
+        tbt.start_time_plan as startTimePlan,
+        tbt.start_time_fact as startTimeFact,
+        tbt.comment as comment,
+        tbt.retry_times as retryTimes,
+        tbt.auto_retry as autoRetry,
+        tat.is_loop as isLoop,
+        tat.loop_period as loopPeriod,
+        tbt.created as created,
+        tbt.modified as modified
+        from
+        tb_backend_task tbt
+        left join
+        tb_task_type tat
+        on
+        tbt.task_type_id=tat.task_type_id
+        where
+        tbt.task_type_id=#taskTypeId#
+        <isNotEqual property="status" compareValue="-1" prepend=" and ">
+            tbt.status=#status#
+        </isNotEqual>
+        order by
+        tbt.created desc
+        limit 1
+    </select>
+    <!--按应用统计前一天的下载次数-->
+    <select id="findAppDownloadStat" resultMap="SyncSchedule.AppDownloadStatMap">
+        select
+        count(appid) as downloadTimes,
+        appid as appId,
+        date_format(download_time,'%Y')as year,
+        date_format(download_time,'%m')as month,
+        date_format(download_time,'%d')as day
+        from
+        tb_app_download_log
+        where
+        download_time BETWEEN date_format(adddate(now(),-1),'%Y-%m-%d 00:00:00') and
+        date_format(adddate(now(),-1),'%Y-%m-%d 23:59:59')
+        and
+        download_succeed=1
+        group by
+        appid,
+        year,
+        month,
+        day
+    </select>
+    <!--查询排行榜锁定记录-->
+    <select id="findRankingApp" parameterClass="RankingApp" resultMap="SyncSchedule.RankingAppMap">
+        select
+        id as id,
+        appid as appId,
+        order_seq as orderSeq
+        from
+        tb_ranking_app
+        where
+        ranking_style=#rankingStyle#
+        and
+        ranking_type=#rankingType#
+        and
+        locked=1
+    </select>
+    <!--查询最新上架记录-->
+    <select id="findRankingAppNewest" parameterClass="RankingApp" resultMap="SyncSchedule.RankingAppByTypeMap">
+        select
+        appid as appId
+        from
+        tb_apps
+        where
+        categoryid_l2=#rankingStyle#
+        and online=1
+        <isNotNull property="lockedOrder" prepend="and">
+            appid not in ($lockedOrder$)
+        </isNotNull>
+        order by
+        created desc
+        limit 100
+    </select>
+    <!--查询热门收费记录-->
+    <select id="findRankingAppFee" parameterClass="RankingApp" resultMap="SyncSchedule.RankingAppByTypeMap">
+        select
+        dt.appid as appId
+        from
+        tb_download_totalstat as dt,tb_apps ta,tb_app_details tad
+        where
+        dt.appid= ta.appid
+        and
+        ta.default_detail_id = tad.id
+        and
+        ta.online=1
+        and
+        tad.price>0
+        and
+        ta.categoryid_l2=#rankingStyle#
+        <isNotNull property="lockedOrder" prepend="and">
+            ta.appid not in ($lockedOrder$)
+        </isNotNull>
+        ORDER BY
+        dt.download_times DESC
+        limit 100
+
+    </select>
+    <!--查询热门免费记录-->
+    <select id="findRankingAppFree" parameterClass="RankingApp" resultMap="SyncSchedule.RankingAppByTypeMap">
+        select
+        dt.appid as appId
+        from
+        tb_download_totalstat as dt,tb_apps ta,tb_app_details tad
+        where
+        dt.appid= ta.appid
+        and
+        ta.default_detail_id = tad.id
+        and
+        ta.online=1
+        and
+        tad.price=0
+        and
+        ta.categoryid_l2=#rankingStyle#
+        <isNotNull property="lockedOrder" prepend="and">
+            ta.appid not in ($lockedOrder$)
+        </isNotNull>
+        ORDER BY
+        dt.download_times DESC
+        limit 100
+
+    </select>
+    <!--查询上升最快记录-->
+    <select id="findRankingAppFastest" parameterClass="RankingApp" resultMap="SyncSchedule.RankingAppByTypeMap">
+        select
+        lw.appId
+        from
+        (select
+        sum(sta.download_times) as lwappcount,
+        ta.appid as appId
+        from
+        tb_app_download_stat sta,
+        tb_apps ta
+        where
+        sta.appid=ta.appid
+        and
+        ta.online=1
+        and
+        ta.categoryid_l2=#rankingStyle#
+        and
+        STR_TO_DATE(
+        CONCAT(
+        sta. YEAR,
+        '-',
+        sta. MONTH,
+        '-',
+        sta. DAY
+        ),
+        '%Y-%c-%e'
+        )
+        between adddate(CURDATE(),-7) and adddate(CURDATE(),-1)
+        group by
+        ta.appid
+        ) lw
+        left join
+        ( select sum(olwappcount) as olwappcount, appId from
+        ((select 0 as olwappcount, appid as appId from tb_app_download_stat GROUP BY appid)
+        union all
+        (select
+        sum(sta.download_times) as olwappcount,
+        ta.appid as appId
+        from
+        tb_app_download_stat sta,
+        tb_apps ta
+        where
+        sta.appid=ta.appid
+        and
+        ta.online=1
+        and
+        ta.categoryid_l2=#rankingStyle#
+        and
+        STR_TO_DATE(
+        CONCAT(
+        sta. YEAR,
+        '-',
+        sta. MONTH,
+        '-',
+        sta. DAY
+        ),
+        '%Y-%c-%e'
+        )
+        between adddate(CURDATE(),-14) and adddate(CURDATE(),-8)
+        group by
+        ta.appid) )as stt GROUP BY appId
+        )olw
+        on
+        lw.appId=olw.appId
+        where 1=1
+        <isNotNull property="lockedOrder" prepend="and">
+            lw.appid not in ($lockedOrder$)
+        </isNotNull>
+        order by
+        lw.lwappcount-olw.olwappcount desc
+        limit 100
+
+    </select>
+    <!--查询合同预警期内CP信息-->
+    <select id="findCpInfoResult" resultClass="CpInfoResult">
+        select
+        accountid as accountId,
+        mobile as mobile,
+        mobile_binded as mobileBinded,
+        email as email,
+        email_checked as emailChecked,
+        mail_sent1 as mailSent1,
+        mail_sent2 as mailSent2,
+        sms_sent2 as smsSent2
+        from
+        tb_cp_baseinfo tcbi
+        left join
+        tb_cp_reginfo tcri
+        on
+        tcbi.id=tcri.accountid
+        where
+        tcbi.valid_period_end between date_format(adddate(now(),1),'%y-%m-%d 00:00:00') and
+        date_format(adddate(now(),interval 1 month),'%y-%m-%d 23:59:59')
+    </select>
+    <!--统计应用下载汇总-->
+    <select id="findDownloadTotalstat" resultClass="DownloadTotalstat">
+        select
+        appid as appId,
+        sum(download_times) as downloadTimes
+        from
+        tb_app_download_stat
+        group by
+        appid
+    </select>
+    <!--插入新类目到数据库-->
+    <insert id="createCategory" parameterClass="Category">
+        insert into tb_category
+        (categoryid
+        ,category_name
+        ,level
+        ,parent_id
+        ,is_leaf
+        ,pubed_status
+        ,created
+        ,modified
+        ,expired_status)
+        values
+        (#categoryId#
+        ,#categoryName#
+        ,#level#
+        ,#parentId#
+        ,#isLeaf#
+        ,#pubedStatus#
+        ,now()
+        ,now()
+        ,1)
+    </insert>
+    <!--创建应用下载统计结果-->
+    <insert id="createAppDownloadStat" parameterClass="AppDownloadStat">
+        insert into tb_app_download_stat
+        (id
+        ,appid
+        ,year
+        ,month
+        ,day
+        ,download_times
+        ,created
+        ,modified)
+        values
+        (#id#
+        ,#appId#
+        ,#year#
+        ,#month#
+        ,#day#
+        ,#downloadTimes#
+        ,now()
+        ,now())
+    </insert>
+    <!--更新排行榜-->
+    <insert id="createRankingApp" parameterClass="RankingApp">
+        insert into tb_ranking_app
+        (id
+        ,ranking_style
+        ,ranking_type
+        ,appid
+        ,pub_time
+        ,order_seq
+        ,pubed_status
+        ,locked
+        ,created
+        ,modified)
+        values
+        (#id#
+        ,#rankingStyle#
+        ,#rankingType#
+        ,#appId#
+        ,now()
+        ,#orderSeq#
+        ,#pubedStatus#
+        ,#locked#
+        ,now()
+        ,now())
+    </insert>
+    <!--插入应用下载汇总表-->
+    <insert id="createDownloadTotalstat" parameterClass="DownloadTotalstat">
+        insert into tb_download_totalstat
+        (id
+        ,appid
+        ,download_times
+        ,created
+        ,modified)
+        values
+        (#id#
+        ,#appId#
+        ,#downloadTimes#
+        ,now()
+        ,now())
+    </insert>
+    <!--更新合同预警状态-->
+    <update id="updateCpBaseInfo" parameterClass="CpBaseInfo">
+        update
+        tb_cp_baseinfo
+        set
+        <isNotNull property="mailSent1">
+            mail_sent1=#mailSent1#
+        </isNotNull>
+        <isNotNull property="mailSent2">
+            mail_sent2=#mailSent2#
+        </isNotNull>
+        <isNotNull property="smsSent2">
+            sms_sent2=#smsSent2#
+        </isNotNull>
+        where
+        id=#id#
+    </update>
+    <!--更新类目，并返回成功、失败标识-->
+    <update id="updateCategory" parameterClass="Category">
+        update
+        tb_category
+        set
+        category_name=#categoryName#,
+        level=#level#,
+        parent_id=#parentId#,
+        expired_status=1
+        where
+        categoryid=#categoryId#
+    </update>
+    <!--更新类目过期状态成未过期-->
+    <update id="updateAllCategory">
+        update
+        tb_category
+        set
+        expired_status=0
+    </update>
+    <!--更新周期性任务起动时间-->
+    <update id="updateTaskFactTime" parameterClass="TaskInfoQuery">
+        update
+        tb_backend_task
+        set
+        start_time_fact=#startTimeFact#
+        where
+        id=#id#
+    </update>
+    <!--删除下柜类目-->
+    <delete id="deleteCategory">
+        delete from tb_category where <![CDATA[expired_status<>1]]>
+    </delete>
+    <!--删除年月日一同样的下载统计记录-->
+    <delete id="deleteAppDownloadStat" parameterClass="AppDownloadStat">
+        delete from tb_app_download_stat where year=#year# and month=#month# and day=#day#
+    </delete>
+    <!--删除未被锁定记录-->
+    <delete id="deleteRankingApp" parameterClass="RankingApp">
+        delete from tb_ranking_app where ranking_style=#rankingStyle# and ranking_type=#rankingType# and locked=0
+    </delete>
+    <!--删除应用下载汇总表-->
+    <delete id="deleteDownloadTotalstat">
+        delete from tb_download_totalstat
+    </delete>
+    <!--统计离线应用安装次数-->
+    <select id="getOfflineSaleLog" resultClass="InstallStat">
+        SELECT
+        count(appid) AS installTimes,
+        phone_imei as phoneImei,
+        saler_name as salerName,
+        shop_name as shopName,
+        appid AS appId,
+        cid AS cid,
+        saler_no as saler,
+        date_format(install_time, '%Y') AS YEAR,
+        date_format(install_time, '%m') AS MONTH,
+        date_format(install_time, '%d') AS DAY
+        FROM
+        tb_offlineapp_sale_log
+        WHERE
+        statisticsflag = 0
+        GROUP BY
+        appid,
+        saler,
+        cid,
+        YEAR,
+        MONTH,
+        phoneImei,
+        DAY
+    </select>
+    <!--统计在线应用安装次数-->
+    <select id="getOnlineSaleLog" resultClass="InstallStat">
+        SELECT
+        count(appid) AS installTimes,
+        phone_imei as phoneImei,
+        saler_name as salerName,
+        shop_name as shopName,
+        appid AS appId,
+        cid AS cid,
+        saler_no as saler,
+        date_format(install_time, '%Y') AS YEAR,
+        date_format(install_time, '%m') AS MONTH,
+        date_format(install_time, '%d') AS DAY
+        FROM
+        tb_onlineapp_sale_log
+        WHERE
+        statisticsflag = 0
+        GROUP BY
+        appid,
+        saler,
+        cid,
+        YEAR,
+        MONTH,
+        phoneImei,
+        DAY
+    </select>
+    <!--更新离线应用统计状态-->
+    <update id="updateStatisticsStatusOffline" parameterClass="String">
+        update tb_offlineapp_sale_log set statisticsflag = 1,statisticstime=NOW() where statisticsflag = 0
+    </update>
+    <!--更新在线应用统计状态-->
+    <update id="updateStatisticsStatusOnline"  parameterClass="String">
+        update tb_onlineapp_sale_log set statisticsflag = 1,statisticstime=NOW() where statisticsflag = 0
+    </update>
+    <!-- 创建离线营销日志统计结果-->
+    <insert parameterClass="InstallStat" id="createOfflineInstallStat">
+        insert into tb_offlineapp_install_stat
+        (id
+        ,appid
+        ,cid
+        ,saler
+        ,phone_imei
+        ,saler_name
+        ,shop_name
+        ,year
+        ,month
+        ,day
+        ,install_times
+        ,created
+        ,modified)
+        values
+        ( #id#,
+        #appId#,
+        #cid#,
+        #saler#,
+        #phoneImei#,
+        #salerName#,
+        #shopName#,
+        #year#,
+        #month#,
+        #day#,
+        #installTimes#,
+        now(),
+        now())
+    </insert>
+    <!-- 创建在线营销日志统计结果-->
+    <insert parameterClass="InstallStat" id="createOnlineInstallStat">
+        insert into tb_onlineapp_install_stat
+        (id
+        ,appid
+        ,cid
+        ,saler
+        ,phone_imei
+        ,saler_name
+        ,shop_name
+        ,year
+        ,month
+        ,day
+        ,install_times
+        ,created
+        ,modified)
+        values
+        (#id#,
+        #appId#,
+        #cid#,
+        #saler#,
+        #phoneImei#,
+        #salerName#,
+        #shopName#,
+        #year#,
+        #month#,
+        #day#,
+        #installTimes#,
+        now(),
+        now())
+    </insert>
+
+</sqlMap>

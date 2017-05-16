@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap namespace="ClientVersionManager">
+    <typeAlias alias="ClientPackage" type="com.jd.appstore.domain.ClientPackage"/>
+
+    <select id="findClientVersion" parameterClass="com.jd.common.util.Query" resultClass="ClientPackage">
+        select
+            id as id,
+            version as version,
+            version_code as versionCode,
+            intro as intro,
+            client_type as clientType,
+            package_url as packageUrl,
+            is_valid as valid,
+            created as created,
+            modified as modified
+        from
+            tb_client_package
+        where
+            client_type = #id#
+        order by
+            created desc
+        limit
+            #endRow#
+        offset
+            #startRow#
+    </select>
+
+    <select id="getClientVersionCount" parameterClass="com.jd.common.util.Query" resultClass="int">
+        select
+            count(*)
+        from
+            tb_client_package
+        where
+            client_type = #id#
+    </select>
+
+    <insert id="createClientVersion" parameterClass="ClientPackage">
+        insert into
+            tb_client_package(
+                id, version,version_code, intro, client_type, package_url, is_valid, created, modified
+            ) values (
+                #id#, #version#, #versionCode#,#intro#, #clientType#, #packageUrl#, #valid#, now(), now()
+            )
+    </insert>
+
+    <delete id="deleteClientVersion" parameterClass="ClientPackage">
+        delete from
+            tb_client_package
+        where
+            id = #id#
+    </delete>
+
+    <select id="findClientVersionById" parameterClass="ClientPackage" resultClass="ClientPackage">
+        select
+            id as id,
+            version as version,
+            version_code as versionCode,
+            intro as intro,
+            client_type as clientType,
+            package_url as packageUrl,
+            is_valid as valid,
+            created as created,
+            modified as modified
+        from
+            tb_client_package
+        where
+            id = #id#
+    </select>
+
+    <update id="updateClientVersion" parameterClass="ClientPackage">
+        update
+            tb_client_package
+        set
+            version = #version#,
+            version_code = #versionCode#,
+            intro = #intro#,
+            client_type = #clientType#,
+            package_url = #packageUrl#,
+            modified = now()
+        where
+            id = #id#
+    </update>
+
+    <update id="updateClientVersionValid" parameterClass="ClientPackage">
+        update
+            tb_client_package
+        set
+            is_valid = #valid#
+        where
+            id = #id#
+    </update>
+
+    <update id="checkClientVersionValid" parameterClass="ClientPackage">
+        update
+            tb_client_package
+        set
+            is_valid = 0
+        where
+            is_valid = 1 and client_type = #clientType#
+    </update>
+</sqlMap>

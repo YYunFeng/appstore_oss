@@ -1,0 +1,80 @@
+#set($layout="content.vm")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+    /*分页*/
+    function macroAjaxSubmit(url) {
+        jQuery.ajax({
+            type: 'POST',
+            url: url,
+            data: 'clientType=4&moduleId=0&areaId=13',
+            success: function (data) {
+                jQuery('#right_start').html(data);
+            }
+        });
+    }
+</script>
+<div class="right-box rounded">
+    <div class="form-row">
+        <div align="right">
+            <input class="to-del open" type="button" value="增加" onclick="addActivity();"/>
+        </div>
+    </div>
+    <div class="tb-box">
+        <table class="tb" cellspacing="0" cellpadding="0">
+            <tr class="tit-bg">
+                <td width="64">素材名称</td>
+                <td width="84">素材小图</td>
+                <td width="160">素材大图</td>
+                <td width="40">排序</td>
+                <td width="40">附件</td>
+                <td width="40">状态</td>
+                <td width="40">创建时间</td>
+                <td width="112">操作</td>
+            </tr>
+            #foreach($activityList in $activityList)
+                <tr>
+                    <td>$!activityList.activityName</td>
+                    <td><img width="100px" height="150px"
+                             src="$activityimageserver.getTarget("")$!activityList.smallPic"/></td>
+                    <td><img width="100px" height="150px"
+                             src="$activityimageserver.getTarget("")$!activityList.largePic"/></td>
+                    <td><input type="text" value="$!activityList.seq"
+                               onblur="updateSeq(this.value,$activityList.seq,$activityList.Id);" style="width: 20px;">
+                    </td>
+                    <td width="40">
+                        #if($stringUtils.isNotBlank($!activityList.fileUrl))
+                            已上传
+                        #else
+                            未上传
+                        #end
+                    </td>
+                    <td>#if($!activityList.pubedStatus==true)
+                        <a href="javascript:void(0);" onclick="changePubedStatus($!activityList.Id,false);">上线</a>
+                    #elseif($!activityList.pubedStatus==false)
+                        <a href="javascript:void(0);" onclick="changePubedStatus($!activityList.Id,true);">下线</a>
+                    #end</td>
+                    <td>$dateFormatUtils.format($!activityList.created)</td>
+                    <td><a href="javascript:void(0);" class="pa open" onclick="modifyActivity($!activityList.Id)">编辑</a>
+                        &nbsp;|&nbsp;
+                        <a class="pa open" href="javascript:void(0);"
+                           onclick="activityRelevanceChannel($!activityList.Id)">关联渠道</a>
+                        &nbsp;|&nbsp;
+                        <a class="pa" href="javascript:void(0);"
+                           onclick="deleteActivity($!activityList.Id,$!activityList.seq)">删除</a></td>
+                </tr>
+            #end
+        </table>
+    </div>
+</div>
+<div class="paging fr">
+    <div class="paging-box_2"> #set($pageModule=$domain.getTarget("/activityManager/activityList.action").addQueryData("pageSize",$!pageSize))
+        #showPage($pageModule $activityList) </div>
+</div>
+
+<div class="classPop" style="width:800px;height:500px;" id="confirmPop">
+
+</div>

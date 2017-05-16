@@ -1,0 +1,28 @@
+#set($title = "类目管理-添加IMEI号")
+#set($layout="content.vm")
+<script type="text/javascript">
+    $(document).ready(function() {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.2 });
+    });
+</script>
+<div class="pop-top">
+    <div class="ac">
+        <h2>添加IMEI号</h2>
+    </div>
+</div>
+<div class="pop-box">
+    <div class="con">
+        <table class="tb" cellspacing="0" cellpadding="0" id="content" width="100%" height="100%">
+            <tr>
+                <td width="100"><label>IMEI号：</label></td>
+                <td width="250">
+                    <input id="imeiNumber" name="imeiNumber" class="input" style="margin-left: 8px;"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="btn-box">
+    <input id="add" class="btn" type="button" value="确 定" onclick="savePadImei();">
+    <input id="closeDiv" class="close" type="button" value="取 消">
+</div>

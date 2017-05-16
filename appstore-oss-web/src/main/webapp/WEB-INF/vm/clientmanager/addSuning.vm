@@ -1,0 +1,90 @@
+#set($layout="content.vm")
+<link rel="stylesheet" href="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/uploadify.css")" type="text/css"
+      media="screen"/>
+<script type="text/javascript" src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/swfobject.js")"></script>
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/jquery.uploadify.v2.1.4.min.js")"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        uploadFile();
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "add", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+    function uploadFile() {
+        $("#file_upload").uploadify({
+            'uploader': '/appstore-man/js/uploadify-v2.1.4/uploadify.swf',    //组件自带的flash，路径根据情况自行调整
+            'script': '$assetModule.getTarget("/upload/uploadImg.action")',
+            'cancelImg': '/appstore-man/js/uploadify-v2.1.4/cancel.png',
+            'fileDataName': 'uploadFile',
+            'queueID': "fileQueue_suningFile",     //放置上传文件及上传进度的Html元素Id
+            'queueSizeLimit': 1,        //-次最多选择多少个文件上传，这里限定为一个
+            'fileDesc': '*.*',
+            'fileExt': '*.*',
+            'buttonImg': '/appstore-man/images/uploadVersion.png',
+            'auto': true,            //是否选取文件后自动上传
+            'multi': false,           //多文件上传时必须打开
+            'scriptData': {'flag': 3},
+            'onError': function (event, queueID, fileObj, errorObj) {
+                alert(" 上传失败" + errorObj.info + " 错误类型" + errorObj.type);
+            },
+            'onComplete': function (event, queueID, fileObj, response, data) {
+                $("#FileUrl").val(response);
+                $("#fileUrlStatus").html("已上传");
+            }
+        });
+    }
+</script>
+<div class="pop-top">
+    <div class="ac">
+        <h2>添加苏宁安装包</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+        <div class="con">
+            <table class="tb" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td width="120">
+                        <label>
+                            门店编号：
+                        </label>
+                    </td>
+                    <td width="360">
+                        <label>
+                            <input type="text" id="shopId"/>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="120">
+                        <label>
+                            门店名称：
+                        </label>
+                    </td>
+                    <td width="360">
+                        <label>
+                            <input type="text" id="shopName"/>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="120"><label>附件：</label></td>
+                    <td width="360">
+                        <div style=" width:340px;overflow: hidden;">
+                            <label>
+                                <input id="file_upload" name="photo"/>
+                                <div id="fileQueue_suningFile" style="width: 300px;"></div>
+                                <span id="fileUrlStatus"></span>
+                            </label>
+                            <input id="FileUrl" type="hidden"/>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <div class="btn-box">
+        <input class="btn" type="button" value=" 确认完成 " onclick="saveSuning()">
+        <input id="close" class="close" type="button" value="取 消">
+    </div>
+</div>
+

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="AppInstallStatistic">
+    <typeAlias alias="newStatisticObj" type="com.jd.cms.domain.appManagement.NewStatisticObj"/>
+    <typeAlias alias="marketStatInput" type="com.jd.cms.domain.appManagement.MarketStatInput"/>
+    <typeAlias alias="saler" type="com.jd.appstore.domain.Saler"/>
+
+    <select id="appIntallTotal" parameterClass="marketStatInput" resultClass="newStatisticObj">
+        select
+            count(DISTINCT phone_imei) as phoneCounts,
+            count(appid) as appCounts
+        from
+            tb_app_statistic
+        where
+           <![CDATA[install_time >= #startTime#]]>
+        AND
+           <![CDATA[install_time <= #endTime#]]>
+    </select>
+
+    <select id="totalByApp" resultClass="newStatisticObj" parameterClass="marketStatInput">
+        SELECT
+            apps.app_name as appName,
+            apps.appid as appid,
+            details.logo_url as logoUrl,
+            count(phone_imei) as phoneCounts
+        FROM
+            tb_app_statistic AS appStatistic,
+            tb_apps AS apps,
+            tb_app_details AS details
+        WHERE
+            apps.appid = details.appid
+        AND
+            appStatistic.appid = apps.appid
+        AND
+            <![CDATA[install_time >= #startTime#]]>
+        AND
+            <![CDATA[install_time <= #endTime#]]>
+        GROUP BY
+            apps.appid
+        LIMIT #limit#
+        OFFSET #offset#
+    </select>
+
+    <select id="totalByAppCounts" parameterClass="marketStatInput" resultClass="Integer">
+        select
+           count(DISTINCT appid)
+        FROM
+          tb_app_statistic
+        where
+          <![CDATA[install_time >= #startTime#]]>
+        AND
+          <![CDATA[install_time <= #endTime#]]>
+    </select>
+
+
+    <select id="totalByChannel" parameterClass="marketStatInput" resultClass="newStatisticObj">
+        SELECT
+            padChannel.cname as cname,
+            padChannel.id as cid,
+            count(appid) as appCounts,
+            count(DISTINCT phone_imei) as phoneCounts
+        FROM
+            tb_app_statistic as statistic,
+            tb_saler as saler,
+            tb_pad_channel as padChannel
+        where
+            saler.cid=padChannel.id
+        AND
+            statistic.saler_no = saler.saler_no
+        AND
+            <![CDATA[install_time >= #startTime#]]>
+        AND
+            <![CDATA[install_time <= #endTime#]]>
+        GROUP BY
+             padChannel.id
+    </select>
+
+    <select id="channelType" parameterClass="marketStatInput" resultClass="newStatisticObj">
+        SELECT
+            padChannel.cname as cname,
+            padChannel.id as cid,
+            saler.channel_type as channelType,
+            count(appid) as appCounts,
+            count(DISTINCT phone_imei) as phoneCounts
+        FROM
+            tb_app_statistic as statistic,
+            tb_saler as saler,
+            tb_pad_channel as padChannel
+        where
+             saler.cid=padChannel.id
+        AND
+            statistic.saler_no = saler.saler_no
+            AND
+            <![CDATA[install_time >= #startTime#]]>
+            AND
+            <![CDATA[install_time <= #endTime#]]>
+        AND
+            padChannel.id=#cid#
+        GROUP BY
+            saler.channel_type
+    </select>
+    <!--店长和督导的列表-->
+    <select id="salerList" resultClass="String" parameterClass="Integer">
+         select
+            saler_no as salerNo
+         from
+            tb_saler
+         where
+            saler_type = 0
+         or
+            saler_type = 1
+         and
+           cid=#cid#
+    </select>
+
+    <!--渠道下按督导和店长查看应用安装量-->
+    <select id="channelBySaler" parameterClass="marketStatInput" resultClass="newStatisticObj">
+        SELECT
+            saler.saler_no as salerNo,
+            saler.saler_name as salerName,
+            saler.shop_name as shopName,
+            saler.saler_type as salerType,
+            saler.channel_type as channelType,
+            c.appCounts as appCounts,
+            c.phoneCounts as phoneCounts
+        FROM
+            tb_saler as saler,
+            (SELECT
+            count(appid) AS appCounts,
+            saler.parent_id as parentId,
+            count(DISTINCT phone_imei) AS phoneCounts
+            FROM
+            tb_app_statistic AS statistic,
+            tb_saler AS saler
+            WHERE
+            statistic.saler_no = saler.saler_no
+            AND
+            <![CDATA[install_time >= #startTime#]]>
+            AND
+            <![CDATA[install_time <= #endTime#]]>
+            AND
+            saler.cid=#cid#
+            AND saler.channel_type=#channelType#
+            GROUP BY
+            saler.parent_id) as c
+            WHERE
+            c.parentId=saler.saler_no
+    </select>
+
+    <!--查看督导或者店长下所有的促销员安装详情-->
+    <select id="channelBySalerDetails" parameterClass="marketStatInput" resultClass="newStatisticObj">
+         select
+            statistic.saler_no as salerNo,
+            saler.saler_name as salerName,
+            saler.shop_name as shopName,
+            saler.saler_type as salerType,
+            saler.channel_type as channelType,
+            count(appid) AS appCounts,
+            count(DISTINCT phone_imei) AS phoneCounts
+         from
+            tb_app_statistic AS statistic,
+            tb_saler as saler
+        where
+            statistic.saler_no=saler.saler_no
+        AND
+           <![CDATA[install_time >= #startTime#]]>
+        AND
+           <![CDATA[install_time <= #endTime#]]>
+        AND
+            saler.parent_id =#saler#
+        GROUP BY
+            saler.saler_no
+    </select>
+
+    <select id="appBySalerNo" parameterClass="marketStatInput" resultClass="newStatisticObj">
+        SELECT
+            apps.app_name as appName,
+            apps.appid as appid,
+            details.logo_url as logoUrl,
+            count(phone_imei) as phoneCounts
+        FROM
+            tb_app_statistic AS appStatistic,
+            tb_apps AS apps,
+            tb_app_details AS details
+        WHERE
+           apps.appid = details.appid
+        AND
+           appStatistic.appid = apps.appid
+        AND
+            <![CDATA[install_time >= #startTime#]]>
+        AND
+           <![CDATA[install_time <= #endTime#]]>
+        AND
+           appStatistic.saler_no=#saler#
+        GROUP BY
+           apps.appid
+    </select>
+</sqlMap>

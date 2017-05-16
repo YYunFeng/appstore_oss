@@ -1,0 +1,22 @@
+#set($title = "欢迎")
+
+<form name="form1" action="" method="post">
+    <div class="w">
+        <div id="warp">
+            <div class="wel">
+                <p>欢迎您,$!userinfo.account! 您上次登录时间：$dateFormatUtils.format($!userinfo.created,"yyyy-MM-dd HH:mm")</p>
+
+              #*  <p>您目前拥有以下操作权限</p>*#
+            </div>
+            <ul class="permissions">
+            #foreach($module in $modules)
+                <li>
+                    <input id="$!module.moduleId" value="$!module.moduleName" onclick="forWordAction('$!module.moduleUrl');" type="button" class="btn"/>
+                </li>
+            #end
+            </ul>
+            <div class="clr"></div>
+        </div>
+    </div>
+    <script type="text/javascript" src="$assetModule.getTarget("/appstore-man/js/login/welcome.js")"></script>
+</form>

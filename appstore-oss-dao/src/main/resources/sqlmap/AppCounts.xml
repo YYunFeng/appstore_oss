@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="AppCounts">
+    <typeAlias alias="appCountResult" type="com.jd.cms.domain.appManagement.AppCountResult"/>
+    <typeAlias alias="appCountParameter" type="com.jd.cms.domain.appManagement.AppCountParameter"/>
+
+    <select id="getInstallAppsByCp" parameterClass="appCountParameter" resultClass="appCountResult">
+        SELECT
+        cpinfo.id as cpId,
+        cpinfo.account,
+        count(DISTINCT installstat.appid,
+        installstat.phone_imei) AS installCounts
+        FROM
+        tb_apps as apps,
+        tb_offlineapp_install_stat AS installstat,
+        tb_app_details as details,
+        tb_cp_baseinfo as cpinfo
+        WHERE
+        apps.appid= installstat.appid
+        AND
+        details.id = apps.default_detail_id
+        AND
+        details.appid = apps.appid
+        AND details.accountid =cpinfo.id
+        <isNotEmpty prepend="and" property="startTime">
+            STR_TO_DATE(
+            CONCAT(
+            installstat. YEAR,
+            '-',
+            installstat. MONTH,
+            '-',
+            installstat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(
+            #startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(
+            #endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+        GROUP BY
+        cpId
+        <isEqual property="flag" compareValue="0">
+            limit
+            #endRow#
+            offset
+            #startRow#
+        </isEqual>
+    </select>
+    <select id="getCountAppsByCp" parameterClass="appCountParameter" resultClass="appCountResult">
+        SELECT
+        c.cpId AS cpId,
+        sum(c.countApps) as countApps
+        FROM
+        (
+        SELECT
+        details.accountid AS cpId,
+        apps.appid AS appid,
+        count(
+        DISTINCT countApp.phone_imei
+        ) AS countApps
+        FROM
+        tb_count_app AS countApp,
+        tb_apps AS apps,
+        tb_offlineapp_sale_log AS saleLog,
+        tb_app_details AS details
+        WHERE
+        apps.appid = countApp.appid
+        AND details.id = apps.default_detail_id
+        AND details.appid = apps.appid
+        AND countApp.appid = saleLog.appid
+        AND countApp.phone_imei = saleLog.phone_imei
+        <isNotEmpty prepend="and" property="startTime">
+         STR_TO_DATE(
+        countApp.created,
+        '%Y-%c-%e'
+        ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+        GROUP BY
+        accountId,
+        appid
+        ) AS c
+        GROUP BY
+          cpId
+    </select>
+    <select id="getCountAppsByCpCounts" parameterClass="appCountParameter" resultClass="int">
+        select count(*) from tb_cp_baseinfo
+    </select>
+
+    <select id="getInstallAppByApp" parameterClass="appCountParameter" resultClass="appCountResult">
+        SELECT
+        apps.appid AS appid,
+        apps.app_name AS appName,
+        count(
+        DISTINCT installstat.appid,
+        installstat.phone_imei
+        ) AS installCounts
+        FROM
+        tb_apps AS apps,
+        tb_offlineapp_install_stat AS installstat,
+        tb_app_details AS details
+        WHERE
+        apps.appid = installstat.appid
+        AND details.id = apps.default_detail_id
+        AND details.appid = apps.appid
+        AND details.accountid = #accountId#
+        <isNotEmpty prepend="and" property="startTime">
+            STR_TO_DATE(
+            CONCAT(
+            installstat. YEAR,
+            '-',
+            installstat. MONTH,
+            '-',
+            installstat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(
+            #startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(
+            #endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+        GROUP BY
+        apps.appid
+        <isEqual prepend="" property="flag" compareValue="0">
+            limit
+            #endRow#
+            offset
+            #startRow#
+        </isEqual>
+    </select>
+
+    <select id="getCountAppsByApp" parameterClass="appCountParameter" resultClass="appCountResult">
+        SELECT
+        apps.appid AS appid,
+        count(
+        DISTINCT countApp.phone_imei
+        ) AS countApps
+        FROM
+        tb_count_app AS countApp,
+        tb_apps AS apps,
+        tb_offlineapp_sale_log AS saleLog,
+        tb_app_details AS details
+        WHERE
+        apps.appid = countApp.appid
+        AND details.id = apps.default_detail_id
+        AND details.appid = apps.appid
+        AND details.accountid = #accountId#
+        AND countApp.appid = saleLog.appid
+        AND countApp.phone_imei = saleLog.phone_imei
+        <isNotEmpty prepend="and" property="startTime">
+            STR_TO_DATE(
+            countApp.created,
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+        GROUP BY
+        appid
+    </select>
+    <select id="getCountAppByAppCounts" parameterClass="appCountParameter" resultClass="Integer">
+        SELECT
+        count(apps.appid)
+        FROM
+        tb_apps AS apps,
+        tb_app_details AS details
+        WHERE
+        details.id = apps.default_detail_id
+        AND details.appid = apps.appid
+        AND details.accountid = #accountId#
+    </select>
+
+
+    <select id="appsCountPhoneImei" resultClass="appCountResult" parameterClass="appCountParameter">
+        SELECT
+        apps.app_name as appName,
+        countApp.phone_imei as phoneImei
+        from
+        tb_count_app as countApp,
+        tb_apps as apps
+        WHERE
+        apps.appid = countApp.appid
+        and
+        countApp.appid=#appid#
+        <isEqual property="flag" compareValue="0">
+            limit
+            #endRow#
+            offset
+            #startRow#
+        </isEqual>
+    </select>
+
+    <select id="appsCountPhoneImeiCounts" parameterClass="appCountParameter" resultClass="Integer">
+        select
+        count(*)
+        from (
+        SELECT
+        apps.app_name as appName,
+        countApp.phone_imei as phoneImei
+        from
+        tb_count_app as countApp,
+        tb_apps as apps
+        WHERE
+        apps.appid = countApp.appid
+        and
+        countApp.appid=#appid#) as c
+    </select>
+
+</sqlMap>

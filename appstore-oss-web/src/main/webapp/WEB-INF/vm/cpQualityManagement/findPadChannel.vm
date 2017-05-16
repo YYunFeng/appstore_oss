@@ -1,0 +1,76 @@
+#set($layout="content.vm")
+<script type="text/javascript">
+    $(document).ready(function() {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+    function macroAjaxSubmit(url) {
+        jQuery.ajax({
+                    type:'post',
+                    url:url,
+                    success:function(data) {
+                        jQuery('#cpTable').html(data);
+                    }
+                });
+    }
+
+
+</script>
+<div class="right-box rounded">
+    <div class="form-row">
+        <div align="right">
+            <input class="to-del open" type="button" value="增加渠道" onclick="addPadChannel();"/>
+        </div>
+    </div>
+    <div class="tb-box">
+        <table class="tb" cellspacing="0" cellpadding="0">
+            <tr class="tit-bg">
+                <td width="50">渠道ID</td>
+                <td width="90">渠道名称</td>
+                <td width="160">
+                    说明
+                </td>
+               #* <td width="160">
+                    关联的CP名称
+                </td>*#
+                <td width="160">
+                    网关地址前缀
+                </td>
+                <td>操作</td>
+            </tr>
+            #foreach($pChannels in $padChannels)
+                <tr>
+                    <td>$pChannels.id</td>
+                    <td>$pChannels.cname</td>
+                    <td>
+                        $pChannels.intro
+                    </td>
+                   #* <td>
+                        #if($!stringUtils.isNotBlank($pChannels.cpName))
+                            $pChannels.cpName
+                        #else
+                            <span style="color:#F65D00">暂无关联CP  </span>
+                        #end
+                    </td>*#
+                    <td>
+                        $pChannels.gw
+                    </td>
+                    <td>
+                        <a href="javascript:void(0)" onclick=" modifyPadChannel  ('$!pChannels.id');" class="open">
+                            编辑 </a>|<a
+                            href="javascript:void(0)" onclick="deletePadChannel('$!pChannels.id');"> 删除</a>  #*|
+                      <a href="javascript:void(0)" onclick="relevanceCp('$!pChannels.id');" class="open">编辑关联CP</a>*#
+                    </td>
+                </tr>
+            #end
+        </table>
+    </div>
+</div>
+<!--right_end-->
+<!--paging_start-->
+<div class="paging fr">
+    <div class="paging-box_2">
+        #set($pageModule = $domain.getTarget("/cpQualityManagement/findPadChannel.action").addQueryData("pageSize",$!pageSize))
+                #showPage($pageModule $padChannels)
+    </div>
+</div>
+<!--paging_end-->

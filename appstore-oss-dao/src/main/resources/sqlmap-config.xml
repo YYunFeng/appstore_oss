@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig  PUBLIC "-//iBATIS.com//DTD SQL Map
+Config 2.0/" "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+
+    <settings cacheModelsEnabled="true" enhancementEnabled="true"
+              lazyLoadingEnabled="false" errorTracingEnabled="true" maxRequests="32"
+              maxSessions="10" maxTransactions="5" useStatementNamespaces="true"/>
+
+    <!--LiangYu begin-->
+    <sqlMap resource="sqlmap/Login.xml"/>
+    <sqlMap resource="sqlmap/UserManager.xml"/>
+    <sqlMap resource="sqlmap/SyncSchedule.xml"/>
+    <sqlMap resource="sqlmap/ErpSchedule.xml"/>
+    <sqlMap resource="sqlmap/SystemMaintenance.xml"/>
+    <!--LiangYu end-->
+    <!--zhounan begin-->
+    <sqlMap resource="sqlmap/CpQualityManagement.xml"/>
+    <sqlMap resource="sqlmap/CpChargeQualification.xml"/>
+    <sqlMap resource="sqlmap/Os.xml"/>
+    <sqlMap resource="sqlmap/Screen.xml"/>
+    <sqlMap resource="sqlmap/AppManagement.xml"/>
+    <sqlMap resource="sqlmap/AppBrowse.xml"/>
+    <!--zhounan end-->
+
+    <sqlMap resource="sqlmap/ClientManager.xml"/>
+    <sqlMap resource="sqlmap/Apps.xml"/>
+    <sqlMap resource="sqlmap/ClientVersionManager.xml"/>
+
+    <!-- 结算接口 -->
+    <sqlMap resource="sqlmap/forAccount.xml"/>
+    <sqlMap resource="sqlmap/Category.xml"/>
+
+    <!--统计-->
+    <sqlMap resource="sqlmap/Statistics.xml"/>
+    <!--营销统计-->
+    <sqlMap resource="sqlmap/MarketStatistic.xml"/>
+    <sqlMap resource="sqlmap/SalerDetails.xml"/>
+    <sqlMap resource="sqlmap/SalesStatistics.xml"/>
+    <sqlMap resource="sqlmap/ValidMachineStatistics.xml"/>
+    <sqlMap resource="sqlmap/AppCounts.xml"/>
+
+    <sqlMap resource="sqlmap/ExceptionLog.xml"/>
+    <sqlMap resource="sqlmap/ProvinceArrStatis.xml"/>
+    <sqlMap resource="sqlmap/Logs.xml"/>
+    <sqlMap resource="sqlmap/AppInstallStatistic.xml"/>
+    <sqlMap resource="sqlmap/IncomeStatistic.xml"/>
+
+</sqlMapConfig>

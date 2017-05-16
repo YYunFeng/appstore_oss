@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+    <package name="recommendManager" namespace="/recommendManager" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.clientmanager.RecommendAction">
+            <result name="init">/WEB-INF/vm/clientmanager/clientManagerLeft.vm</result>
+            <result name="phoneRecommendList">/WEB-INF/vm/clientmanager/phoneRecommendList.vm</result>
+            <result name="padRecommendList">/WEB-INF/vm/clientmanager/padRecommendList.vm</result>
+            <result name="selectHomeAreaType">/WEB-INF/vm/clientmanager/selectHomeAreaType.vm</result>
+            <result name="selectPadHomeAreaType">/WEB-INF/vm/clientmanager/selectPadHomeAreaType.vm</result>
+            <result name="load">/WEB-INF/vm/clientmanager/addPhoneRecommend.vm</result>
+            <result name="loadPad">/WEB-INF/vm/clientmanager/addPadRecommend.vm</result>
+            <result name="webRecommendList">/WEB-INF/vm/clientmanager/webRecommendList.vm</result>
+            <result name="pcRecommendList">/WEB-INF/vm/clientmanager/pcRecommendList.vm</result>
+            <result name="addWebRecommend">/WEB-INF/vm/clientmanager/addWebRecommend.vm</result>
+            <result name="addPCRecommend">/WEB-INF/vm/clientmanager/addPCRecommend.vm</result>
+            <result name="editPhoneRecommend">/WEB-INF/vm/clientmanager/editPhoneRecommend.vm</result>
+            <result name="editPadRecommend">/WEB-INF/vm/clientmanager/editPadRecommend.vm</result>
+            <result name="editWebRecommend">/WEB-INF/vm/clientmanager/editWebRecommend.vm</result>
+            <result name="editPCRecommend">/WEB-INF/vm/clientmanager/editPCRecommend.vm</result>
+            <result name="cpRecommendList">/WEB-INF/vm/clientmanager/cpRecommendList.vm</result>
+            <result name="addCPRecommend">/WEB-INF/vm/clientmanager/addCPRecommend.vm</result>
+            <result name="editCPRecommend">/WEB-INF/vm/clientmanager/editCPRecommend.vm</result>
+        </action>
+    </package>
+    <package name="topicManager" namespace="/topicManager" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.clientmanager.TopicAction">
+            <result name="topicList">/WEB-INF/vm/clientmanager/topicList.vm</result>
+            <result name="addTopic">/WEB-INF/vm/clientmanager/addTopic.vm</result>
+            <result name="editTopic">/WEB-INF/vm/clientmanager/editTopic.vm</result>
+            <result name="padRelevanceTopic">/WEB-INF/vm/clientmanager/padRelevanceTopic.vm</result>
+            <result name="padList">/WEB-INF/vm/clientmanager/padList.vm</result>
+        </action>
+    </package>
+    <package name="rankingManager" namespace="/rankingManager" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.clientmanager.RankingAction">
+            <result name="rankingAppsList">/WEB-INF/vm/clientmanager/rankingAppList.vm</result>
+            <result name="editRanking">/WEB-INF/vm/clientmanager/editRanking.vm</result>
+        </action>
+    </package>
+    <package name="noticeManager" namespace="/noticeManager" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.clientmanager.NoticeAction">
+            <result name="noticeList">/WEB-INF/vm/clientmanager/noticeList.vm</result>
+            <result name="addNotice">/WEB-INF/vm/clientmanager/addNotice.vm</result>
+        </action>
+    </package>
+    <package name="hotWordManager" namespace="/hotWordManager" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.clientmanager.HotWordAction">
+            <result name="hotWordList">/WEB-INF/vm/clientmanager/hotWordList.vm</result>
+            <result name="addHotWord">/WEB-INF/vm/clientmanager/addHotWord.vm</result>
+            <result name="editHotWord">/WEB-INF/vm/clientmanager/editHotWord.vm</result>
+        </action>
+    </package>
+
+    <package name="activityManager" namespace="/activityManager" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.clientmanager.ActivityAction">
+            <result>/WEB-INF/vm/clientmanager/{1}.vm</result>
+        </action>
+    </package>
+
+
+    <package name="compulsory" namespace="/compulsory" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.clientmanager.CompulsoryAction">
+            <result>/WEB-INF/vm/clientmanager/{1}.vm</result>
+        </action>
+    </package>
+
+
+    <package name="suning" namespace="/suning" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.clientmanager.SuningAction">
+            <result>/WEB-INF/vm/clientmanager/{1}.vm</result>
+        </action>
+    </package>
+
+    <package name="cpdateimport" namespace="/cpdateimport" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.clientmanager.CpDateImportAction">
+            <result>/WEB-INF/vm/clientmanager/{1}.vm</result>
+        </action>
+    </package>
+
+</struts>

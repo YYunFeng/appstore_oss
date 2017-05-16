@@ -1,0 +1,118 @@
+#set($layout="content.vm")
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+        var b = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "add", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+    /*分页*/
+function macroAjaxSubmit(url) {
+    var moduleId = document.getElementById('moduleId').value;
+    var areaId = document.getElementById('areaId').value;
+    var clientType = document.getElementById('clientType').value;
+    jQuery.ajax({
+                type:'POST',
+                url:url,
+                data:'clientType='+clientType+'&moduleId='+moduleId+'&areaId='+areaId,
+                success:function(data) {
+                    jQuery('#right_start').html(data);
+                    jQuery('#clientType').val(clientType);
+                    jQuery('#moduleId').get(0).value = moduleId;
+                    loadModuleId(clientType, moduleId, areaId);
+                }
+            });
+}
+;
+
+    function editWebRecommend(id, linkType){
+        jQuery.ajax({
+                    type:'POST',
+                    url:'/recommendManager/editWebRecommend.action',
+                    data:'recommendManagerResult.id='+id+'&recommendManagerResult.linkType='+linkType,
+                    dataType:'html',
+                    success:function(data){
+                        jQuery('#confirmPop').html(data);
+                        jQuery('#recommendId').val(id);
+                        loadLink();
+
+                    }
+                });
+    }
+</script>
+
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/clientmanager/util.js")"></script>
+<div class="right-box rounded">
+        <div class="form-row">
+          <label class="label fl" style="width: 110px;">板块
+              <select id="moduleId" onchange="selectModuleId(3);">
+                  <option value="0">首页</option>
+                  <option value="1">移动软件</option>
+                  <option value="2">移动游戏</option>
+                  <option value="3">网页应用</option>
+              </select>
+          </label>
+          <label class="label fl" style="width: 140px;">区块
+              <select id="areaId">
+              </select>
+          </label>
+          <input class="hide" id="clientType"/>
+          <input id="disabled" class="to-del" type="button" value="检 索" onclick="WebRecommendSearch();">
+          <input class="to-del add fr" type="button" value="增加" onclick="addWebRecommend();"/>
+        </div>
+        <div class="tb-box">
+          <table class="tb" cellspacing="0" cellpadding="0">
+            <tr class="tit-bg">
+              <td width="120">图片</td>
+              <td width="92">链接类型</td>
+              <td width="40">排序</td>
+              <td width="92">状态</td>
+              <td width="92">操作</td>
+            </tr>
+            #foreach($recommend in $recommends)
+            <tr>
+                #if($!recommend.url)
+                    <td><img style="width:100px;height:100px;" src="/uploads/$recommend.url"/></td>
+                    #else
+                    <td><img style="width: 100px;height: 100px;" src="/appstore-man/images/appimg.png"/></td>
+#end
+                #if($!recommend.linkType==0)
+                    <td>应用</td>
+                    #elseif($!recommend.linkType==1)
+                    <td>专题</td>
+                    #elseif($!recommend.linkType==2)
+                    <td>类目</td>
+                    #elseif($!recommend.linkType==3)
+                    <td>外链</td>
+#end
+              <td><input style="width: 20px;" type="text" value="$!recommend.seq"
+                                   onblur="updateRecommendSeq($recommend.id,$recommend.seq,this.value);"/></td>
+              #if($!recommend.pubedStatus==0)
+                  <td>未上线</td>
+                  #else
+                  <td>已上线</td>
+#end
+              <td>
+                  #if($!recommend.pubedStatus==0)
+                      <a href="javascript:void(0)" onclick="updateRecommendPubedStatus($recommend.id,1)">上线</a>
+                      #else
+                      <a href="javascript:void(0)" onclick="updateRecommendPubedStatus($recommend.id,0)">下线</a>
+#end
+                  |<a href="javascript:void(0)" class="add" onclick="editWebRecommend($recommend.id,$recommend.linkType);">编辑</a>
+                  |<a href="javascript:void(0)" onclick="deleteRecommend($recommend.id);">删除</a>
+              </td>
+            </tr>
+            #end
+          </table>
+        </div>
+      </div>
+<div class="paging fr">
+    <div class="paging-box_2">
+        #set($pageModule=$domain.getTarget("/recommendManager/getWebRecommend.action").addQueryData("pageSize",$!pageSize))
+        #showPage($pageModule $recommends) </div>
+</div>
+
+<div class="classPop" style="width:800px;height:500px;" id="confirmPop">
+
+</div>

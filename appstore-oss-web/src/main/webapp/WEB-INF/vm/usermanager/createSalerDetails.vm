@@ -1,0 +1,64 @@
+#set($title = "用户管理-增加促销员信息")
+#set($layout="content.vm")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.2 });
+
+    });
+</script>
+<div class="pop-top">
+    <div class="ac">
+        <h2>增加促销员</h2>
+    </div>
+</div>
+<div class="pop-box">
+    <div class="con">
+        <table class="tb" cellspacing="0" cellpadding="0">
+            <tr>
+                <td width="100"><label>省份：</label></td>
+                <td width="250"><input class="input" type="text" name="province" id="province"/></td>
+            </tr>
+            <tr>
+                <td width="100"><label>城市：</label></td>
+                <td width="250"><input class="input" type="text" name="city" id="city"/></td>
+            </tr>
+            <tr>
+                <td width="100"><label>城市级别：</label></td>
+                <td width="250"><input class="input" type="text" name="cityLevel" id="cityLevel"/></td>
+            </tr>
+            <tr>
+                <td width="100"><label>唯一码：</label></td>
+                <td width="250"><input class="input" type="text" name="onlyCode" id="onlyCode"/></td>
+            </tr>
+            <tr>
+                <td width="100"><label>姓名：</label></td>
+                <td width="250"><input class="input" type="text" name="userName" id="userName"/></td>
+            </tr>
+            <tr>
+                <td width="100"><label>级别：</label></td>
+                <td width="250"><input class="input" type="text" name="level" id="level"/></td>
+            </tr>
+            <tr>
+                <td width="100"><label>促销员类别：</label></td>
+                <td width="250"><input class="input" type="text" name="salerCategory" id="salerCategory"/></td>
+            </tr>
+            <tr>
+                <td width="100"><label>入职时间：</label></td>
+                <td width="250"><input class="input" type="text" name="entryTime" id="entryTime"/></td>
+            </tr>
+            <tr>
+                <td width="100"><label>门店地址：</label></td>
+                <td width="250"><input class="input" type="text" name="shopName" id="shopName"/></td>
+            </tr>
+            <tr>
+                <td width="100"><label>手机号码：</label></td>
+                <td width="250"><input class="input" type="text" name="phoneNumber" id="phoneNumber"/></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="btn-box">
+    <input id="add" class="btn" type="button" value="确 认" onclick="saveSalerDetails();">
+    <input id="closeDiv" class="close" type="button" value="取 消">
+</div>

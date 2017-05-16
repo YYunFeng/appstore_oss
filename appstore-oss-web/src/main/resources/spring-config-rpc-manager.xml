@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       default-autowire="byName">
+
+    <!--<bean id="cookieUtils" class="com.jd.common.web.cookie.CookieUtils"/>-->
+
+    <!-- 供应商接口-->
+    <bean id="vendorManager" class="com.jd.digital.common.rpc.manager.vendor.impl.VendorManagerImpl"/>
+
+    <!-- 应用商店基本信息同步 -->
+    <bean id="appStoreBasicInfoSyncManager" class="com.jd.digital.common.rpc.manager.sync.basicinfo.appstore.impl.AppStoreBasicInfoSyncManagerImpl"/>
+
+    <!-- 同步上下架 -->
+    <bean id="appStoreUpStatusSyncManager" class="com.jd.digital.common.rpc.manager.sync.upStatus.appstore.impl.AppStoreUpStatusSyncManagerImpl"/>
+
+    <!-- 价格修改 -->
+    <bean id="updatePriceSyncManager" class="com.jd.digital.common.rpc.manager.sync.price.impl.UpdatePriceSyncManagerImpl"/>
+
+    <!-- 图片 -->
+    <bean id="imageManager" class="com.jd.digital.common.rpc.manager.img.impl.ImageManagerImpl">
+        <property name="uploadImgAuthCode" value="${appstore.oss.uploadImgAuthCode.domain.name}"/>
+    </bean>
+
+    <!-- 发送email -->
+    <bean id="emailManager" class="com.jd.digital.common.rpc.manager.data.EmailManagerDataImpl"/>
+
+    <!-- 云存储 -->
+    <bean id="jssAppManager" class="com.jd.digital.common.rpc.manager.jss.impl.JssAppManagerImpl">
+        <property name="accessKey" value="${appstore.oss.jss.accessKey}"/>
+        <property name="secertKey" value="${appstore.oss.jss.secertKey}"/>
+        <property name="bucketName" value="${appstore.oss.jss.bucketName}"/>
+    </bean>
+
+    <!-- 评价 -->
+    <bean id="commentManager" class="com.jd.digital.common.rpc.manager.comment.impl.CommentManagerImpl"/>
+
+    <!-- 类目 -->
+    <bean id="categoryManager" class="com.jd.digital.common.rpc.manager.category.impl.CategoryManagerImpl">
+        <property name="firstCategoryId" value="${appstore.oss.category.firstCategoryId}"/>
+    </bean>
+
+    <!-- 短信 -->
+    <bean id="smsManager" class="com.jd.digital.common.rpc.manager.sms.impl.SMSManagerImpl">
+        <property name="senderNum" value="${appstore.oss.sms.senderNum}"/>
+    </bean>
+</beans>

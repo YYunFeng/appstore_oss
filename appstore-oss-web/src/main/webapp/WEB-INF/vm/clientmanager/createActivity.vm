@@ -1,0 +1,139 @@
+#set($layout="content.vm")
+<link rel="stylesheet" href="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/uploadify.css")" type="text/css"
+      media="screen"/>
+<script type="text/javascript" src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/swfobject.js")"></script>
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/jquery.uploadify.v2.1.4.min.js")"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        uploadPic('SmallPic');
+        uploadPic('LargePic');
+        uploadFile('FileUrl');
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "add", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+    function uploadPic(Id) {
+        $("#file_upload" + Id).uploadify({
+            'uploader': '/appstore-man/js/uploadify-v2.1.4/uploadify.swf',    //组件自带的flash，路径根据情况自行调整
+            'script': '$assetModule.getTarget("/upload/uploadImg.action")',
+            'cancelImg': '/appstore-man/js/uploadify-v2.1.4/cancel.png',
+            'fileDataName': 'uploadFile',
+            'queueID': "fileQueue_upload" + Id,     //放置上传文件及上传进度的Html元素Id
+            'queueSizeLimit': 1,        //-次最多选择多少个文件上传，这里限定为一个
+            'fileDesc': '*.jpg;*.jpeg;*.png',
+            'fileExt': '*.jpg;*.jpeg;*.png',
+            'buttonImg': '/appstore-man/images/vot/upload.png',
+            'auto': true,            //是否选取文件后自动上传
+            'multi': false,           //多文件上传时必须打开
+            'scriptData': {'flag': 2},
+            'onError': function (event, queueID, fileObj, errorObj) {
+                alert(" 上传失败" + errorObj.info + " 错误类型" + errorObj.type);
+            },
+            'onComplete': function (event, queueID, fileObj, response, data) {
+                var url = '$activityimageserver.getTarget("")';
+                $("#" + Id).val(response);
+                $("#tempImg_upload" + Id).attr('src', url + response);
+            }
+        });
+    }
+    function uploadFile(Id) {
+        $("#file_upload" + Id).uploadify({
+            'uploader': '/appstore-man/js/uploadify-v2.1.4/uploadify.swf',    //组件自带的flash，路径根据情况自行调整
+            'script': '$assetModule.getTarget("/upload/uploadImg.action")',
+            'cancelImg': '/appstore-man/js/uploadify-v2.1.4/cancel.png',
+            'fileDataName': 'uploadFile',
+            'queueID': "fileQueue_upload" + Id,     //放置上传文件及上传进度的Html元素Id
+            'queueSizeLimit': 1,        //-次最多选择多少个文件上传，这里限定为一个
+            'fileDesc': '*.*',
+            'fileExt': '*.*',
+            'buttonImg': '/appstore-man/images/uploadVersion.png',
+            'auto': true,            //是否选取文件后自动上传
+            'multi': false,           //多文件上传时必须打开
+            'scriptData': {'flag': 2},
+            'onError': function (event, queueID, fileObj, errorObj) {
+                alert(" 上传失败" + errorObj.info + " 错误类型" + errorObj.type);
+            },
+            'onComplete': function (event, queueID, fileObj, response, data) {
+                var url = '$activityimageserver.getTarget("")';
+                $("#" + Id).val(response);
+                $("#fileUrlStatus").html("已上传");
+            }
+        });
+    }
+</script>
+<div class="pop-top">
+    <div class="ac">
+        <h2>添加素材</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+        <div class="con">
+            <table class="tb" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td colspan="2"><label>
+                        素材名称：<input type="text" id="activityName"/>
+                    </label></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><label>
+                        <div class="ac" style=" width: 240px;"> 排序：<input type="text" id="orderSeq" value="1"/></div>
+                    </label><label>
+                        <div class="ac" style="width: 150px;">发布状态：
+                            <select id="pubedStatus">
+                                <option value="false">下线</option>
+                                <option value="true">上线</option>
+                            </select>
+                        </div>
+                    </label></td>
+                </tr>
+                <tr>
+                    <td valign="top" width="150"><label>素材小图：</label></td>
+                    <td>
+                        <div style=" width:360px;overflow: hidden;" id="uploadSmallPic">
+                            <label>
+                                <input id="file_uploadSmallPic" name="photo" />
+
+                                <div id="fileQueue_uploadSmallPic" style="width: 300px;"></div>
+                            </label>
+                            <label><img id="tempImg_uploadSmallPic" style="max-width: 200px; max-height: 100px;"
+                                        src="/appstore-man/images/default.png"/></label>
+                            <input id="SmallPic" type="hidden"/>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top" width="150"><label>素材大图：</label></td>
+                    <td>
+                        <div style=" width:360px;overflow: hidden;" id="uploadLargePic">
+                            <label>
+                                <input id="file_uploadLargePic" name="photo" />
+
+                                <div id="fileQueue_uploadLargePic" style="width: 300px;"></div>
+                            </label>
+                            <label><img id="tempImg_uploadLargePic" style="max-width: 300px; max-height: 150px;"
+                                        src="/appstore-man/images/default.png"/></label>
+                            <input id="LargePic" type="hidden"/>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top" width="150"><label>附件：</label></td>
+                    <td>
+                        <div style=" width:360px;overflow: hidden;" id="uploadFileUrl">
+                            <label>
+                                <input id="file_uploadFileUrl" name="photo" />
+                                <div id="fileQueue_uploadFileUrl" style="width: 300px;"></div>
+                                <span id="fileUrlStatus"></span>
+                            </label>
+                            <input id="FileUrl" type="hidden"/>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="btn-box">
+    <input class="btn" type="button" value=" 确认完成 " onclick="saveActivity();">
+    <input id="close" class="close" type="button" value="取 消">
+</div>

@@ -1,0 +1,47 @@
+#set($layout="content.vm")
+
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/clientmanager/util.js")"></script>
+<script type="text/javascript">
+$(document).ready(function(){
+ var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+ var b = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "to-del", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+});
+</script>
+<div class="right-box rounded">
+        <div class="form-row">
+          <div align="right">
+            <input class="to-del" type="button" value="增加" onclick="addBanner();"/>
+          </div>
+        </div>
+        <div class="tb-box">
+          <table class="tb" cellspacing="0" cellpadding="0">
+            <tr class="tit-bg">
+              <td width="92">图片</td>
+              <td width="92">URL</td>
+              <td width="40">链接类型</td>
+              <td width="92">排序</td>
+              <td width="92">操作</td>
+            </tr>
+            #foreach($banner in $WebBanners)
+            <tr>
+              <td><img style="width: 100px;height: 100px;" src="/uploads/$!banner.url"/></td>
+              <td>$!banner.linkedUrl</td>
+              #if($!banner.linkType==0)
+                    <td>应用</td>
+                    #elseif($!banner.linkType==1)
+                    <td>专题</td>
+                    #elseif($!banner.linkType==2)
+                    <td>类目</td>
+                    #elseif($!banner.linkType==3)
+                    <td>外链</td>
+#end
+              <td>$!banner.seq</td>
+              <td><a href="javascript:deleteBanner('$!banner.id');">删除</a>|替换</td>
+            </tr>
+            #end
+          </table>
+        </div>
+      </div>
+      <div id="paging" class="fr"> #set($pageModule=$domain.getTarget("/clientManager/getWebBannerList.action").addQueryData("pageSize",$!pageSize))
+        #showPage($pageModule $WebBanners) </div>

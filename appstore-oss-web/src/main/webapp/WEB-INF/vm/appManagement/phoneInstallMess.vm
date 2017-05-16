@@ -1,0 +1,70 @@
+#set($layout="content.vm")
+<div class="right-box rounded">
+    <div class="form-row">
+        <label class="label2">串码:</label>
+        <input class="input" type="text" id="phoneImei"/>
+        <label style="width: 180px;text-align: left; padding-left: 12px;" class="label  fl">省份:
+            <select id="province" class="input" style="width:112px;height:24px">
+                <option value="">全部</option>
+                #foreach($padChannel in $padChannelList)
+                    <option value="$padChannel.id">$padChannel.cname</option>
+                #end
+            </select>
+        </label>
+        <label class="label1">应用名称:</label>
+        <input class="input" type="text" id="appName"/>
+        <label class="label2">促销员:</label>
+        <input class="input" type="text" id="saleName"/>
+        <input id="del" class="to-select" type="button" value="查 询" style="float:right"
+               onclick="phoneInstallMessContent()">
+    </div>
+    <div class="form-row">
+        <label class="label2">机型:</label>
+        <input class="input" type="text" id="phoneModelName"/>
+        <label class="label2" style="width: 50px;">时间：</label>
+        <input id="d5221" class="Wdate input" type="text" readonly="readonly"
+               onFocus="var d5222=$dp.$('d5222');WdatePicker({onpicked:function(){d5222.focus();},maxDate:'#F{$dp.$D(\'d5222\')}'})"/>
+        <span>--</span>
+        <input id="d5222" class="Wdate input" type="text" readonly="readonly"
+               onFocus="WdatePicker({minDate:'#F{$dp.$D(\'d5221\')}'})"/>
+        <input id="exportExcel" class="to-select" type="button" onclick="statisticsExcel(1)" style="float:right"
+               value="导出报表"/>
+    </div>
+    <div id="phoneIntallMess">
+
+    </div>
+</div>
+<script type="text/javascript">
+    //分页
+    function macroAjaxSubmit(url) {
+        var phoneImei = $("#phoneImei").val();
+        var province = $("#province").val();
+        var appName = $("#appName").val();
+        var saleName = $("#saleName").val();
+        var phoneModelName = $("#phoneModelName").val();
+        var startTime = $("#d5221").val();
+        var endTime = $("#d5222").val();
+        document.getElementById("Loading").style.display = "block";
+        document.getElementById("Loading2").style.display = "block";
+        jQuery.ajax({
+            type: 'post',
+            url: url,
+            data: {
+                "phoneIntallMessParameter.phoneImei": phoneImei,
+                "phoneIntallMessParameter.cid": province,
+                "phoneIntallMessParameter.appName": appName,
+                "phoneIntallMessParameter.saleName": saleName,
+                "phoneIntallMessParameter.phoneModelName": phoneModelName,
+                "phoneIntallMessParameter.startTime": startTime,
+                "phoneIntallMessParameter.endTime": endTime
+            },
+            success: function (data) {
+                jQuery('#phoneIntallMess').html(data);
+                document.getElementById("Loading").style.display = "none";
+                document.getElementById("Loading2").style.display = "none";
+            }
+        });
+    }
+</script>
+
+

@@ -1,0 +1,181 @@
+#set($layout="content.vm")
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/clientmanager/util.js")"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+        var b = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "add", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+        var c = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "add", idClose: ["close", "closedd"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+    var theContent = $('#tem').find('textarea').each(function() {
+        return $(this).attr('flag') == 'theContent';
+    });
+    if (theContent.length == 1) {
+        addCkeditor(theContent.eq(0).attr('name'));
+    }
+    var content;
+    function addCkeditor(id){
+        var editor = CKEDITOR.instances[id];
+        if(editor){
+            CKEDITOR.remove(editor);
+        }
+        content = CKEDITOR.replace(id);
+
+    }
+
+    /*分页*/
+    function macroAjaxSubmit(url) {
+        var pub = document.getElementById('pubedStatus').value;
+        jQuery.ajax({
+                    type:'POST',
+                    url:url,
+                    data:'pubedStatus='+pub,
+                    success:function(data) {
+                        jQuery('#right_start').html(data);
+                        jQuery('#pubedStatus').get(0).value = pub;
+                    }
+                });
+    }
+    ;
+
+    function doAddNotice(){
+        var subject = encodeURIComponent(document.getElementById('subject').value);
+        var contentText = encodeURIComponent(content.document.getBody().getHtml()) ;
+        jQuery.ajax({
+                    type:'POST',
+                    url:'/noticeManager/doAddNotice.action',
+                    data:'websiteNotice.subject='+subject+'&websiteNotice.content='+contentText+'&websiteNotice.orderSeq=1&websiteNotice.pubedStatus=0',
+                    dataType:'html',
+                    success:function(data){
+                        getNoticeListByPub();
+                    }
+                });
+    };
+
+    function addNotice(){
+        jQuery('#subject').val('');
+        content.document.getBody().setHtml('');
+        var curObj = document.getElementById('addBtn');
+        curObj.onclick = doAddNotice;
+    };
+var updateId;
+    function editNotice(id){
+        updateId = id;
+        var curObj = document.getElementById('addBtn');
+        curObj.onclick = updateNotice;
+        jQuery.ajax({
+                    type:'POST',
+                    url:'/noticeManager/findNoticeById.action',
+                    data:'websiteNotice.id='+id,
+                    dataType:'json',
+                    complete:function(data){
+                        var result = eval("(" + data.responseText + ")");
+                        jQuery('#subject').val(result.map.notices[0].subject);
+                        content.document.getBody().setHtml(result.map.notices[0].content);
+                    }
+                });
+    };
+
+    function updateNotice(){
+        var subject = encodeURIComponent(document.getElementById('subject').value);
+        var contentText = encodeURIComponent(content.document.getBody().getHtml());
+        jQuery.ajax({
+                    type:'POST',
+                    url:'/noticeManager/updateNotice.action',
+                    data:'websiteNotice.id='+updateId+'&websiteNotice.subject='+subject+'&websiteNotice.content='+contentText,
+                    dataType:'html',
+                    success:function(data){
+                        getNoticeListByPub();
+                    }
+                });
+    };
+</script>
+
+<div class="right-box rounded">
+    <div class="form-row">
+
+            <label class="label fl" style="width: 160px;text-align: left; padding-left: 12px;">发布状态
+                <select id="pubedStatus" size="1">
+                    <option value="2">全部</option>
+                    <option value="0">未上线</option>
+                    <option value="1">已上线</option>
+                </select>
+            </label>
+            <input id="disabled" class="to-del" type="button" value="检 索" onclick="getNoticeListByPub();">
+
+        <input class="to-del add fr" type="button" value="增加资讯" onclick="addNotice();"/>
+
+    </div>
+    <div class="tb-box">
+        <table class="tb" cellspacing="0" cellpadding="0">
+            <tr class="tit-bg">
+                <td width="120">资讯标题</td>
+                <td width="92">发布时间</td>
+                <td width="40">排序</td>
+                <td width="92">状态</td>
+                <td width="92">操作</td>
+            </tr>
+            #foreach($notice in $notices)
+                <tr>
+                    <td>$!notice.subject</td>
+                    <td>$dateFormatUtils.format($!notice.pubTime,"yyyy-MM-dd HH:mm:ss")</td>
+                    <td><input style="width: 15px;" type="text" value="$!notice.orderSeq"
+                               onblur="updateNoticeSeq($notice.id,$notice.orderSeq,this.value);"/></td>
+                    #if($!notice.pubedStatus==0)
+                        <td>未上线</td>
+                    #else
+                        <td>已上线</td>
+                    #end
+                    <td>
+                        #if($!notice.pubedStatus==0)
+                            <a href="javascript:void(0)" onclick="updateNoticePubedStatus($notice.id,1)">上线</a>
+                        #else
+                            <a href="javascript:void(0)" onclick="updateNoticePubedStatus($notice.id,0)">下线</a>
+                        #end
+                        |<a href="javascript:void(0)" class="add" onclick="editNotice($notice.id);">编辑</a>
+                        |<a href="javascript:void(0)" onclick="deleteNotice($notice.id,$notice.orderSeq)">移除</a>
+                    </td>
+                </tr>
+            #end
+        </table>
+    </div>
+</div>
+<div class="paging fr">
+    <div class="paging-box_2"> #set($pageModule=$domain.getTarget("/noticeManager/getNoticeListByPub.action").addQueryData("pageSize",$!pageSize))
+        #showPage($pageModule $notices)
+    </div>
+</div>
+<div class="classPop" style="width:800px;height:500px;">
+    <div class="pop-top">
+        <div class="ac" class="hide">
+            <h2>资讯</h2>
+        </div>
+    </div>
+    <div class="pop-scrollbar">
+        <div class="pop-box">
+            <div class="con">
+                <table cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td width="95"><label>标题：</label></td>
+                        <td width="650"><p>
+                            <input class="input" id="subject" style="width:300px;" type="text"/>
+                        </p></td>
+                    </tr>
+                    <tr>
+                        <td><label>内容：</label></td>
+                        <td><p><div id="tem"><textarea id="editor" name="editor" flag="theContent"></textarea></div></p></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="btn-box">
+        <input id="addBtn" class="btn closedd" type="button" value="确 认" onclick="doAddNotice();">
+        <input id="closeAddNotice" class="close" type="button" value="取 消">
+    </div>
+</div>
+
+
+

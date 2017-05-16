@@ -1,0 +1,281 @@
+#set($layout="content.vm")
+<link rel="stylesheet" href="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/uploadify.css")" type="text/css"
+      media="screen"/>
+<script type="text/javascript" src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/swfobject.js")"></script>
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/jquery.uploadify.v2.1.4.min.js")"></script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        uploadPic();
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+        appArray.length = 0;
+        num();
+    });
+
+    function uploadPic() {
+        $("#file_upload").uploadify({
+            'uploader': '/appstore-man/js/uploadify-v2.1.4/uploadify.swf',    //组件自带的flash，路径根据情况自行调整
+            'script': '$assetModule.getTarget("/upload/uploadImg.action")',
+            'cancelImg': '/appstore-man/js/uploadify-v2.1.4/cancel.png',
+            'fileDataName': 'uploadFile',
+            'queueID': 'fileQueue',     //放置上传文件及上传进度的Html元素Id
+            'queueSizeLimit': 1,        //-次最多选择多少个文件上传，这里限定为一个
+            'fileDesc': '*.jpg;*.jpeg;*.png',
+            'fileExt': '*.jpg;*.jpeg;*.png',
+            'buttonImg': '/appstore-man/images/vot/upload.png',
+            'auto': true,            //是否选取文件后自动上传
+            'multi': false,           //多文件上传时必须打开
+            'scriptData': {'flag': 1},
+            'onError': function (event, queueID, fileObj, errorObj) {
+                alert(" 上传失败" + errorObj.info + " 错误类型" + errorObj.type);
+            },
+            'onComplete': function (event, queueID, fileObj, response, data) {
+                $("#logoUrl").val(response);
+                var imgserver = '$topictempimageserver.getTarget("")';
+                $('#tempImg').attr('src', imgserver + response);
+            }
+        });
+    }
+
+    function uploadFile() {
+        jQuery('#file_upload').uploadifyupload();
+    }
+
+    /**
+     * 备注提示
+     */
+    function num() {
+        var maxLength = 300;
+        var textLength = jQuery('#intro').val().length;
+        if (textLength <= maxLength) {
+            jQuery('#msg').html(maxLength - textLength);
+        } else {
+            jQuery('#intro').val(jQuery('#intro').val().substr(0, maxLength));
+            jQuery('#msg').html(0);
+        }
+    }
+
+
+    function removeTopicApp(id, obj) {
+        jQuery.ajax({
+            type: 'POST',
+            url: '/topicManager/deleteTopicAppById.action',
+            data: 'topicApp.id=' + id,
+            dataType: 'json',
+            complete: function (data) {
+                var result = eval("(" + data.responseText + ")");
+                if (result.success) {
+                    var tr = obj.parentNode.parentNode;
+                    var ttb = tr.parentNode;
+                    var tb = ttb.parentNode;
+                    tb.removeChild(ttb);
+                } else {
+                    alert('移除失败');
+                }
+            }
+        });
+    }
+
+
+    function updateTopic(id) {
+        var logoUrl = document.getElementById('logoUrl').value;
+        var topicName = document.getElementById('topicName').value;
+        var intro = document.getElementById('intro').value;
+        var pubedStatus = document.getElementById('topicPubedStatus').value;
+        var order_seq = document.getElementById('orderSeq').value;
+        jQuery.ajax({
+            type: 'POST',
+            url: '/topicManager/updateTopic.action',
+            data: 'topic.topicId=' + id + '&topic.topicName=' + topicName + '&topic.topicType=1&topic.logoUrl=' + logoUrl + '&topic.intro=' + intro + '&topic.pubedStatus=' + pubedStatus + '&topic.orderSeq=' + order_seq,
+            dataType: 'json',
+            complete: function (data) {
+                result = eval("(" + data.responseText + ")");
+                if (result.success) {
+                    getTopicListByPub();
+                    $('#close').click();
+                    $('#addTr').find('input[name="topicObj"]').each(function () {
+                        addTopicApp(id, this.value);
+                    });
+                } else {
+                    alert('更新失败');
+                }
+            }
+        });
+    }
+
+
+    function updateTopicAppSeq(id, orderSeq, val) {
+        if (orderSeq != val) {
+            var r = confirm("是否修改排序？");
+            if (r == true) {
+                jQuery.ajax({
+                    type: 'POST',
+                    url: '/topicManager/updateTopicAppSeq.action',
+                    data: 'topicApp.id=' + id + '&topicApp.orderSeq=' + val,
+                    dataType: 'html'
+                });
+            }
+        }
+    }
+    function changeActivation(id, checked) {
+        var activation = '';
+        if (checked == true) {
+            activation = 1;
+        } else {
+            activation = 0;
+        }
+        jQuery.ajax({
+            type: 'POST',
+            url: '/topicManager/changeActivation.action',
+            data: 'topicApp.id=' + id + '&topicApp.activation=' + activation,
+            dataType: 'html'
+        });
+    }
+    function changeStatusForApp(appid,topicId, status) {
+        if (status == 0) {
+            status = 1;
+        } else {
+            status = 0;
+        }
+        jQuery.ajax({
+            type: 'POST',
+            url: '/topicManager/changeStatusForApp.action',
+            data: {'topicApp.id': topicId,
+                  'topicApp.appId': appid,
+                  'topicApp.pubedStatus': status
+            },
+            dataType: 'json'
+        });
+    }
+</script>
+<div class="pop-top">
+    <div class="ac">
+        <h2>编辑专题</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+        <div class="con">
+            <table class="tb" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td width="90"><label>专题名称：</label></td>
+                    <td width="585" colspan="2"><p>
+                        <input id="topicName" class="input" style="width:300px;" type="text"
+                               value="$topicResult.topicName"/>
+                    </p></td>
+                </tr>
+                <tr>
+                    <td><label>在线状态：</label></td>
+                    <td colspan="2">
+                        #if($topicResult.pubedStatus==0)
+                            下线<input type='hidden' id="topicPubedStatus" value='0'/>
+                        #else
+                            上线<input type='hidden' id="topicPubedStatus" value='1'/>
+                        #end
+                    </td>
+                    <div class="hide"><label>排序：</label><input type="text" id="orderSeq"
+                                                               value="$!topicResult.orderSeq"/></div>
+                </tr>
+                <tr>
+                    <td><label>专题图片：</label></td>
+                    <td colspan="2">
+                        <div>
+                            <p>
+                                <input id="file_upload" name="photo" type="file"/>
+
+                            <div id="fileQueue" style="width: 400px;"></div>
+                            </p>
+                        </div>
+                        <div>
+                            <div><p>建议大小：300*152</p></div>
+                            <div><p>
+                                <img id="tempImg" width="300"
+                                     src="$topicimageserver.getTarget('')$!topicResult.logoUrl"/>
+                            </p></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="hide"><input type="text" id="logoUrl" value="$!topicResult.logoUrl"/></td>
+                    <td><input id="topicType" value="1" class="hide"/></td>
+                </tr>
+                <tr>
+                    <td><label>专题简介：</label></td>
+                    <td colspan="2"><label>
+                        <textarea id="intro" style="width:488px;" maxlength="300"
+                                  onkeyup="num();">$!topicResult.intro</textarea>
+                    </label>
+                        <label>
+                            <span style="color: #FF0000;">剩余字数：<span id="msg">300</span> 字</span></label>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top"><label>选择应用：</label></td>
+                    <td width="265" valign="top"><p>应用名称：
+                        <input class="input" style="width:85px;" type="text" id="appName"/>
+                        <input class="btn" type="button" value="搜 索" onclick="searchAppByNameForTopic();">
+                    </p>
+
+                        <p>
+
+                        <div id="appInTopic"></div>
+                        </p></td>
+                    <td width="310" valign="top"><p style="line-height:32px;">已选择的应用</p>
+
+                        <p>
+                        <table align="center" class="tb" cellspacing="0" cellpadding="0" align="center">
+                            <tr>
+                                <td width="34"><p class="ac">激活</p></td>
+                                <td width="100"><p class="ac">名称</p></td>
+                                <td><p class="ac">图标</p></td>
+                                <td><p class="ac">排序</p></td>
+                                <td><p class="ac">状态</p></td>
+                                <td width="40"><p class="ac">操作</p></td>
+                            </tr>
+                            #foreach($topicApp in $topicAppResult)
+                                <tr>
+                                    <td><label><input type="checkbox"
+                                                      onchange="changeActivation($topicApp.id,this.checked);" #if($topicApp.activation==1)
+                                                      checked="checked"
+                                        #end/></label></td>
+                                    <td><p class="ac">$topicApp.appName</p></td>
+                                    <td><label>
+                                        <div class="app-ico">
+                                            <img src="$imgserver.getTarget('')cover/$!topicApp.appLogo"/>
+                                        </div>
+                                    </label></td>
+                                    <td><p><input class="input ac" style="width:20px" type="text"
+                                                  value="$!topicApp.orderSeq"
+                                                  onblur="updateTopicAppSeq($topicApp.id,$topicApp.orderSeq,this.value);"/>
+                                    </p></td>
+                                    <td>
+                                        <p>
+                                            <select onchange="changeStatusForApp('$topicApp.appId','$topicApp.id',this.value)">
+                                                <option value="$!topicApp.pubedStatus" #if($!topicApp.pubedStatus==1)
+                                                        selected="selected"
+                                                #end>上线
+                                                </option>
+                                                <option value="$!topicApp.pubedStatus" #if($!topicApp.pubedStatus==0)
+                                                        selected="selected"
+                                                #end>下线
+                                                </option>
+                                            </select>
+                                        </p>
+                                    </td>
+                                    <td><p class=" ac"><a href="javascript:void(0)"
+                                                          onclick="removeTopicApp($topicApp.id, this);">移除</a></p></td>
+                                </tr>
+                            #end
+                            <tbody id="addTr"></tbody>
+                        </table>
+                        </p></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="btn-box">
+    <input class="btn" type="button" value=" 确 认 完 成 " onclick="updateTopic($topicResult.topicId);">
+    <input id="close" class="close" type="button" value="取 消">
+</div>

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       default-autowire="byName">
+
+    <bean name="velocityTools" class="java.util.HashMap">
+        <constructor-arg>
+            <map>
+                <entry key="stringUtils">
+                    <bean class="org.apache.commons.lang.StringUtils"/>
+                </entry>
+                <entry key="stringEscapeUtils">
+                    <bean class="org.apache.commons.lang.StringEscapeUtils"/>
+                </entry>
+                <entry key="dateFormatUtils">
+                    <bean class="com.jd.common.util.DateFormatUtils"/>
+                </entry>
+                <entry key="dateUtils">
+                    <bean class="org.apache.commons.lang.time.DateUtils"/>
+                </entry>
+
+                <entry key="webHelper">
+                    <bean class="com.jd.digital.common.util.tool.WebHelper"/>
+                </entry>
+                <entry key="subStrUtil">
+                    <bean class="com.jd.cms.common.util.Util"/>
+                </entry>
+                <entry key="filePathUtils">
+                    <bean class="com.jd.appstore.domain.utils.FilePathUtils">
+                        <property name="androidApkPath" value="${appstore.oss.filepath.android.apk}"/>
+                        <property name="webSwfPath" value="${appstore.oss.filepath.web.swf}"/>
+                        <property name="imgPicPath" value="${appstore.oss.filepath.img.pic}"/>
+                        <property name="coverPicPath" value="${appstore.oss.filepath.cover.pic}"/>
+                        <property name="recImagePath" value="${appstore.oss.upload.recImage}"/>
+                    </bean>
+                </entry>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="jdUrlUtils" class="com.jd.common.web.url.JdUrlUtils"/>
+    <bean id="velocityUrl" class="java.util.HashMap">
+        <constructor-arg>
+            <map>
+
+                <entry key="imgserver">
+                    <bean class="com.jd.common.web.url.JdUrl">
+                        <property name="url" value="${appstore.oss.aliyun.picPath}"/>
+                    </bean>
+                </entry>
+
+                <entry key="categoryserver">
+                    <bean class="com.jd.common.web.url.JdUrl">
+                        <property name="url" value="${appstore.oss.filepath.categoryImage}"/>
+                    </bean>
+                </entry>
+
+                <entry key="androiddriverserver">
+                      <bean class="com.jd.common.web.url.JdUrl">
+                          <property name="url" value="${appstore.oss.filepath.androidDriver}"/>
+                      </bean>
+                </entry>
+
+                <entry key="recimageserver">
+                    <bean class="com.jd.common.web.url.JdUrl">
+                        <property name="url" value="${appstore.oss.filepath.recImage}"/>
+                    </bean>
+                </entry>
+
+
+                <entry key="activityimageserver">
+                    <bean class="com.jd.common.web.url.JdUrl">
+                        <property name="url" value="${appstore.oss.filepath.activityImage}"/>
+                    </bean>
+                </entry>
+                <entry key="topicimageserver">
+                    <bean class="com.jd.common.web.url.JdUrl">
+                        <property name="url" value="${appstore.oss.filepath.topicImage}"/>
+                    </bean>
+                </entry>
+
+                <entry key="topictempimageserver">
+                    <bean class="com.jd.common.web.url.JdUrl">
+                        <property name="url" value="${appstore.oss.filepath.topicTempImage}"/>
+                    </bean>
+                </entry>
+
+                <entry key="coverserver">
+                    <bean class="com.jd.common.web.url.JdUrl">
+                        <property name="url" value="http://${appstore.oss.filepath.picPath}/"/>
+                    </bean>
+                </entry>
+
+                <entry key="domain">
+                    <bean class="com.jd.common.web.url.JdUrl">
+                        <property name="url" value="http://${appstore.oss.domain.name}/"/>
+                    </bean>
+                </entry>
+
+                <entry key="assetModule">
+                    <bean class="com.jd.common.web.url.JdUrl">
+                        <property name="url" value="http://${appstore.oss.asset.domain.name}/"/>
+                    </bean>
+                </entry>
+            </map>
+        </constructor-arg>
+    </bean>
+
+    <bean id="layoutResult" class="com.jd.common.struts.velocity.VelocityLayoutResult"/>
+
+    <bean id="jdSecurity" class="com.jd.common.web.security.FilePathSecurity">
+        <property name="unProtectedFile">
+            <list>
+                <value>/login/welcome.action</value>
+                <value>/login/login.action</value>
+                <value>/categoryMaintenance/uploadPic.action</value>
+                <value>/upload/uploadImg.action</value>
+                <value>/bulkUpload/uploadExcel.action</value>
+                <value>/upload/uploadClientVersion.action</value>
+            </list>
+        </property>
+        <property name="unProtectedPath">
+            <list>
+                <value>/help/</value>
+            </list>
+        </property>
+    </bean>
+
+
+    <bean id="cookieCipherTools" class="com.jd.common.web.cookie.CookieCipherTools">
+        <property name="charsetName" value="gbk"/>
+    </bean>
+    <bean id="cookieUtils" class="com.jd.common.web.cookie.CookieUtils"/>
+    <bean class="com.jd.common.web.cookie.JdCookie" abstract="true" id="jdEncryptCookie">
+        <property name="encrypt" value="true"/>
+        <property name="key" value="${appstore.oss.cookie.key}"/>
+    </bean>
+    <bean abstract="true" parent="jdEncryptCookie" id="jdLoginCookie">
+        <property name="path" value="/"/>
+        <!--
+        <property name="domain" value=".360buy.net"/>
+        -->
+    </bean>
+    <bean id="jdCookie" class="java.util.ArrayList">
+        <constructor-arg>
+            <list>
+                <bean parent="jdLoginCookie">
+                    <property name="name" value="${appstore.oss.cookie.name}"/>
+                </bean>
+                <bean parent="jdLoginCookie">
+                    <property name="name" value="${appstore.oss.cookie.id}"/>
+                </bean>
+                <bean parent="jdLoginCookie">
+                    <property name="name" value="${appstore.oss.cookie.remembername}"/>
+                </bean>
+                <bean parent="jdLoginCookie">
+                    <property name="name" value="${appstore.oss.cookie.rememberpwd}"/>
+                </bean>
+                <bean parent="jdLoginCookie">
+                    <property name="name" value="_latn_"/>
+                </bean>
+
+                <bean class="com.jd.common.web.cookie.JdCookie">
+                    <property name="name" value="${appstore.oss.hrm.auth.cookie.name}"/>
+                    <property name="domain" value="${appstore.oss.hrm.auth.cookie.domain}"/>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+    <bean class="com.jd.cms.common.interceptor.JdAppStoreLoginContextInterceptor">
+        <property name="loginCookieKey" value="${appstore.oss.cookie.name}"/>
+        <property name="sessionTimeout" value="${appstore.oss.session.timeout}"/>
+        <property name="dotnetAuthCookieName" value="${appstore.oss.hrm.auth.cookie.name}"/>
+        <property name="dotnetAuthenticationKey" value="${appstore.oss.hrm.login.auth.key}"/>
+    </bean>
+</beans>

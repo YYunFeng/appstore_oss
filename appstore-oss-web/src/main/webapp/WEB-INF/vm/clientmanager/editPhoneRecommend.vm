@@ -1,0 +1,251 @@
+#set($layout="content.vm")
+<link rel="stylesheet" href="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/uploadify.css")" type="text/css"
+      media="screen"/>
+<script type="text/javascript" src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/swfobject.js")"></script>
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/jquery.uploadify.v2.1.4.min.js")"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#file_upload").uploadify({
+                    'uploader':'/appstore-man/js/uploadify-v2.1.4/uploadify.swf',    //组件自带的flash，路径根据情况自行调整
+                    'script':'$assetModule.getTarget("/upload/uploadImg.action")',
+                    'cancelImg':'/appstore-man/js/uploadify-v2.1.4/cancel.png',
+                    'fileDataName':'uploadFile',
+                    'queueID':'fileQueue',     //放置上传文件及上传进度的Html元素Id
+                    'queueSizeLimit':1,        //-次最多选择多少个文件上传，这里限定为一个
+                    'fileDesc':'*.jpg;*.jpeg;*.png',
+                    'fileExt':'*.jpg;*.jpeg;*.png',
+                    'buttonImg' : '/appstore-man/images/vot/upload.png',
+                    'auto':true,            //是否选取文件后自动上传
+                    'multi':false,           //多文件上传时必须打开
+                    'onError':function(event, queueID, fileObj, errorObj) {
+                        alert(" 上传失败" + errorObj.info + " 错误类型" + errorObj.type);
+                    },
+                    'onComplete':function(event, queueID, fileObj, response, data) {
+                        var url = '$recimageserver.getTarget("")'+response;
+                        var html = '<label><img style="max-width: 300px; max-height: 150px;" src="' + url  + '"/></label>';
+                        $('#tempImg').html(html);
+                        $("#logoUrl").val(response);
+                    }
+                });
+        loadPhoneLinkType();
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+    function uploadFile() {
+        jQuery('#file_upload').uploadifyupload();
+    }
+
+    function updatePhoneRecommend() {
+        var recommendId = document.getElementById('recommendId').value;
+        var photoType = document.getElementsByName('photoType');
+        var intro = '';
+        var selectPhotoType;
+        for (var i = 0; i < photoType.length; i++) {
+            if (photoType[i].checked) {
+                selectPhotoType = photoType[i].value.toString();
+                break;
+            }
+        }
+        var url = '';
+        var logoUrl = document.getElementById("logoUrl").value;
+        var linkType = document.getElementById('linkType').value;
+        var result = '';
+        var linkedAppid = '';
+        var resultUrl = '';
+        var isAppLogo = 0;
+        var tempAppLogo = 1;
+        var st = "请选择应用！";
+        if (linkType == 0) {
+            st = "请选择应用";
+            var appLink = document.getElementsByName('appResult');
+            for (var i = 0; i < appLink.length; i++) {
+                if (appLink[i].checked) {
+                    result = appLink[i].value.toString();
+                    break;
+                }
+            }
+            if (result != '') {
+                linkedAppid = result.split(',')[1];
+                resultUrl = result.split(',')[2];
+                tempAppLogo = result.split(',')[3];
+            }
+        } else if (linkType == 1) {
+            st = "请选择专题！";
+            var topicLink = document.getElementsByName('topicResult');
+            for (var i = 0; i < topicLink.length; i++) {
+                if (topicLink[i].checked) {
+                    result = topicLink[i].value.toString();
+                    break;
+                }
+            }
+            if (result != '') {
+                linkedAppid = result.split(',')[1];
+                resultUrl = result.split(',')[2];
+            }
+        } else if (linkType == 2) {
+            st = "请选择类目！";
+            var linkedCate = document.getElementById('childId').value;
+            linkedAppid = linkedCate.split(",")[0];
+            resultUrl = linkedCate.split(",")[1];
+        } else if (linkType == 3) {
+            st = "请设置外链！";
+            linkedUrl = document.getElementById('linkedUrl').value;
+        }
+        var alerted = 0;
+        if (selectPhotoType == 1) {
+            if (logoUrl == '') {
+                alerted = 1;
+                alert("请选择图片");
+            } else {
+                url = logoUrl;
+            }
+        } else {
+            if (resultUrl != '') {
+                url = resultUrl
+            } else if (logoUrl == '') {
+                alerted = 1;
+                alert(st);
+            } else {
+                url = logoUrl;
+            }
+
+        }
+        if (selectPhotoType == 0 && linkType == 0 && tempAppLogo == 1) {
+            isAppLogo = 1;
+        }
+        var isDefaultImg_p = 1;
+        if (selectPhotoType == 1) {
+            isDefaultImg_p = 0;
+        }
+        if (url != '' && url != null) {
+            jQuery.ajax({
+                        type:'POST',
+                        url:'/recommendManager/updateRecommend.action',
+                        data:'recommendManagerResult.id=' + recommendId + '&recommendManagerResult.url=' + url + '&recommendManagerResult.linkType=' + linkType
+                                + '&recommendManagerResult.linkedAppId=' + linkedAppid + '&recommendManagerResult.defaultImg=' + isDefaultImg_p + '&recommendManagerResult.appLogo=' + selectPhotoType + '&recommendManagerResult.intro=' + intro,
+                        dataType:'html',
+                        success:function(data) {
+                            jQuery('#close').click();
+                            getPhoneRecommend();
+                        }
+                    });
+        } else {
+            if (alerted == 0) {
+                alert('请选择图片！');
+            }
+
+        }
+        //alert("recommendId = " + recommendId+" url = "+url+" linkType = "+linkType+" linkedAppid = "+linkedAppid);
+    }
+</script>
+
+<div class="pop-top">
+    <div class="ac">
+        <h2>编辑推广内容</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+        <div class="con">
+            <div class="hide"><input type="text" id="recommendId"/></div>
+            <table class="tb" cellpadding="0" cellspacing="0">
+                <tr id="homeAreaTypeMode"></tr>
+                <tr>
+                    <td><label>链接类型：</label></td>
+                    <td>
+                        <p>
+                            <select id="linkType" onchange="selectLinkType();">
+                                #if($clientRecommend.linkType==0)
+                                    <option value="0">单品应用</option>
+                                    <option value="1">应用专题</option>
+                                    <option value="2">应用类目</option>
+                                #elseif($clientRecommend.linkType==1)
+                                    <option value="1">应用专题</option>
+                                    <option value="0">单品应用</option>
+                                    <option value="2">应用类目</option>
+                                #elseif($clientRecommend.linkType==2)
+                                    <option value="2">应用类目</option>
+                                    <option value="0">单品应用</option>
+                                    <option value="1">应用专题</option>
+                                #end
+                            </select>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top"><label>图&#12288;&#12288;片：</label></td>
+                    <td>
+                        <label>
+                            #if($clientRecommend.isDefaultImg==1)
+                                <input name="photoType" type="radio" onclick="selectPhoneLogoStyle(this);" value="0"
+                                       checked="true" onselect="emptyLogoUrl();"/>
+                            #else
+                                <input name="photoType" type="radio" onclick="selectPhoneLogoStyle(this);" value="0"
+                                       onselect="emptyLogoUrl();"/>
+                            #end
+                            使用默认图片
+                        </label>
+                        <label>
+                            #if($clientRecommend.isDefaultImg==0)
+                                <input name="photoType" type="radio" value="1" checked="true"
+                                       onclick="selectPhoneLogoStyle(this);" onselect="emptyLogoUrl();"/>
+                            #else
+                                <input name="photoType" type="radio" value="1" onclick="selectPhoneLogoStyle(this);"
+                                       onselect="emptyLogoUrl();"/>
+                            #end
+                            上传图片
+                        </label>
+
+                        <div id="uploadLogo" #if($clientRecommend.isDefaultImg==1) class="hide" #end>
+                            <label>
+                                <input id="file_upload" name="photo" type="file"/>
+
+                                <div id="fileQueue" style="width: 300px;"></div>
+                            </label>
+                        #*<label style="display:block">建议图片尺寸：540x345像素</label>*#
+                            <div id="tip"></div>
+                            <div id="tempImg">
+                                <label>
+                                    #if($clientRecommend.linkType ==0&&$clientRecommend.isAppLogo==0 )
+                                        <img style="max-width: 300px; max-height: 150px;"
+                                             src="$imgserver.getTarget('')cover/$clientRecommend.url"/>
+                                    #elseif($clientRecommend.linkType==1&&$clientRecommend.isAppLogo==0 )
+                                        <img style="max-width: 300px; max-height: 150px;"
+                                             src="$topicimageserver.getTarget('')$clientRecommend.url"/>
+                                    #elseif($clientRecommend.linkType ==2&&$clientRecommend.isAppLogo==0 )
+                                        <img style="max-width: 300px; max-height: 150px;"
+                                             src="$categoryserver.getTarget('')$clientRecommend.url"/>
+                                    #elseif($clientRecommend.isAppLogo==1 )
+                                         <img style="max-width: 300px; max-height: 150px;"
+                                             src="$recimageserver.getTarget('')$clientRecommend.url"/>
+                                    #end
+                                    <label>
+                            </div>
+                                 <input  id="logoUrl" value="$clientRecommend.url" type="hidden"/>
+                        </div>
+                    </td>
+                </tr>
+                <tr id="linkTypeModel"></tr>
+                <tr>
+                    #if($clientRecommend.linkType==0)
+                        <td valign="top"><label>已选应用：</label></td>
+                    <td valign="top"><p>$!stringEscapeUtils.escapeHtml($clientRecommend.name)</p>
+                    #elseif($clientRecommend.linkType==1)
+                        <td valign="top"><label>已选专题：</label></td>
+                        <td valign="top"><p>$!stringEscapeUtils.escapeHtml($clientRecommend.name)</p></td>
+                    #elseif($clientRecommend.linkType==2)
+                        <td valign="top"><label>已选类目：</label></td>
+                        <td valign="top"><p>$clientRecommend.name</p><input type="hidden" id="currentPCategory"
+                                                                            value="$!clientRecommend.pname"/><input
+                                type="hidden" id="currentCategory" value="$!clientRecommend.name"/></td>
+                    #end
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="btn-box">
+    <input class="btn" type="button" value=" 确 认 完 成 " onclick="updatePhoneRecommend();">
+    <input id="close" class="close" type="button" value="取 消">
+</div>

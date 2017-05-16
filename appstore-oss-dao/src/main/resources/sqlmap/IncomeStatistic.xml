@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="IncomeStatistic">
+
+
+    <typeAlias alias="incomeParameter" type="com.jd.cms.domain.systemmaintenance.IncomeParameter"/>
+    <typeAlias alias="incomeStatisticNew" type="com.jd.cms.domain.systemmaintenance.IncomeStatisticNew"/>
+
+
+    <select id="provinceIncomeStatistic" parameterClass="incomeParameter" resultClass="incomeStatisticNew">
+        SELECT
+            cid as cid,
+            padChannel.cname as cname,
+            sum(incomeNew.app_counts) as appCounts,
+            sum(incomeNew.arrive_counts) as arriveCounts,
+            sum(incomeNew.phone_counts) as phoneCounts,
+            sum(incomeNew.act_counts) as actCounts,
+            sum(incomeNew.act_counts_compute) as actCountsCompute
+        FROM
+            tb_income_new as incomeNew,
+            tb_saler as saler,
+            tb_pad_channel as padChannel
+        WHERE
+           saler.saler_no = incomeNew.saler_no
+        and
+           <![CDATA[incomeNew.install_time  >= #startTime#]]>
+        AND
+           <![CDATA[incomeNew.install_time <= #endTime#]]>
+        AND
+           padChannel.id = saler.cid
+        <isNotEmpty prepend="and" property="cid">
+           padChannel.id=#cid#
+        </isNotEmpty>
+        GROUP BY
+           cid
+    </select>
+
+    <select id="incomeStatisticChannelType" parameterClass="incomeParameter" resultClass="incomeStatisticNew">
+        SELECT
+            cid as cid,
+            padChannel.cname as cname,
+            saler.channel_type as channelType,
+            sum(incomeNew.app_counts) as appCounts,
+            sum(incomeNew.arrive_counts) as arriveCounts,
+            sum(incomeNew.phone_counts) as phoneCounts,
+            sum(incomeNew.act_counts) as actCounts,
+            sum(incomeNew.act_counts_compute) as actCountsCompute
+        FROM
+            tb_income_new as incomeNew,
+            tb_saler as saler,
+            tb_pad_channel as padChannel
+        WHERE
+            saler.saler_no = incomeNew.saler_no
+            and
+            <![CDATA[incomeNew.install_time >= #startTime#]]>
+            AND
+            <![CDATA[incomeNew.install_time <= #endTime#]]>
+            AND
+            padChannel.id = saler.cid
+            AND
+               padChannel.id=#cid#
+        group by
+            saler.channel_type
+    </select>
+
+    <select id="incomeBySaler" parameterClass="incomeParameter" resultClass="incomeStatisticNew">
+        SELECT
+            saler.saler_no AS salerNo,
+            saler.saler_name AS salerName,
+            saler.shop_name AS shopName,
+            saler.saler_type AS salerType,
+            saler.channel_type AS channelType,
+            c.appCounts AS appCounts,
+            c.phoneCounts AS phoneCounts,
+            c.arriveCounts AS arriveCounts,
+            c.actCounts as actCounts,
+            c.actCountsCompute as actCountsCompute
+        FROM
+             tb_saler AS saler,
+            (
+            SELECT
+            saler.parent_id as parentId,
+            sum(incomeNew.app_counts) AS appCounts,
+            sum(incomeNew.arrive_counts) AS arriveCounts,
+            sum(incomeNew.phone_counts) AS phoneCounts,
+            sum(incomeNew.act_counts) as actCounts,
+            sum(incomeNew.act_counts_compute) as actCountsCompute
+            FROM
+            tb_income_new AS incomeNew,
+            tb_saler AS saler
+            WHERE
+            incomeNew.saler_no = saler.saler_no
+            AND
+            <![CDATA[incomeNew.install_time >= #startTime#]]>
+            AND
+            <![CDATA[incomeNew.install_time <= #endTime#]]>
+            AND saler.cid = #cid#
+            AND saler.channel_type = #channelType#
+            GROUP BY
+            saler.parent_id
+            ) AS c
+        WHERE
+           c.parentId = saler.saler_no
+    </select>
+
+    <select id="incomeStatisticSalerDetails" parameterClass="incomeParameter" resultClass="incomeStatisticNew">
+        SELECT
+            saler.saler_no AS salerNo,
+            saler.saler_name AS salerName,
+            saler.shop_name AS shopName,
+            saler.saler_type AS salerType,
+            saler.channel_type AS channelType,
+            sum(incomeNew.app_counts) AS appCounts,
+            sum(incomeNew.arrive_counts) AS arriveCounts,
+            sum(incomeNew.phone_counts) AS phoneCounts,
+            sum(incomeNew.act_counts) as actCounts,
+            sum(incomeNew.act_counts_compute) as actCountsCompute
+        FROM
+            tb_income_new AS incomeNew,
+            tb_saler AS saler
+        WHERE
+            incomeNew.saler_no = saler.saler_no
+        AND
+            <![CDATA[incomeNew.install_time >= #startTime#]]>
+        AND
+            <![CDATA[incomeNew.install_time <= #endTime#]]>
+        AND
+            saler.parent_id = #salerNo#
+        GROUP BY
+           salerNo
+    </select>
+
+    <select id="getAllSaler" resultClass="incomeStatisticNew" parameterClass="incomeParameter">
+        SELECT
+            saler.saler_no AS salerNo,
+            saler.saler_name AS salerName,
+            saler.shop_name AS shopName,
+            saler.saler_type AS salerType,
+            saler.channel_type AS channelType,
+            padchannel.cname as cname,
+            sum(incomeNew.app_counts) AS appCounts,
+            sum(incomeNew.arrive_counts) AS arriveCounts,
+            sum(incomeNew.phone_counts) AS phoneCounts,
+            sum(incomeNew.act_counts) as actCounts,
+            sum(incomeNew.act_counts_compute) as actCountsCompute
+        FROM
+            tb_income_new AS incomeNew,
+            tb_saler AS saler,
+            tb_pad_channel as padChannel
+        WHERE
+            incomeNew.saler_no = saler.saler_no
+        AND
+            <![CDATA[incomeNew.install_time >= #startTime#]]>
+        AND
+           <![CDATA[incomeNew.install_time <= #endTime#]]>
+        AND
+           padChannel.id=saler.cid
+        GROUP BY
+           saler.cid,salerNo
+    </select>
+</sqlMap>

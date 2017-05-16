@@ -1,0 +1,66 @@
+#set($layout="content.vm")
+<script language="javascript">
+    $(document).ready(function(){
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+        var b = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "to-del", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+    /**
+      * 备注提示
+      */
+    function num(){
+        var maxLength=100;
+        var textLength=jQuery('#categoryIntro').val().length;
+        if(textLength<=maxLength){
+            jQuery('#msg').html(maxLength-textLength);
+        }else{
+            jQuery('#categoryIntro').val(jQuery('#categoryIntro').val().substr(0,maxLength));
+            jQuery('#msg').html(0);
+        }
+    };
+</script>
+<div class="pop-top">
+    <div class="ac">
+      <h2>增加屏幕信息</h2>
+    </div>
+  </div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+      <div class="con">
+        <table class="tb" cellspacing="0" cellpadding="0">
+          <tr>
+            <td width="95"><label>屏幕尺寸：</label></td>
+            <td width="225">
+                <label>
+                    <input type="text" maxlength="30" style="width:215px" class="input" id="inScreenName" name="terminalInsertInput.screenSizeName" #*onblur="checkInScreenName()"*#/>
+                    <div id="screenNameMsg" class="red hide"> 屏幕尺寸已存在</div><div id="screenNameNull" class="red hide"> 屏幕尺寸不能为空</div><input type="hidden" name="markScreenName">
+                </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>上下线状态：</label></td>
+            <td>
+                <label>
+                    <select name="terminalInsertInput.online" style="width:218px" class="input" id="select">
+                        <option value="1">上线</option>
+                        <option value="2">下线</option>
+                    </select>
+                </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>备注：</label></td>
+            <td>
+                <label>
+                    <textarea id="categoryIntro" maxlength="100" style="width:207px" name="terminalInsertInput.intro" rows="5" onkeyup="num();"></textarea>
+                    <span  style="color: #FF0000;">剩余字数：<span id="msg">100</span> 字</span>
+                </label>
+            </td>
+          </tr>
+        </table>
+          <div class="btn-box">
+              <input type="button" class="btn" value="确定" onclick="createScreen()"/>
+              <input type="button" id="closeDiv" class="close" value="取消" />
+          </div>
+      </div>
+    </div>
+  </div>

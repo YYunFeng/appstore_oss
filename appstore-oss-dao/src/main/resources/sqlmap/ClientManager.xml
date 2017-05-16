@@ -1,0 +1,1428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap namespace="ClientManager">
+    <typeAlias alias="AppResult" type="com.jd.cms.domain.clientmanager.AppResult"/>
+    <typeAlias alias="CategoryResult" type="com.jd.appstore.domain.Category"/>
+    <typeAlias alias="RecommendResult" type="com.jd.cms.domain.clientmanager.RecommendManagerResult"/>
+    <typeAlias alias="QueryRecommend" type="com.jd.cms.domain.clientmanager.QueryRecommend"/>
+    <typeAlias alias="TopicResult" type="com.jd.appstore.domain.Topic"/>
+    <typeAlias alias="HotWordResult" type="com.jd.cms.domain.clientmanager.HotWord"/>
+    <typeAlias alias="RankingManagerResult" type="com.jd.cms.domain.clientmanager.RankingManagerResult"/>
+    <typeAlias alias="QueryRanking" type="com.jd.cms.domain.clientmanager.QueryRanking"/>
+    <typeAlias alias="NoticeManagerResult" type="com.jd.appstore.domain.WebsiteNotice"/>
+    <typeAlias alias="TopicApp" type="com.jd.appstore.domain.TopicApp"/>
+    <typeAlias alias="TopicAppResult" type="com.jd.cms.domain.clientmanager.TopicAppResult"/>
+    <typeAlias alias="LinkedUrlResult" type="com.jd.cms.domain.clientmanager.LinkedUrlResult"/>
+    <typeAlias alias="ClientRecommend" type="com.jd.cms.domain.clientmanager.ClientRecommend"/>
+    <typeAlias alias="PadChannel" type="com.jd.cms.domain.cpQualityManagement.PadChannel"/>
+    <typeAlias alias="ChannelTopic" type="com.jd.cms.domain.clientmanager.ChannelTopic"/>
+    <typeAlias alias="activity" type="com.jd.cms.domain.clientmanager.Activity"/>
+    <typeAlias alias="activityChannel" type="com.jd.cms.domain.clientmanager.ActivityChannel"/>
+    <typeAlias alias="padChannel" type="com.jd.cms.domain.cpQualityManagement.PadChannel"/>
+    <typeAlias alias="compulsoryAppRes" type="com.jd.cms.domain.clientmanager.CompulsoryAppRes"/>
+    <typeAlias alias="compulsoryApp" type="com.jd.cms.domain.clientmanager.CompulsoryApp"/>
+    <typeAlias alias="suning" type="com.jd.cms.domain.clientmanager.Suning"/>
+    <typeAlias alias="cpDateImport" type="com.jd.cms.domain.clientmanager.CpDateImport"/>
+
+    <typeAlias alias="baseQuery" type="com.jd.common.util.base.BaseQuery"/>
+    <typeAlias alias="cpPhoneimei" type="com.jd.cms.domain.clientmanager.CpPhoneimei"/>
+
+
+    <resultMap id="RankingManagerResultMap" class="RankingManagerResult">
+        <result property="id" column="id"/>
+        <result property="rankingStyle" column="rankingStyle"/>
+        <result property="rankingType" column="rankingType"/>
+        <result property="appId" column="appId"/>
+        <result property="appName" column="appName"/>
+        <result property="appUrl" column="appUrl"/>
+        <result property="pubTime" column="pubTime"/>
+        <result property="orderSeq" column="orderSeq"/>
+        <result property="pubedStatus" column="pubedStatus"/>
+        <result property="locked" column="locked"/>
+        <result property="appLogo" column="appLogo"/>
+        <result property="created" column="created"/>
+        <result property="modified" column="modified"/>
+    </resultMap>
+    <resultMap id="RecommendResultMap" class="RecommendResult">
+        <result property="id" column="id"/>
+        <result property="pubedStatus" column="pubedStatus"/>
+        <result property="seq" column="seq"/>
+        <result property="homeAreaType" column="homeAreaType"/>
+        <result property="homeAreaId" column="homeAreaId"/>
+        <result property="linkType" column="linkType"/>
+        <result property="linkedUrlList" column="homeAreaId" select="ClientManager.getLinkedUrlList"/>
+    </resultMap>
+    <resultMap id="LinkedUrlResultMap" class="LinkedUrlResult">
+        <result property="id" column="id"/>
+        <result property="url" column="url"/>
+        <result property="homeAreaPos" column="homeAreaPos"/>
+        <result property="linkType" column="linkType"/>
+        <result property="linkedAppId" column="linkedAppId"/>
+        <result property="isDefaultImg" column="isDefaultImg"/>
+        <result property="isAppLogo" column="isAppLogo"/>
+    </resultMap>
+    <resultMap id="PadRecommendResultMap" class="RecommendResult">
+        <result property="id" column="id"/>
+        <result property="pubedStatus" column="pubedStatus"/>
+        <result property="seq" column="seq"/>
+        <result property="homeAreaType" column="homeAreaType"/>
+        <result property="homeAreaId" column="homeAreaId"/>
+        <result property="linkType" column="linkType"/>
+        <result property="linkedUrlList" column="homeAreaId" select="ClientManager.getPadLinkedUrlList"/>
+    </resultMap>
+    <resultMap id="PadLinkedUrlResultMap" class="LinkedUrlResult">
+        <result property="id" column="id"/>
+        <result property="url" column="url"/>
+        <result property="homeAreaPos" column="homeAreaPos"/>
+        <result property="linkType" column="linkType"/>
+        <result property="linkedAppId" column="linkedAppId"/>
+        <result property="isDefaultImg" column="isDefaultImg"/>
+        <result property="isAppLogo" column="isAppLogo"/>
+    </resultMap>
+
+    <select id="findRecommendResult" parameterClass="QueryRecommend" resultClass="RecommendResult">
+        select
+        id as id, client_type as clientType, moduleid as moduleId, areaid as areaId, seq as seq, url as url,
+        link_type as linkType, linked_appid as linkedAppId, linked_url as linkedUrl, pubed_status as pubedStatus,
+        created as created, modified as modified, home_areatype as homeAreaType, home_areapos as homeAreaPos, intro as
+        intro, home_areaid as homeAreaId, is_default_img as defaultImg, is_app_logo as appLogo
+        from
+        tb_recommend
+        where
+        client_type = #clientType# and moduleid = #moduleId# and areaid = #areaId#
+        order by
+        seq asc
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+
+    <select id="findPhoneRecommendResult" parameterClass="QueryRecommend" resultMap="ClientManager.RecommendResultMap">
+        select
+        id as id,
+        pubed_status as pubedStatus,
+        seq as seq,
+        home_areatype as homeAreaType,
+        home_areaid as homeAreaId,
+        link_type as linkType
+        from
+        tb_recommend
+        where
+        client_type = #clientType# and moduleid = #moduleId# and areaid = #areaId#
+        GROUP BY
+        home_areaid
+        order by
+        home_areaid asc
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+    <select id="getLinkedUrlList" parameterClass="int" resultMap="ClientManager.LinkedUrlResultMap">
+        SELECT
+        id as id,
+        url as url,
+        home_areapos as homeAreaPos,
+        link_type as linkType,
+        linked_appid as linkedAppId,
+        is_default_img as isDefaultImg,
+        is_app_logo as isAppLogo
+        FROM
+        tb_recommend
+        where
+        client_type = 0 and moduleid = 0 and areaid = 10 and home_areaid=#homeAreaId#
+        order by id desc
+
+    </select>
+
+    <select id="findPadRecommendResult" parameterClass="QueryRecommend" resultMap="ClientManager.PadRecommendResultMap">
+        select
+        id as id,
+        pubed_status as pubedStatus,
+        home_areatype as homeAreaType,
+        seq as seq,
+        home_areaid as homeAreaId,
+        link_type as linkType
+        from
+        tb_recommend
+        where
+        client_type = #clientType# and moduleid = #moduleId# and areaid = #areaId#
+        GROUP BY
+        home_areaid
+        order by
+        home_areaid asc
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+
+    <select id="getSeq" parameterClass="RecommendResult" resultClass="String">
+        select max(home_areaid) from tb_recommend where client_type = #clientType# and moduleid = #moduleId# and areaid
+        = #areaId#
+    </select>
+
+    <select id="getPadLinkedUrlList" parameterClass="int" resultMap="ClientManager.PadLinkedUrlResultMap">
+        SELECT
+        id as id,
+        url as url,
+        home_areapos as homeAreaPos,
+        link_type as linkType,
+        linked_appid as linkedAppId,
+        is_default_img as isDefaultImg,
+        is_app_logo as isAppLogo
+        FROM
+        tb_recommend
+        where
+        client_type = 1 and moduleid = 0 and areaid = 11 and home_areaid=#homeAreaId#
+        order by id asc
+    </select>
+
+    <select id="getRecommendCount" parameterClass="QueryRecommend" resultClass="int">
+        select
+        count(*) as value
+        from
+        tb_recommend
+        where
+        client_type = #clientType# and moduleid = #moduleId# and areaid = #areaId#
+    </select>
+
+    <select id="getPhoneRecommendCount" parameterClass="QueryRecommend" resultClass="int">
+        select count(*) from (select * from tb_recommend where client_type = #clientType# and moduleid = #moduleId# and
+        areaid = #areaId# group by home_areaid) ta
+    </select>
+
+    <select id="getPadRecommendCount" parameterClass="QueryRecommend" resultClass="int">
+        select count(*) from (select * from tb_recommend where client_type = #clientType# and moduleid = #moduleId# and
+        areaid = #areaId# group by home_areaid) ta
+    </select>
+
+    <insert id="createPhoneRecommend" parameterClass="RecommendResult">
+        insert into tb_recommend
+        (id,client_type,moduleid,areaid,seq,url,link_type,linked_appid,linked_url,pubed_status,created,modified,home_areatype,home_areapos,intro,home_areaid,
+        is_default_img, is_app_logo)
+        values
+        (#id#,#clientType#,#moduleId#,#areaId#,#seq#,#url#,#linkType#,#linkedAppId#,#linkedUrl#,#pubedStatus#,now(),now(),#homeAreaType#,#homeAreaPos#,#intro#,#homeAreaId#,
+        #defaultImg#, #appLogo#)
+
+    </insert>
+
+    <select id="findCPRecommendById" parameterClass="RecommendResult" resultClass="RecommendResult">
+        select
+        tr.id as id,
+        tr.url as url,
+        tr.link_type as linkType,
+        tr.linked_appid as linkedAppId,
+        tr.linked_url as linkedUrl,
+        tr.seq as seq,
+        tr.intro as intro,
+        tr.pubed_status as pubedStatus,
+        tr.is_default_img as isDefaultImg,
+        tr.is_app_logo as isAppLogo
+        from
+        tb_recommend tr
+        where tr.id = #id#
+    </select>
+
+    <select id="findRecommendById" parameterClass="RecommendResult" resultClass="ClientRecommend">
+        select
+        tr.id as id,
+        tr.url as url,
+        tr.link_type as linkType,
+        tr.linked_appid as linkedAppId,
+        tr.linked_url as linkedUrl,
+        tr.seq as seq,
+        tr.intro as intro,
+        tr.pubed_status as pubedStatus,
+        tr.is_default_img as isDefaultImg,
+        tr.is_app_logo as isAppLogo
+        <isEqual property="linkType" compareValue="0">
+            ,ta.app_name as name,'' as pname
+        </isEqual>
+        <isEqual property="linkType" compareValue="1">
+            ,tt.topic_name as name,'' as pname
+        </isEqual>
+        <isEqual property="linkType" compareValue="2">
+            ,tc.category_name as name,tc2.category_name as pname
+        </isEqual>
+        <isEqual property="linkType" compareValue="3">
+            ,tr.linked_url as name,'' as pname
+        </isEqual>
+        from
+        tb_recommend tr
+        <isEqual property="linkType" compareValue="0">
+            ,tb_apps ta
+        </isEqual>
+        <isEqual property="linkType" compareValue="1">
+            ,tb_topic as tt
+        </isEqual>
+        <isEqual property="linkType" compareValue="2">
+            ,tb_category as tc,tb_category as tc2
+        </isEqual>
+        where
+        id = #id#
+        <isEqual property="linkType" compareValue="0">
+            and tr.linked_appid = ta.appid
+        </isEqual>
+        <isEqual property="linkType" compareValue="1">
+            and tr.linked_appid = tt.topicid
+        </isEqual>
+        <isEqual property="linkType" compareValue="2">
+            and tr.linked_appid = tc.categoryid
+            and tc.parent_id = tc2.categoryid
+        </isEqual>
+
+
+    </select>
+
+    <update id="updateRecommend" parameterClass="RecommendResult">
+        update
+        tb_recommend
+        set
+        url = #url#, modified = now(),intro = #intro#
+        <isNotNull property="linkedAppId">
+            ,link_type = #linkType# , linked_appid = #linkedAppId#
+        </isNotNull>
+        <isNotNull property="defaultImg">
+            ,is_default_img = #defaultImg#
+        </isNotNull>
+        <isNotNull property="appLogo">
+            ,is_app_logo = #appLogo#
+        </isNotNull>
+        where
+        id = #id#
+    </update>
+
+    <update id="updateWebRecommend" parameterClass="RecommendResult">
+        update
+        tb_recommend
+        set
+        url = #url#, intro = #intro#, modified = now()
+        <isNotNull property="linkedAppId">
+            ,link_type = #linkType#, linked_appid = #linkedAppId#
+        </isNotNull>
+        <isNotNull property="linkedUrl">
+            ,linked_url = #linkedUrl#,link_type=#linkType#
+        </isNotNull>
+        <isNotNull property="defaultImg">
+            ,is_default_img = #defaultImg#
+        </isNotNull>
+        <isNotNull property="appLogo">
+            ,is_app_logo = #appLogo#
+        </isNotNull>
+        where id = #id#
+    </update>
+
+    <select id="findRecommendBySeq" parameterClass="RecommendResult" resultClass="int">
+        select
+        count(*) as value
+        from
+        tb_recommend
+        where
+        client_type = #clientType# and seq = #seq# and moduleid = #moduleId# and areaid = #areaId#
+    </select>
+
+    <select id="findCPRecommendBySeq" parameterClass="RecommendResult" resultClass="int">
+        select
+        count(*) as value
+        from
+        tb_recommend
+        where
+        client_type = #clientType# and seq = #seq# and moduleid = #moduleId# and areaid = #areaId#
+    </select>
+
+    <select id="findHomeAreaTypeByAreaId" parameterClass="RecommendResult" resultClass="int">
+        select
+        count(*) as value
+        from tb_recommend
+        where
+        client_type = #clientType# and moduleid = #moduleId# and areaid = #areaId# and home_areaid = #homeAreaId#
+    </select>
+
+    <insert id="createRecommend" parameterClass="RecommendResult">
+        insert into tb_recommend
+        (id,client_type,moduleid,areaid,seq,url,link_type,linked_appid,linked_url,pubed_status,created,modified,home_areatype,home_areapos,intro,home_areaid,
+        is_default_img, is_app_logo)
+        values
+        (#id#,#clientType#,#moduleId#,#areaId#,#seq#,#url#,#linkType#,#linkedAppId#,#linkedUrl#,#pubedStatus#,now(),now(),#homeAreaType#,#homeAreaPos#,#intro#,#homeAreaId#,
+        #defaultImg#, #appLogo#)
+    </insert>
+
+    <delete id="deleteRecommend" parameterClass="RecommendResult">
+        delete from tb_recommend where id = #id#
+    </delete>
+    <update id="updateRecommendSeq" parameterClass="RecommendResult">
+        update
+        tb_recommend
+        set seq = #seq#
+        where id = #id#
+    </update>
+
+    <update id="updateAddAreaType" parameterClass="RecommendResult">
+        update
+        tb_recommend
+        set seq = home_areaid + 1 , home_areaid = home_areaid + 1
+        where home_areaid >= #homeAreaId# and
+        client_type = #clientType#
+        and moduleid = #moduleId#
+        and areaid = #areaId#
+    </update>
+
+    <update id="updateCPRecommend" parameterClass="RecommendResult">
+        update
+        tb_recommend
+        set linked_url = #linkedUrl#, url = #url#, modified = now()
+        where id = #id#
+    </update>
+
+    <update id="updatedPhoneRecommendSeq" parameterClass="RecommendResult">
+        update tb_recommend
+        set home_areaid = #homeAreaId#, seq = #homeAreaId#
+        where
+        <isEqual property="greater" compareValue="1">
+            seq = #id# +1
+        </isEqual>
+        <isNotEqual property="greater" compareValue="1">
+            seq = #id#
+        </isNotEqual>
+        and client_type = #clientType#
+        and moduleid = #moduleId#
+        and areaid = #areaId#
+    </update>
+
+    <update id="updatedPhoneRecommendSeqWithOut" parameterClass="RecommendResult">
+        update tb_recommend
+        set home_areaid = #homeAreaId#, seq = #homeAreaId#
+        where home_areaid = #seq#
+        and client_type = #clientType#
+        and moduleid = #moduleId# and areaid = #areaId#
+    </update>
+
+    <update id="updateDelAreaType" parameterClass="RecommendResult">
+        update
+        tb_recommend
+        set seq = home_areaid , home_areaid = home_areaid - 1
+        where home_areaid > #homeAreaId# and client_type = #clientType# and moduleid = #moduleId# and areaid = #areaId#
+    </update>
+
+    <delete id="deleteAreaType" parameterClass="RecommendResult">
+        delete from tb_recommend where home_areaid = #homeAreaId# and client_type = #clientType# and moduleid =
+        #moduleId# and areaid = #areaId#
+    </delete>
+
+    <update id="updateRecommendPubedStatus" parameterClass="RecommendResult">
+        update
+        tb_recommend
+        set pubed_status = #pubedStatus#
+        where id = #id#
+    </update>
+
+    <update id="updateRecommendADPubedStatus" parameterClass="RecommendResult">
+        <![CDATA[
+         update
+        tb_recommend
+        set pubed_status = 0
+        where client_type = 2 and areaid=#areaId# and id<>#id#  and moduleid=#moduleId#
+        ]]>
+    </update>
+
+
+    <update id="updatePhoneRecommendPubedStatus" parameterClass="RecommendResult">
+        update
+        tb_recommend
+        set pubed_status = #pubedStatus#
+        where
+        home_areaid = #homeAreaId# and client_type = #clientType# and moduleid = #moduleId# and areaid = #areaId#
+    </update>
+
+    <update id="updatePhoneRecommend" parameterClass="RecommendResult">
+        update
+        tb_recommend
+        set
+        url = #url#,
+        link_type = #linkType#,
+        linked_appid = #linkedAppId#,
+        linked_url = #linkedUrl#,
+        modified = now() ,
+        home_areapos = #homeAreaPos#,
+        intro = #intro#,
+        is_default_img = #defaultImg#,
+        is_app_logo = #appLogo#
+        where
+        id = #id#
+    </update>
+
+    <update id="updateAddSeq" parameterClass="RecommendResult">
+        update
+        tb_recommend
+        set
+        seq = seq + 1
+        where
+        seq >= #seq# and client_type = #clientType# and moduleid = #moduleId# and areaid = #areaId#
+    </update>
+
+    <update id="updateCPAddSeq" parameterClass="RecommendResult">
+        update
+        tb_recommend
+        set
+        seq = seq + 1
+        where
+        seq >= #seq# and client_type = #clientType# and moduleid = #moduleId# and areaid = #areaId#
+    </update>
+
+    <update id="updateDelSeq" parameterClass="RecommendResult">
+        update
+        tb_recommend
+        set
+        seq = seq - 1
+        where
+        seq > #seq# and client_type = #clientType#
+    </update>
+
+    <update id="updateCPDelSeq" parameterClass="RecommendResult">
+        update
+        tb_recommend
+        set
+        seq = seq - 1
+        where
+        seq > #seq# and client_type = #clientType# and moduleid = #moduleId# and areaid = #areaId#
+    </update>
+
+    <select id="findAppResult" parameterClass="com.jd.common.util.Query" resultClass="AppResult">
+        select
+        ta.appid as appId, ta.app_name as appName, ta.package as pkg, ta.app_type as appType,
+        ta.categoryid1 as categoryId1, ta.categoryid2 as categoryId2, ta.default_detail_id as defaultDetailId,
+        ta.online as online, ta.created as created, ta.modified as modified, tad.logo_url as logo, tad.pub_time as
+        pubTime, tad.is_app_logo as appLogo
+        from
+        tb_apps as ta, tb_app_details as tad
+        where
+        ta.app_name like '%$value$%' and ta.online = 1 and ta.default_detail_id = tad.id
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+
+    <select id="findAppResultForTopic" parameterClass="com.jd.cms.domain.clientmanager.QueryApp"
+            resultClass="AppResult">
+        select
+        ta.appid as appId, ta.app_name as appName, ta.package as pkg, ta.app_type as appType,
+        ta.categoryid1 as categoryId1, ta.categoryid2 as categoryId2, ta.default_detail_id as defaultDetailId,
+        ta.online as online, ta.created as created, ta.modified as modified, tad.logo_url as logo, tad.pub_time as
+        pubTime, tad.is_app_logo as appLogo
+        from
+        tb_apps as ta, tb_app_details as tad
+        where
+        ta.app_name like '%$value$%' and ta.online = 1 and ta.default_detail_id = tad.id
+        and (ta.categoryid_l2 = #mobileGameId# or ta.categoryid_l2 = #mobileSoftId#)
+        and tad.zhuowangMark = 0
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+
+    <select id="findAppsForModule" parameterClass="com.jd.cms.domain.clientmanager.QueryAppForCategory"
+            resultClass="AppResult">
+        select
+        ta.appid as appId, ta.app_name as appName, ta.package as pkg, ta.app_type as appType,
+        ta.categoryid1 as categoryId1, ta.categoryid2 as categoryId2, ta.default_detail_id as defaultDetailId,
+        ta.online as online, ta.created as created, ta.modified as modified, tad.logo_url as logo, tad.pub_time as
+        pubTime, tad.is_app_logo as appLogo
+        from
+        tb_apps as ta, tb_app_details as tad
+        where
+        ta.app_name like '%$name$%' and ta.online = 1 and ta.default_detail_id = tad.id
+        and ta.categoryid_l2 = #categoryId#
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+
+    <select id="findAppCount" parameterClass="String" resultClass="int">
+        select
+        count(*)
+        from
+        tb_apps as ta,tb_app_details as tad
+        where
+        ta.app_name like '%$value$%' and ta.online = 1 and ta.default_detail_id = tad.id
+    </select>
+
+    <select id="findAppCountForTopic" parameterClass="com.jd.cms.domain.clientmanager.QueryApp" resultClass="int">
+        select
+        count(*)
+        from
+        tb_apps as ta,tb_app_details as tad
+        where
+        ta.app_name like '%$value$%' and ta.online = 1 and ta.default_detail_id = tad.id
+        and tad.zhuowangMark = 0 and (ta.categoryid_l2 = #mobileGameId# or ta.categoryid_l2 = #mobileSoftId#)
+    </select>
+
+    <select id="findAppsCountForModule" parameterClass="com.jd.cms.domain.clientmanager.QueryAppForCategory"
+            resultClass="int">
+        select
+        count(*)
+        from
+        tb_apps as ta,tb_app_details as tad
+        where
+        ta.app_name like '%$name$%' and ta.online = 1 and ta.default_detail_id = tad.id
+        and ta.categoryid_l2 = #categoryId#
+    </select>
+
+    <select id="findTopicResultByNamePage" parameterClass="com.jd.common.util.Query" resultClass="TopicResult">
+        select
+        topicid as topicId, topic_name as topicName, topic_type as topicType, logo_url as logoUrl,
+        intro as intro, pubed_status as pubedStatus, pub_time as pubTime, order_seq as orderSeq,
+        created as created, modified as modified
+        from
+        tb_topic
+        where
+        topic_name like '%$value$%' and pubed_status = 1
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+
+    <select id="findTopicCount" parameterClass="com.jd.common.util.Query" resultClass="int">
+        select count(*) from tb_topic where topic_name like '%$value$%' and pubed_status = 1
+    </select>
+
+    <select id="findTopicResultByName" parameterClass="String" resultClass="TopicResult">
+        select
+        topicid as topicId, topic_name as topicName, topic_type as topicType, logo_url as logoUrl,
+        intro as intro, pubed_status as pubedStatus, pub_time as pubTime, order_seq as orderSeq,
+        created as created, modified as modified
+        from
+        tb_topic
+        where
+        topic_name like '%$value$%' and pubed_status = 1
+    </select>
+
+    <select id="findCategoryByParentId" parameterClass="CategoryResult" resultClass="CategoryResult">
+        select
+        categoryid as categoryId, category_name as categoryName, level as level, parent_id as parentId,
+        is_leaf as isLeaf, pubed_status as pubedStatus, created as created, modified as modified, logo_url as logoUrl
+        from tb_category
+        where parent_id = #parentId# and level = 3 and pubed_status = 1
+    </select>
+
+    <select id="findCategoryResult" parameterClass="String" resultClass="CategoryResult">
+        select
+        categoryid as categoryId, category_name as categoryName, level as level, parent_id as parentId,
+        is_leaf as isLeaf, pubed_status as pubedStatus, created as created, modified as modified, logo_url as logoUrl
+        from
+        tb_category
+        where
+        category_name like '%$value$%' and pubed_status = 1
+    </select>
+
+    <!-- 排行榜-->
+    <select id="findRankingApp" parameterClass="QueryRanking" resultMap="RankingManagerResultMap">
+        select
+        tra.id as id, tra.ranking_style as rankingStyle, tra.ranking_type as rankingType, tra.appid as appId,
+        tra.pub_time as pubTime, tra.order_seq as orderSeq, tra.pubed_status as pubedStatus, tra.locked as locked,
+        tra.created as created, tra.modified as modified, ta.app_name as appName, tad.logo_url as appUrl,
+        tad.is_app_logo as appLogo
+        from
+        tb_apps ta
+        left join
+        tb_ranking_app tra
+        on
+        ta.appid = tra.appid
+        left join
+        tb_app_details tad
+        on
+        tra.appid = ta.appid and ta.default_detail_id = tad.id
+        where
+        tra.ranking_type = #rankingType#
+        and
+        tra.ranking_style = #rankingStyle#
+        and
+        ta.online = 1
+        order by
+        tra.order_seq asc
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+
+    <update id="updateRankingSeq" parameterClass="RankingManagerResult">
+        update tb_ranking_app
+        set order_seq = #orderSeq# , modified = now()
+        where id = #id# and ranking_type = #rankingType# and ranking_style = #rankingStyle#
+    </update>
+
+    <update id="updateRanking" parameterClass="RankingManagerResult">
+        update tb_ranking_app
+        set appid = #appId#, pub_time = now(), modified = now()
+        where id = #id#
+    </update>
+
+    <update id="updateAddRankingSeq" parameterClass="RankingManagerResult">
+        update tb_ranking_app
+        set order_seq = order_seq + 1
+        where order_seq >= #orderSeq# and locked = 0 and ranking_type = #rankingType# and ranking_style = #rankingStyle#
+    </update>
+
+    <select id="findRankingBySeq" parameterClass="RankingManagerResult" resultClass="int">
+        select count(*) from tb_ranking_app where order_seq = #orderSeq# and ranking_type = #rankingType# and
+        ranking_style = #rankingStyle#
+    </select>
+
+    <select id="getRankingCount" parameterClass="QueryRanking" resultClass="int">
+        select
+        count(*) as value
+        from
+        tb_ranking_app tra, tb_apps ta
+        where
+        tra.ranking_style = #rankingStyle#
+        and
+        tra.ranking_type = #rankingType#
+        and
+        tra.appid = ta.appid
+        and
+        ta.online = 1
+    </select>
+
+    <update id="updateRankingLocked" parameterClass="RankingManagerResult">
+        update
+        tb_ranking_app
+        set
+        locked = #locked#
+        where
+        id = #id#
+    </update>
+
+    <!--专题-->
+    <select id="findTopicResult" parameterClass="com.jd.common.util.Query" resultClass="TopicResult">
+        select
+        topicid as topicId, topic_name as topicName, topic_type as topicType, logo_url as logoUrl,
+        intro as intro, pubed_status as pubedStatus, pub_time as pubedTime, order_seq as orderSeq,
+        created as created, modified as modified
+        from
+        tb_topic
+        where
+        topic_type = #id#
+        order by
+        order_seq asc
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+
+    <select id="findTopicResultByPub" parameterClass="com.jd.common.util.Query" resultClass="TopicResult">
+        select
+        topicid as topicId, topic_name as topicName, topic_type as topicType, logo_url as logoUrl,
+        intro as intro, pubed_status as pubedStatus, pub_time as pubedTime, order_seq as orderSeq,
+        created as created, modified as modified
+        from
+        tb_topic
+        where topic_type = 1
+        <dynamic prepend="and">
+            <isNotEqual property="id" compareValue="2">
+                pubed_status = #id#
+            </isNotEqual>
+        </dynamic>
+        order
+        by order_seq
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+
+    <insert id="addTopic" parameterClass="TopicResult">
+        insert into
+        tb_topic(topicid,topic_name,topic_type,logo_url,intro,pubed_status,pub_time,order_seq,created,modified)
+        values(#topicId#,#topicName#,#topicType#,#logoUrl#,#intro#,#pubedStatus#,now(),#orderSeq#,now(),now())
+    </insert>
+
+    <select id="getTopicCount" parameterClass="int" resultClass="int">
+        select
+        count(*) as value
+        from
+        tb_topic
+        where
+        topic_type = #id#
+    </select>
+
+    <select id="getTopicCountByPub" parameterClass="com.jd.common.util.Query" resultClass="int">
+        select
+        count(*) as value
+        from
+        tb_topic
+        where topic_type = 1
+        <dynamic prepend="and">
+            <isNotEqual property="id" compareValue="2">
+                pubed_status = #id#
+            </isNotEqual>
+        </dynamic>
+    </select>
+
+    <update id="updateTopicPubedStatu" parameterClass="TopicResult">
+        update
+        tb_topic
+        set
+        pubed_status = #pubedStatus# , pub_time = now()
+        where
+        topicid = #topicId#
+    </update>
+
+    <update id="removeTopicFromRecommend" parameterClass="TopicResult">
+        delete from
+        tb_recommend
+        where
+        link_type=1
+        and
+        linked_appid=#topicId#
+        and
+        client_type>1
+    </update>
+
+    <update id="resetTopicFromRecommend" parameterClass="TopicResult">
+        update
+        tb_recommend
+        set
+        home_areapos=null,url=null,is_app_logo=null,is_default_img=null,
+        link_type=null,linked_appid=null,linked_url=null,intro=null
+        where
+        link_type=1
+        and
+        linked_appid=#topicId#
+        and
+        (client_type=0 or client_type=1)
+    </update>
+
+
+    <select id="findTopicById" parameterClass="TopicResult" resultClass="TopicResult">
+        select
+        topicid as topicId, topic_name as topicName, topic_type as topicType, logo_url as logoUrl,
+        intro as intro, pubed_status as pubedStatus, pub_time as pubedTime, order_seq as orderSeq,
+        created as created, modified as modified
+        from
+        tb_topic
+        where topic_type = #topicType# and topicid = #topicId#
+    </select>
+
+    <update id="updateTopic" parameterClass="TopicResult">
+        update
+        tb_topic
+        set
+        topic_name = #topicName#, logo_url = #logoUrl#, intro = #intro#, pubed_status = #pubedStatus#,
+        order_seq = #orderSeq#, modified = now()
+        where
+        topicid = #topicId#
+    </update>
+
+    <select id="findTopicAppByTopicId" parameterClass="TopicResult" resultClass="TopicAppResult">
+        select
+        tta.id as id, tta.topicid as topicId, tta.appid as appId, tta.pubed_status as pubedStatus, tta.pub_time as
+        pubTime, tta.order_seq as orderSeq,
+        tta.created as created, tta.modified as modified,tta.activation as activation, ta.app_name as appName,
+        tad.logo_url as appLogo, tad.is_app_logo as appLogoIs
+        from
+        tb_topic_app tta, tb_apps ta, tb_app_details tad
+        where tta.topicid = #topicId# and tta.appid = ta.appid and ta.default_detail_id = tad.id
+        order by tta.order_seq asc
+    </select>
+
+    <select id="findTopicBySeq" parameterClass="TopicResult" resultClass="int">
+        select count(*) as value from tb_topic where order_seq = #orderSeq#
+    </select>
+
+    <select id="findTopicAppBySeq" parameterClass="TopicApp" resultClass="int">
+        select count(*) as value from tb_topic_app where order_seq = #orderSeq# and topicid = #topicId#
+    </select>
+
+    <delete id="deleteTopic" parameterClass="TopicResult">
+        delete from tb_topic where topicid = #topicId#
+    </delete>
+
+    <delete id="deleteTopicAppById" parameterClass="TopicApp">
+        delete from tb_topic_app where id = #id#
+    </delete>
+
+    <update id="updateTopicSeq" parameterClass="TopicResult">
+        update
+        tb_topic
+        set
+        order_seq = #orderSeq#
+        where
+        topicid = #topicId#
+    </update>
+
+    <update id="updateTopicAppSeq" parameterClass="TopicApp">
+        update
+        tb_topic_app
+        set
+        order_seq = #orderSeq#, modified = now()
+        where
+        id = #id#
+    </update>
+
+    <update id="updateAddTopicSeq" parameterClass="TopicResult">
+        update
+        tb_topic
+        set
+        order_seq = order_seq + 1
+        where
+        order_seq >= #orderSeq#
+    </update>
+
+    <update id="updateAddTopicAppSeq" parameterClass="TopicApp">
+        update
+        tb_topic_app
+        set
+        order_seq = order_seq + 1
+        where
+        order_seq >= #orderSeq# and topicid = #topicId#
+    </update>
+
+    <update id="updateDelTopicSeq" parameterClass="TopicResult">
+        update
+        tb_topic
+        set
+        order_seq = order_seq - 1
+        where
+        order_seq > #orderSeq#
+    </update>
+
+    <update id="updateDelTopicAppSeq" parameterClass="TopicApp">
+        update
+        tb_topic_app
+        set
+        order_seq = order_seq - 1
+        where
+        order_seq > #orderSeq# and topicid = #topicId#
+    </update>
+
+    <insert id="addTopicApp" parameterClass="TopicApp">
+        insert into tb_topic_app(id,topicid,appid,pubed_status,pub_time,activation,order_seq,created,modified)
+        values(#id#,#topicId#,#appId#,#pubedStatus#,#pubTime#,#activation#,#orderSeq#,now(),now())
+    </insert>
+
+    <delete id="deleteTopicApp" parameterClass="TopicApp">
+        delete from tb_topic_app where topicid = #topicId#
+    </delete>
+
+    <!--资讯-->
+    <select id="findNoticeResult" parameterClass="com.jd.common.util.Query" resultClass="NoticeManagerResult">
+        select
+        id as id,subject as subject,content as content,pub_time as pubTime,order_seq as orderSeq,pubed_status as
+        pubedStatus,created as created,modified as modified
+        from
+        tb_website_notice
+        order by
+        order_seq asc
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+
+    <select id="findNoticeById" parameterClass="NoticeManagerResult" resultClass="NoticeManagerResult">
+        select
+        id as id,subject as subject,content as content,pub_time as pubTime,order_seq as orderSeq,pubed_status as
+        pubedStatus,created as created,modified as modified
+        from
+        tb_website_notice
+        where id = #id#
+    </select>
+
+    <select id="findNoticeResultByPub" parameterClass="com.jd.common.util.Query" resultClass="NoticeManagerResult">
+        select
+        id as id, subject as subject, content as content, pub_time as pubTime, order_seq as orderSeq, pubed_status as
+        pubedStatus, created as created, modified as modified
+        from
+        tb_website_notice
+        <dynamic prepend="where">
+            <isNotEqual property="id" compareValue="2">
+                pubed_status = #id#
+            </isNotEqual>
+        </dynamic>
+        order by
+        order_seq asc
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+
+    <select id="getNoticeCount" resultClass="int">
+        select
+        count(*) as value
+        from
+        tb_website_notice
+    </select>
+
+    <select id="getNoticeCountByPub" parameterClass="com.jd.common.util.Query" resultClass="int">
+        select
+        count(*) as value
+        from
+        tb_website_notice
+        <dynamic prepend="where">
+            <isNotEqual property="id" compareValue="2">
+                pubed_status = #id#
+            </isNotEqual>
+        </dynamic>
+    </select>
+
+    <update id="updateNoticePubedStatu" parameterClass="NoticeManagerResult">
+        update
+        tb_website_notice
+        set
+        pubed_status = #pubedStatus# , pub_time = now()
+        where
+        id = #id#
+    </update>
+
+    <select id="findNoticeBySeq" parameterClass="NoticeManagerResult" resultClass="int">
+        select count(*) as value from tb_website_notice where order_seq = #orderSeq#
+    </select>
+
+    <delete id="deleteNotice" parameterClass="NoticeManagerResult">
+        delete from tb_website_notice where id = #id#
+    </delete>
+
+    <update id="updateNoticeSeq" parameterClass="NoticeManagerResult">
+        update
+        tb_website_notice
+        set
+        order_seq = #orderSeq# , modified = now()
+        where
+        id = #id#
+    </update>
+
+    <update id="updateAddNoticeSeq" parameterClass="NoticeManagerResult">
+        update
+        tb_website_notice
+        set
+        order_seq = order_seq + 1
+        where
+        order_seq >= #orderSeq#
+    </update>
+
+    <update id="updateDelNoticeSeq" parameterClass="NoticeManagerResult">
+        update
+        tb_website_notice
+        set
+        order_seq = order_seq - 1
+        where
+        order_seq > #orderSeq#
+    </update>
+
+    <insert id="createNotice" parameterClass="NoticeManagerResult">
+        insert into tb_website_notice
+        (id,subject,content,pub_time,order_seq,pubed_status,created,modified)
+        values
+        (#id#,#subject#,#content#,now(),#orderSeq#,#pubedStatus#,now(),now())
+    </insert>
+
+    <update id="updateNotice" parameterClass="NoticeManagerResult">
+        update tb_website_notice
+        set subject = #subject#, content = #content#, modified = #modified#
+        where id = #id#
+    </update>
+
+    <select id="findHotWordResult" parameterClass="com.jd.common.util.Query" resultClass="HotWordResult">
+        select
+        id as id, word as word, order_seq as orderSeq, published as published, created as created, modified as modified
+        from
+        tb_hot_words
+        <dynamic prepend="where">
+            <isNotEqual property="id" compareValue="2">
+                published = #id#
+            </isNotEqual>
+        </dynamic>
+        order by order_seq asc
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+
+    <select id="getHotWordCount" parameterClass="com.jd.common.util.Query" resultClass="int">
+        select
+        count(*) as value
+        from
+        tb_hot_words
+        <dynamic prepend="where">
+            <isNotEqual property="id" compareValue="2">
+                published = #id#
+            </isNotEqual>
+        </dynamic>
+    </select>
+
+    <select id="findHotWordBySeq" parameterClass="com.jd.cms.domain.clientmanager.HotWord" resultClass="int">
+        select count(*) from tb_hot_words where order_seq = #orderSeq#
+    </select>
+
+    <insert id="createHotWord" parameterClass="com.jd.cms.domain.clientmanager.HotWord">
+        insert into tb_hot_words(id,word,order_seq,published,created,modified)
+        values(#id#,#word#,#orderSeq#,#published#,now(),now())
+    </insert>
+
+    <update id="updateAddHotWordSeq" parameterClass="com.jd.cms.domain.clientmanager.HotWord">
+        update tb_hot_words
+        set order_seq = order_seq + 1
+        where order_seq >= #orderSeq#
+    </update>
+
+    <update id="updateDelHotWordSeq" parameterClass="com.jd.cms.domain.clientmanager.HotWord">
+        update tb_hot_words
+        set order_seq = order_seq - 1
+        where order_seq > #orderSeq#
+    </update>
+
+    <delete id="deleteHotWord" parameterClass="HotWordResult">
+        delete from tb_hot_words where id = #id#
+    </delete>
+
+    <update id="updateHotWordSeq" parameterClass="HotWordResult">
+        update tb_hot_words set order_seq = #orderSeq#, modified = now() where id = #id#
+    </update>
+
+    <update id="updateHotWordPublished" parameterClass="HotWordResult">
+        update tb_hot_words set published = #published#, modified = now() where id = #id#
+    </update>
+
+    <select id="findHotWordById" parameterClass="HotWordResult" resultClass="HotWordResult">
+        select id as id, word as word, order_seq as orderSeq, published as published, created as created, modified as
+        modified
+        from tb_hot_words
+        where id = #id#
+    </select>
+
+    <update id="updateHotWord" parameterClass="HotWordResult">
+        update tb_hot_words
+        set word = #word#, order_seq = #orderSeq#, modified = now()
+        where id = #id#
+    </update>
+
+    <insert id="createChannelTopic" parameterClass="ChannelTopic">
+        INSERT INTO tb_channel_topic
+        (id,cid,topicid,topicseq,created,modified)
+        VALUES
+        (#id#,#cId#, #topicId#, #topicSeq#,now(),now())
+    </insert>
+    <delete id="deleteChannelTopic" parameterClass="int">
+        delete from
+        tb_channel_topic
+        where
+        topicid = #topicId#
+    </delete>
+    <select id="getChannelTopic" parameterClass="int" resultClass="ChannelTopic">
+        select cid as cId from tb_channel_topic where topicid = #topicId#
+    </select>
+
+    <!--活动列表-->
+    <select id="getActivityList" resultClass="activity">
+        SELECT
+        id as Id,
+        activity_name as activityName,
+        small_pic as smallPic,
+        large_pic as largePic,
+        file_url as fileUrl,
+        pubed_status as pubedStatus,
+        seq as seq,
+        created as created
+        FROM
+        tb_activity
+        ORDER BY
+        seq
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+    <!--活动列表数量-->
+    <select id="getActivityCount" resultClass="Integer">
+        SELECT
+        count(*)
+        FROM
+        tb_activity
+    </select>
+    <!--创建活动-->
+    <insert id="createActivity" parameterClass="activity">
+        INSERT INTO tb_activity (id,activity_name,small_pic,large_pic,file_url,pubed_status,seq,created) VALUES
+        (#Id#,#activityName#,#smallPic#,#largePic#,#fileUrl#,#pubedStatus#,#seq#,now());
+    </insert>
+
+
+    <update id="updateActivitySeq" parameterClass="Integer">
+        update
+        tb_activity
+        set
+        seq = seq + 1
+        where
+        seq >= #seq#
+    </update>
+
+    <update id="updateDelActivitySeq" parameterClass="Integer">
+        update
+        tb_activity
+        set
+        seq = seq - 1
+        where
+        seq > #seq#
+    </update>
+
+    <update id="updateActivityPubedStatus" parameterClass="activity">
+        update
+        tb_activity
+        set
+        pubed_status = #pubedStatus#
+        where
+        id =#Id#
+    </update>
+
+    <select id="findActivityBySeq" parameterClass="Integer" resultClass="Integer">
+        select
+        count(*) as value
+        from
+        tb_activity
+        where
+        seq = #seq#
+    </select>
+
+    <delete id="deletActivity" parameterClass="Integer">
+        DELETE FROM tb_activity where id = #Id#
+    </delete>
+
+    <select id="getActivityById" parameterClass="activity" resultClass="activity">
+        SELECT
+        id as Id,
+        activity_name as activityName,
+        small_pic as smallPic,
+        large_pic as largePic,
+        file_url as fileUrl,
+        pubed_status as pubedStatus,
+        seq as seq,
+        created as created
+        FROM
+        tb_activity
+        where
+        id = #Id#
+    </select>
+
+    <update id="updateActivity" parameterClass="activity">
+        update
+        tb_activity
+        set
+        seq = #seq#,
+        <isNotNull prepend="" property="activityName">
+            activity_name = #activityName#,
+        </isNotNull>
+        <isNotNull prepend="" property="smallPic">
+            small_pic = #smallPic#,
+        </isNotNull>
+        <isNotNull prepend="" property="largePic">
+            large_Pic = #largePic#,
+        </isNotNull>
+        <isNotNull prepend="" property="fileUrl">
+            file_url = #fileUrl#,
+        </isNotNull>
+        <isNotNull prepend="" property="pubedStatus">
+            pubed_status = #pubedStatus#,
+        </isNotNull>
+        modified = now()
+        where
+        id = #Id#
+    </update>
+
+    <update id="updateActivitySeqBySeq" parameterClass="activity">
+        update
+        tb_activity
+        set
+        seq = #seqParameter#
+        where
+        seq = #seq#
+    </update>
+
+    <select id="getPadChannel" resultClass="padChannel">
+        SELECT
+            pc.id AS id,
+            pc.cname AS cName,
+            pc.intro AS intro,
+            pc.gw AS gw
+        FROM
+            tb_pad_channel AS pc
+    </select>
+    <select id="getActivityChannel" resultClass="activityChannel" parameterClass="Integer">
+        select
+        id as Id,
+        cid as cId,
+        activity_id as activityId
+        from
+        tb_channel_activity
+        where
+        activity_id = #activityId#
+    </select>
+
+    <delete id="deleteActivityChannel" parameterClass="Integer">
+        DELETE FROM tb_channel_activity WHERE activity_id =#activityId#
+    </delete>
+
+    <insert id="createActivityChannel" parameterClass="activityChannel">
+        INSERT INTO tb_channel_activity (
+        id,
+        cid,
+        activity_id,
+        created,
+        modified
+        )
+        VALUES
+        (#Id#,#cId#,#activityId#,NOW(),
+        NOW());
+    </insert>
+
+    <update id="updateActivation" parameterClass="TopicApp">
+        update
+        tb_topic_app
+        set
+        activation = #activation#
+        where
+        id =#id#
+    </update>
+
+
+    <update id="changeStatusForApp" parameterClass="TopicApp">
+        update
+           tb_topic_app
+        set
+            pubed_status=#pubedStatus#
+        where
+           id=#id#
+        AND
+           appid=#appId#
+    </update>
+
+    <select id="getInstallApps" resultClass="compulsoryAppRes">
+        SELECT
+        installApps.id as id,
+        apps.appid as appid,
+        details.logo_url as logoUrl,
+        apps.app_name as appName,
+        baseInfo.cp_name as cpName
+        from
+        tb_apps as apps,
+        tb_install_apps as installApps,
+        tb_cp_baseinfo as baseInfo,
+        tb_app_details as details
+        WHERE
+        apps.appid=details.appid
+        AND
+        apps.default_detail_id=details.id
+        AND
+        installApps.appid=apps.appid
+        AND
+        details.accountid=baseInfo.id
+    </select>
+
+    <insert id="createCompulsoryApp" parameterClass="compulsoryApp">
+        INSERT INTO tb_install_apps (appid,created) value(#appid#,now());
+    </insert>
+
+    <delete id="deleteCompulsoryApp" parameterClass="Integer">
+         delete from tb_install_apps where id=#id#
+    </delete>
+
+
+    <select id="getSuning" resultClass="suning">
+         select
+            id as id,
+            shop_id as shopId,
+            shop_name as shopName,
+            file_url as fileUrl,
+            created as created
+        from
+             tb_suning_package
+    </select>
+
+    <insert id="createSuning" parameterClass="suning">
+        INSERT INTO tb_suning_package (shop_id,shop_name,file_url,created) value(#shopId#,#shopName#,#fileUrl#,now());
+    </insert>
+
+    <delete id="deleteSuning" parameterClass="Integer">
+        delete from tb_suning_package where id=#id#
+    </delete>
+
+    <select id="modifySuning" parameterClass="Integer" resultClass="suning">
+        select
+            id as id,
+            shop_id as shopId,
+            shop_name as shopName,
+            file_url as fileUrl
+        from
+           tb_suning_package
+        where
+           id=#id#
+    </select>
+
+    <update id="updateSuning" parameterClass="suning">
+        update
+            tb_suning_package
+        set
+            shop_id=#shopId#,
+            shop_name =#shopName#,
+            file_url =#fileUrl#
+        where
+           id=#id#
+    </update>
+
+    <select id="getCpDateImport" resultClass="cpDateImport" parameterClass="baseQuery">
+        SELECT
+            cpdateImport.id AS id,
+            cpdateImport.mess as mess,
+            cpdateImport.status as status,
+            cpdateImport.amount as amount,
+            apps.app_name AS appName,
+            cpdateImport.file_url AS fileUrl,
+            baseInfo.account AS cpName,
+            appDetails.logo_url AS logoUrl,
+            cpdateImport.created as created
+        FROM
+            tb_cpdate_import AS cpdateImport,
+            tb_cp_baseinfo AS baseInfo,
+            tb_apps AS apps,
+            tb_app_details AS appDetails
+        WHERE
+        appDetails.accountid = baseInfo.id
+        AND apps.appid = cpdateImport.appid
+        AND apps.appid = appDetails.appid
+        AND appDetails.id = apps.default_detail_id
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+    <select id="getCpDateImportCounts" resultClass="Integer">
+         select count(*) from tb_cpdate_import
+    </select>
+    <insert id="createCpDateImport" parameterClass="cpDateImport">
+        INSERT INTO tb_cpdate_import (appid,file_url,status,created) value(#appid#,#fileUrl#,2,now());
+        <selectKey resultClass="Integer" keyProperty="id">
+            select last_insert_id() id from tb_cpdate_import limit 1
+        </selectKey>
+    </insert>
+    <delete id="deletCpDateImport" parameterClass="Integer">
+        delete from tb_cpdate_import where id=#id#
+    </delete>
+    <delete id="deteleCpPhoneImei" parameterClass="Integer">
+        delete from tb_cp_phoneimei where cp_import_id=#id#
+    </delete>
+    <update id="updateCpDateImport" parameterClass="cpDateImport">
+        update tb_cpdate_import set status=#status#,amount=#amount#,mess=#mess# where id=#id#
+    </update>
+    <insert id="createCpPhoneimei" parameterClass="cpPhoneimei">
+        INSERT INTO tb_cp_phoneimei (phone_imei,appid,cp_import_id,activation_time,created) value(#phoneImei#,#appid#,#cpImportId#,#activationTime#,now());
+    </insert>
+
+</sqlMap>

@@ -1,0 +1,173 @@
+#set($layout="content.vm")
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/clientmanager/util.js")"></script>
+<script type="text/javascript">
+    var appArray;
+    $(document).ready(function () {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+        var b = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "add", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+        appArray = new Array();
+        appArray.length = 0;
+    });
+
+    /*分页*/
+    function macroAjaxSubmit(url) {
+        var pubedStatus = document.getElementById('pubedStatus').value;
+        jQuery.ajax({
+            type: 'POST',
+            data: 'pubedStatus=' + pubedStatus,
+            url: url,
+            success: function (data) {
+                jQuery('#right_start').html(data);
+                jQuery('#pubedStatus').get(0).value = pubedStatus;
+            }
+        });
+    }
+
+
+    function addTopicApp(topicId, message) {
+        var appId = message.split(',')[0];
+        var activation = 0;
+        if (document.getElementById(appId + "_activation").checked == true) {
+            activation = 1;
+        }
+        var appSeq = 1;
+        var appName = message.split(',')[1];
+//        var appPubedStatus = message.split(',')[3];
+        var appPubedStatus = document.getElementById("pubedStatus" + appId).value;
+        var appPubTime = message.split(',')[5];
+        jQuery.ajax({
+            type: 'POST',
+            url: '/topicManager/addTopicApp.action',
+            data: 'topicApp.topicId=' + topicId + '&topicApp.appId=' + appId + '&topicApp.pubedStatus=' + appPubedStatus + '&topicApp.orderSeq=' + appSeq + '&topicApp.pubTime=' + appPubTime + '&topicApp.activation=' + activation
+        });
+
+    }
+
+
+    function addAppToTopic() {
+        var DATA_ADD = {};
+        for (var i = 0; i < _parentLeft.length; i++) {
+            if (_parentLeft[i].checked) {
+                appArray.push(_parentLeft[i].id);
+                DATA_ADD[i] = {
+                    'value': _parentLeft[i].value,
+                    'appId': _parentLeft[i].value.toString().split(',')[0],
+                    'appName': _parentLeft[i].value.toString().split(',')[1],
+                    'logo': _parentLeft[i].value.toString().split(',')[2],
+                    'online': _parentLeft[i].value.toString().split(',')[3],
+                    'modified': _parentLeft[i].value.toString().split(',')[4],
+                    'path': _parentLeft[i].value.toString().split(',')[6],
+                    'imgPath': _parentLeft[i].value.toString().split(',')[7],
+                    'appLogo': _parentLeft[i].value.toString().split(',')[8]
+                }
+            }
+        }
+        for (var j = 0; j < appArray.length; j++) {
+            var td = document.getElementById(appArray[j]).parentNode.parentNode;
+            var tr = td.parentNode;
+            var tb = tr.parentNode;
+            tb.removeChild(tr);
+        }
+
+
+        var html = '';
+        for (var i in DATA_ADD) {
+            html += '<tr><td><label><input id="' + DATA_ADD[i].appId + '_activation" type="checkbox"/></label></td>';
+            html += '<td><p class="ac">' + DATA_ADD[i].appName + '</p></td>';
+            html += '<td><label><div class="app-ico"><img src="$imgserver.getTarget("")cover/' + DATA_ADD[i].logo + '"/></div><label></td>';
+            html += '<td><p><input id="app' + DATA_ADD[i].appId + '" class="input ac" style="width:20px;" type="text" value="1"/></p></td>';
+            html += '<td><p><select id="pubedStatus' + DATA_ADD[i].appId + '"><option value="1">上线</option><option value="0">下线</option></select></p></td>';
+            html += '<td><p class="ac"><a href="javascript:void(0)" onclick="deleteSelectApp(this);">移除</a></p></td>';
+            html += '<td class="hide"><input name="topicObj" value="' + DATA_ADD[i].value + '"></td></tr>';
+        }
+        appArray.length = 0;
+        $('#addTr').append(html);
+    }
+
+
+</script>
+<div class="fr">
+    <div class="right-box rounded">
+        <div class="form-row">
+
+            <label class="label fl" style="width: 160px;text-align: left; padding-left: 12px;">发布状态
+                <select id="pubedStatus" size="1">
+                    <option value="2">全部</option>
+                    <option value="0">未上线</option>
+                    <option value="1">已上线</option>
+                </select>
+            </label>
+            <input id="disabled" class="to-del" type="button" value="检 索" onclick="getTopicListByPub();">
+
+            <input class="to-del add fr" type="button" value="添加专题" onclick="addTopic();"/>
+        </div>
+        <div class="tb-box">
+            <table class="tb" cellspacing="0" cellpadding="0">
+                <tr class="tit-bg">
+                    <td width="125">专题名称</td>
+                    <td width="125">专题图片</td>
+                    <td width="180">专题简介</td>
+                    <td width="40">排序</td>
+                    <td width="80">状态</td>
+                    <td width="240">操作</td>
+                </tr>
+                #foreach($topic in $topics)
+                    <tr>
+                        <td>
+                            <div><label>$!stringEscapeUtils.escapeHtml($!topic.topicName)</label></div>
+                        </td>
+
+                        #if($topic.logUrl!='')
+                            <td>
+                                <div style="margin:5px 5px 5px 5px">
+                                    <img width="160" height="120" src="$topicimageserver.getTarget('')$topic.logoUrl"/>
+                                </div>
+                            </td>
+                        #else
+                            <td>
+                                <img width="100" height="100" src="/appstore-man/images/appimg.png"/>
+                            </td>
+                        #end
+                        <td>
+                            <p style="width:270px;margin:5px;text-align: justify;white-space:normal; overflow: hidden;">$topic.intro</p>
+                        </td>
+                        <td><input style="width: 20px;" type="text" value="$!topic.orderSeq"
+                                   onblur="updateTopicSeq($topic.topicId,$topic.orderSeq,this.value);"/></td>
+                        #if($!topic.pubedStatus==0)
+                            <td>已下线</td>
+                        #elseif($!topic.pubedStatus==1)
+                            <td>已上线</td>
+                        #end
+                        <td>
+                            #if($!topic.pubedStatus==0)
+                                <a href="javascript:void(0)" onclick="updateTopicPubedStatus($topic.topicId,1)">上线</a>
+                            #else
+                                <a href="javascript:void(0)" onclick="updateTopicPubedStatus($topic.topicId,0)">下线</a>
+                            #end
+                            |
+                            <a href="javascript:void(0)" onclick="editTopic($topic.topicId)" class="add">编辑</a>
+                            |
+                            <a href="javascript:void(0)" onclick="deleteTopic($topic.topicId,$topic.orderSeq);">移除</a>
+                            |
+                            <a href="javascript:void(0)" class="add"
+                               onclick="relenvanceTopic($topic.topicId,$topic.orderSeq);">关联渠道</a>
+                        </td>
+                    </tr>
+                #end
+            </table>
+        </div>
+    </div>
+
+    <div class="paging fr">
+        <div class="paging-box_2">
+            #set($pageModule=$domain.getTarget("/topicManager/getTopicListByPub.action").addQueryData("pageSize",$!pageSize))
+        #showPage($pageModule $topics)
+        </div>
+    </div>
+
+
+</div>
+<div class="classPop" style="width:800px;height:500px;" id="confirmPop">
+
+</div>

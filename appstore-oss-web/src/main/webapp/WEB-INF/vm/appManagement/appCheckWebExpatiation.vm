@@ -1,0 +1,158 @@
+#set($layout="content.vm")
+<script language="javascript">
+    $(document).ready(function(){
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+</script>
+<div class="pop-top">
+    <div class="ac">
+      <h2>应用审核</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+      <div class="con">
+        <table class="tb" cellspacing="0" cellpadding="0">
+        <input type="hidden" name="AppPageInput.did" value="AppPageOutput.did"/>
+        <input type="hidden" name="AppPageInput.baseCheckStatus" value="$!AppPageOutput.baseCheckStatus" />
+        <input type="hidden" name="AppPageInput.price" value="$!AppPageOutput.price" />
+        <input type="hidden" name="AppPageInput.appid" value="$!AppPageOutput.appid" />
+        <input type="hidden" name="AppPageInput.accountid" value="$!AppPageOutput.accountid" />
+        <input type="hidden" name="AppPageInput.logoUrl" value="$!AppPageOutput.logoUrl" />
+        <input type="hidden" name="AppPageInput.updateStatus" value="$!AppPageOutput.updateStatus"/>
+          <tr>
+            <td width="95"><label>应用图标：</label></td>
+            <td width="550">
+                <div class="app-ico">
+                        <img src="$imgserver.getTarget('')cover/${AppPageOutput.logoUrl}" />
+                </div>
+            </td>
+          </tr>
+          <tr>
+            <td><label>应用名称：</label></td>
+            <td>
+                <label>
+                    $!stringEscapeUtils.escapeHtml($!AppPageOutput.appName)
+                </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>广告语：</label></td>
+            <td><p>
+                <input type="text" name="AppPageInput.adText" class="input" style="width:300px;" value="$!stringEscapeUtils.escapeHtml($!AppPageOutput.adText)"/>
+              </p></td>
+          </tr>
+          <tr>
+            <td><label>版本：</label></td>
+            <td><p>
+                <input type="text" name="AppPageInput.versionName" class="input"  maxlength="10"  style="width:300px;" value="$!stringEscapeUtils.escapeHtml($!AppPageOutput.appVersion)"/>
+              </p></td>
+##            <td><label>$!stringEscapeUtils.escapeHtml($!AppPageOutput.appVersion)</label></td>
+          </tr>
+          <tr>
+            <td><label>CP用户名：</label></td>
+            <td><label>$!stringEscapeUtils.escapeHtml($!AppPageOutput.cpName)</label></td>
+          </tr>
+          <tr>
+            <td><label>性质：</label></td>
+            <td>
+                <label>
+                    #if($!AppPageOutput.nature == 1)
+                        <div class="green">新发</div>
+                    #elseif($!AppPageOutput.nature == 2)
+                        <div class="green">新发</div>
+                    #elseif($!AppPageOutput.nature == 3)
+                        <div class="red">更新详情</div>
+                    #end
+                </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>应用类型：</label></td>
+            <td><p>
+                <select name="AppPageInput.appType" class="input">
+                  <option value="3" #if($!AppPageOutput.appType == 3) selected  #end >flash</option>
+                  <option value="4" #if($!AppPageOutput.appType == 4) selected  #end>iframe</option>
+                </select>
+              </p></td>
+          </tr>
+          <tr>
+            <td><label>标签：</label></td>
+            <td><p>
+                <input class="input" style="width:300px;" type="text" name="AppPageInput.appTag" value="$!stringEscapeUtils.escapeHtml($!AppPageOutput.appTag)"/>
+              </p>
+              <p>多个标签请用英文逗号分隔</p></td>
+          </tr>
+          <tr>
+            <td><label>分类：</label></td>
+            <td>
+                #if($!AppPageOutput.baseCheckStatus == 3)
+                    <label>二级分类：网页应用
+                    </label>
+                    <label>三级分类1：
+                    <input type="hidden" name="AppPageInput.categoryid1" value="$!AppPageOutput.categoryid1"/>
+                    #foreach($c3 in $Category3)
+                      #if($!AppPageOutput.categoryid1 == $!c3.categoryId) $!c3.categoryName  #end
+                    #end
+                    </label>
+                    <label>三级分类2：
+                    #if(!$!AppPageOutput.categoryid2) 无 #end
+                    #foreach($c3 in $Category3)
+                      #if($!AppPageOutput.categoryid2 == $!c3.categoryId) $!c3.categoryName  #end
+                    #end
+                    </label>
+                #elseif($!AppPageOutput.baseCheckStatus == 2 || $!AppPageOutput.baseCheckStatus == 4)
+                    <label>二级分类：&nbsp&nbsp<input type="hidden" name="AppPageInput.categoryidl2" value="$!AppPageOutput.categoryidl2" />
+                        网页应用
+                    </label>
+                    <label>三级分类1：
+                    <select name="AppPageInput.categoryid1" style="width:100px" class="input">
+                    #foreach($c3 in $Category3)
+                        <option value="$!c3.categoryId" #if($!AppPageOutput.categoryid1 == $!c3.categoryId) selected  #end>
+                            $!stringEscapeUtils.escapeHtml($!c3.categoryName)
+                        </option>
+                    #end
+                    </select>
+                    </label>
+                    <label>三级分类2：
+                    <select name="AppPageInput.categoryid2" style="width:100px" class="input">
+                        <option value="">请选择</option>
+                        #foreach($c3 in $Category3)
+                            <option value="$!c3.categoryId" #if($!AppPageOutput.categoryid2 == $!c3.categoryId) selected  #end>
+                                $!stringEscapeUtils.escapeHtml($!c3.categoryName)
+                            </option>
+                        #end
+                    </select>
+                    </label>
+                #end
+            </td>
+          </tr>
+          <tr>
+            <td><label>应用描述：</label></td>
+            <td>
+                <p>
+                <textarea name="AppPageInput.appIntroduce" style="width:510px" rows="5">$!AppPageOutput.appIntroduce</textarea>
+                </p>
+            </td>
+          </tr>
+          <tr>
+            <td><label> 审核备注：</label></td>
+            <td><label>
+                <textarea name="AppPageInput.comment" style="width:510px" rows="5">$!stringEscapeUtils.escapeHtml($!AppPageOutput.comment)</textarea>
+              </label></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+<div class="btn-box">
+    <label>
+        <input class="btn" type="button" value="通过" onclick="updateStatusWebOn($!AppPageOutput.aid,$!AppPageOutput.did)">
+      </label>
+      <label>
+        <input class="btn" type="button" value="不通过" onclick="updateStatusWebOff($!AppPageOutput.aid,$!AppPageOutput.did)">
+      </label>
+      <label>
+        <input id="closeDiv" class="close" type="button" value="取消">
+      </label>
+</div>

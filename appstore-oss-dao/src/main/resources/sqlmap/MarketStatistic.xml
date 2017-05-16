@@ -1,0 +1,811 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="MarketStat">
+    <typeAlias alias="marketStatOutput" type="com.jd.cms.domain.appManagement.MarketStatOutput"/>
+    <typeAlias alias="marketStatInput" type="com.jd.cms.domain.appManagement.MarketStatInput"/>
+    <typeAlias alias="installStat" type="com.jd.appstore.domain.InstallStat"/>
+    <!--统计离线应用的总安装量 按日期-->
+    <select id="getMarketStat" resultClass="MarketStatOutput" parameterClass="marketStatInput">
+        SELECT
+            count(DISTINCT installstat.phone_imei,installstat.appid) AS installTimes,
+            count(DISTINCT phone_imei) AS phoneTimes
+        FROM
+            tb_apps AS apps,
+        <isEqual prepend="" property="flag" compareValue = "0" >
+            tb_offlineapp_install_stat AS installstat
+        </isEqual>
+        <isEqual prepend="" property="flag" compareValue = "1" >
+            tb_onlineapp_install_stat AS installstat
+        </isEqual>
+        WHERE
+            apps.appid = installstat.appid
+          AND
+            STR_TO_DATE(
+            CONCAT(
+            installstat. YEAR,
+            '-',
+            installstat. MONTH,
+            '-',
+            installstat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(installstat.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#partisionsEndTime#, '%Y-%c-%e')
+    </select>
+
+    <!-- 按应用查看-->
+    <select id="statByApp" parameterClass="marketStatInput" resultClass="marketStatOutput">
+        SELECT
+            count(DISTINCT installstat.appid,
+            phone_imei) AS installTimes,
+            apps.appid AS appId,
+            apps.app_name AS appName,
+            count(DISTINCT installstat.appid,
+            phone_imei) AS phoneTimes,
+            details.logo_url AS logoUrl,
+            details.zhuowangMark AS zhuoWangMark
+        FROM
+            tb_apps AS apps,
+            tb_app_details as details,
+         <isEqual prepend="" property="flag" compareValue = "0" >
+            tb_offlineapp_install_stat AS installstat
+         </isEqual>
+         <isEqual prepend="" property="flag" compareValue = "1" >
+            tb_onlineapp_install_stat AS installstat
+         </isEqual>
+        WHERE
+           apps.appid = installstat.appid
+        AND
+           details.id = apps.default_detail_id
+        AND
+            details.appid =apps.appid
+        AND
+            STR_TO_DATE(
+            CONCAT(
+            installstat. YEAR,
+            '-',
+            installstat. MONTH,
+            '-',
+            installstat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(installstat.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#partisionsEndTime#, '%Y-%c-%e')
+        GROUP BY
+          appId
+        ORDER BY
+          phoneTimes
+          DESC
+        <!--统计标示，如果是导出excel 不分页-->
+        <isEqual prepend="" property="statsFlag" compareValue = "0">
+            LIMIT #limit#
+            OFFSET #offset#
+        </isEqual>
+    </select>
+    <!-- 按应用查看 计算总数 用于分页-->
+    <select id="getStatByAppCount" parameterClass="marketStatInput" resultClass="int">
+        SELECT
+           count(*)
+        FROM
+        (
+            SELECT
+            count(installstat.appid) AS installTimes,
+            apps.appid AS appId,
+            apps.app_name AS appName,
+            count(phone_imei) AS phoneTimes,
+            details.logo_url AS logoUrl,
+            details.zhuowangMark AS zhuoWangMark
+        FROM
+            tb_apps AS apps,
+            tb_app_details as details,
+            <isEqual prepend="" property="flag" compareValue = "0" >
+                tb_offlineapp_install_stat AS installstat
+            </isEqual>
+            <isEqual prepend="" property="flag" compareValue = "1" >
+                tb_onlineapp_install_stat AS installstat
+            </isEqual>
+        WHERE
+            apps.appid = installstat.appid
+        AND
+            details.id = apps.default_detail_id
+        AND
+             details.appid =apps.appid
+        AND
+            STR_TO_DATE(
+            CONCAT(
+            installstat. YEAR,
+            '-',
+            installstat. MONTH,
+            '-',
+            installstat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(installstat.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#partisionsEndTime#, '%Y-%c-%e')
+        GROUP BY
+           appId
+        ORDER BY
+            phoneTimes
+        ) AS a
+    </select>
+
+    <!-- 按渠道查看-->
+    <select id="statByChannel" parameterClass="marketStatInput" resultClass="marketStatOutput">
+        SELECT
+            count(DISTINCT installstat.phone_imei,installstat.appid) AS installTimes,
+            padChannel.id AS cId,
+            count(DISTINCT phone_imei) AS phoneTimes,
+            padChannel.cname as padName
+        FROM
+            tb_pad_channel AS padChannel,
+            tb_apps as apps,
+         <isEqual prepend="" property="flag" compareValue = "0" >
+            tb_offlineapp_install_stat AS installstat
+         </isEqual>
+         <isEqual prepend="" property="flag" compareValue = "1" >
+            tb_onlineapp_install_stat AS installstat
+         </isEqual>
+        WHERE
+           installstat.cid = padChannel.id
+        AND
+           apps.appid=installstat.appid
+        AND
+           STR_TO_DATE(
+            CONCAT(
+            installstat. YEAR,
+            '-',
+            installstat. MONTH,
+            '-',
+            installstat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(installstat.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#partisionsEndTime#, '%Y-%c-%e')
+        GROUP BY
+          cId
+        ORDER BY
+           phoneTimes
+        DESC
+        <isEqual prepend="" property="statsFlag" compareValue = "0">
+            LIMIT #limit#
+            OFFSET #offset#
+        </isEqual>
+    </select>
+    <!-- 按渠道查看 统计条数  用于分页-->
+    <select id="statByChannelCount" parameterClass="marketStatInput" resultClass="int">
+        SELECT
+           count(*)
+        FROM
+        (SELECT
+            sum(install_times) AS installTimes,
+            padChannel.id AS cId,
+            count(DISTINCT phone_imei) AS phoneTimes,
+            padChannel.cname as padName
+        FROM
+            tb_pad_channel AS padChannel,
+            tb_apps as apps,
+            <isEqual prepend="" property="flag" compareValue = "0" >
+                tb_offlineapp_install_stat AS installstat
+            </isEqual>
+            <isEqual prepend="" property="flag" compareValue = "1" >
+                tb_onlineapp_install_stat AS installstat
+            </isEqual>
+        WHERE
+             installstat.cid = padChannel.id
+        AND
+           apps.appid=installstat.appid
+        AND
+            STR_TO_DATE(
+            CONCAT(
+            installstat. YEAR,
+            '-',
+            installstat. MONTH,
+            '-',
+            installstat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(installstat.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#partisionsEndTime#, '%Y-%c-%e')
+        GROUP BY
+        cId) as a
+    </select>
+
+    <!--某个应用按渠道统计安装次数-->
+    <select id="appGetMarketStatByChannel" resultClass="marketStatOutput" parameterClass="marketStatInput">
+        SELECT
+            count(DISTINCT installstat.appid,
+            phone_imei) as installTimes,
+            count(DISTINCT installstat.appid,
+            phone_imei) AS phoneTimes,
+            apps.appid as appId,
+            apps.app_name as appName,
+            padChannel.cname as padName,
+            padChannel.id as cId
+        FROM
+            tb_apps AS apps,
+        <isEqual prepend="" property="flag" compareValue = "0" >
+            tb_offlineapp_install_stat AS installstat,
+        </isEqual>
+        <isEqual prepend="" property="flag" compareValue = "1" >
+            tb_onlineapp_install_stat AS installstat,
+        </isEqual>
+             tb_pad_channel as padChannel
+        WHERE
+            apps.appid = installstat.appid
+        AND
+            apps.appid = #appId#
+        AND
+            installstat.cid = padChannel.id
+        AND
+            STR_TO_DATE(
+            CONCAT(
+            installstat. YEAR,
+            '-',
+            installstat. MONTH,
+            '-',
+            installstat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(installstat.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#partisionsEndTime#, '%Y-%c-%e')
+        GROUP BY
+           cId
+        ORDER BY
+          phoneTimes
+           DESC
+        <isEqual prepend="" property="statsFlag" compareValue = "0">
+            LIMIT #limit#
+            OFFSET #offset#
+        </isEqual>
+    </select>
+
+    <!--某个应用按渠道统计安装次数 总记录数-->
+    <select id="appGetMarketStatByChannelCount" resultClass="int" parameterClass="marketStatInput">
+        SELECT count(*)
+        FROM(
+            SELECT
+            count(DISTINCT installstat.appid,
+            phone_imei) as installTimes,
+            count(DISTINCT installstat.appid,
+            phone_imei) AS phoneTimes,
+            apps.appid as appId,
+            apps.app_name as appName,
+            padChannel.cname as padName,
+            padChannel.id as cId
+        FROM
+            tb_apps AS apps,
+          <isEqual prepend="" property="flag" compareValue = "0" >
+            tb_offlineapp_install_stat AS installstat,
+          </isEqual>
+          <isEqual prepend="" property="flag" compareValue = "1" >
+            tb_onlineapp_install_stat AS installstat,
+          </isEqual>
+            tb_pad_channel as padChannel
+        WHERE
+           apps.appid = installstat.appid
+        AND
+           apps.appid = #appId#
+        AND
+           installstat.cid = padChannel.id
+        AND
+            STR_TO_DATE(
+            CONCAT(
+            installstat. YEAR,
+            '-',
+            installstat. MONTH,
+            '-',
+            installstat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(installstat.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#partisionsEndTime#, '%Y-%c-%e')
+        GROUP BY
+        cId)
+        AS a
+    </select>
+    <!--应用每个渠道下按促销员查看-->
+    <select id="appStatsChannelBySaler" resultClass="marketStatOutput" parameterClass="marketStatInput">
+        SELECT
+            count(DISTINCT installstat.appid,
+            phone_imei) AS installTimes,
+            installstat.saler AS saler,
+            count(DISTINCT installstat.appid,
+            phone_imei) AS phoneTimes,
+            apps.appId,
+            installstat.saler_name as salerName,
+            installstat.shop_name as shopName,
+            apps.app_name as appName,
+            padChannel.cname as padName
+        FROM
+            tb_apps AS apps,
+            <isEqual prepend="" property="flag" compareValue = "0" >
+                tb_offlineapp_install_stat AS installstat,
+            </isEqual>
+            <isEqual prepend="" property="flag" compareValue = "1" >
+                tb_onlineapp_install_stat AS installstat,
+            </isEqual>
+            tb_pad_channel AS padChannel
+        WHERE
+            apps.appid = installstat.appid
+            AND apps.appid = #appId#
+            AND padChannel.id = #cId#
+            AND installstat.cid = padChannel.id
+            AND STR_TO_DATE(
+            CONCAT(
+            installstat. YEAR,
+            '-',
+            installstat. MONTH,
+            '-',
+            installstat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(installstat.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#partisionsEndTime#, '%Y-%c-%e')
+        GROUP BY
+            saler
+            ORDER BY
+        phoneTimes
+        DESC
+        <isEqual prepend="" property="statsFlag" compareValue = "0">
+            LIMIT #limit#
+            OFFSET #offset#
+        </isEqual>
+    </select>
+    <!--应用每个渠道下的应用按促销员查看 统计条数-->
+    <select id="appStatsChannelBySalerCount" parameterClass="marketStatInput" resultClass="int">
+        SELECT
+        count(*)
+        FROM
+        (SELECT
+            count(DISTINCT installstat.appid,
+            phone_imei) AS installTimes,
+            installstat.saler AS saler,
+            count(DISTINCT installstat.appid,
+            phone_imei) AS phoneTimes,
+            apps.appId,
+            installstat.saler_name as salerName,
+            installstat.shop_name as shopName,
+            apps.app_name as appName,
+            padChannel.cname as padName
+        FROM
+            tb_apps AS apps,
+            <isEqual prepend="" property="flag" compareValue = "0" >
+                tb_offlineapp_install_stat AS installstat,
+            </isEqual>
+            <isEqual prepend="" property="flag" compareValue = "1" >
+                tb_onlineapp_install_stat AS installstat,
+            </isEqual>
+            tb_pad_channel AS padChannel
+        WHERE
+            apps.appid = installstat.appid
+            AND apps.appid = #appId#
+            AND padChannel.id = #cId#
+            AND installstat.cid = padChannel.id
+            AND STR_TO_DATE(
+            CONCAT(
+            installstat. YEAR,我
+            '-',
+            installstat. MONTH,
+            '-',
+            installstat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(installstat.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#partisionsEndTime#, '%Y-%c-%e')
+        GROUP BY
+        saler) AS a
+    </select>
+    <!--渠道下按应用查看-->
+    <select id="statChannelByApps" parameterClass="marketStatInput" resultClass="marketStatOutput">
+        SELECT
+            count(DISTINCT installstat.appid,
+            phone_imei) AS installTimes,
+            apps.appid         AS appId,
+            apps.app_name      AS appName,
+            padChannel.id      AS cId,
+            padChannel.cname as padName,
+            details.logo_url AS logoUrl,
+            count(DISTINCT installstat.appid,
+            phone_imei) AS phoneTimes,
+            details.zhuowangMark AS zhuoWangMark
+        FROM
+            tb_apps AS apps,
+            tb_app_details as details,
+            <isEqual prepend="" property="flag" compareValue = "0" >
+                tb_offlineapp_install_stat AS installstat,
+            </isEqual>
+            <isEqual prepend="" property="flag" compareValue = "1" >
+                tb_onlineapp_install_stat AS installstat,
+            </isEqual>
+            tb_pad_channel AS padChannel
+        WHERE
+        apps.appid = installstat.appid
+        AND
+        installstat.cid = padChannel.id
+        AND
+        padChannel.id = #cId#
+        AND
+        details.id = apps.default_detail_id
+        AND
+        details.appid =apps.appid
+        AND STR_TO_DATE(
+        CONCAT(
+        installstat. YEAR,
+        '-',
+        installstat. MONTH,
+        '-',
+        installstat. DAY
+        ),
+        '%Y-%c-%e'
+        ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(installstat.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#partisionsEndTime#, '%Y-%c-%e')
+        GROUP BY
+        appId
+        ORDER BY
+        phoneTimes
+        DESC
+        <isEqual prepend="" property="statsFlag" compareValue = "0">
+            LIMIT #limit#
+            OFFSET #offset#
+        </isEqual>
+    </select>
+    <!--渠道下按应用查看 统计条数 用于分页-->
+    <select id="statChannelByAppsCount" parameterClass="marketStatInput" resultClass="int">
+        SELECT
+        count(*)
+        FROM
+        (SELECT
+            count(DISTINCT installstat.appid,
+            phone_imei) AS installTimes,
+            apps.appid         AS appId,
+            apps.app_name      AS appName,
+            padChannel.id      AS cId,
+            padChannel.cname as padName,
+            details.logo_url AS logoUrl,
+            count(DISTINCT installstat.appid,
+            phone_imei) AS phoneTimes,
+            details.zhuowangMark AS zhuoWangMark
+        FROM
+            tb_apps AS apps,
+            tb_app_details as details,
+            <isEqual prepend="" property="flag" compareValue = "0" >
+                tb_offlineapp_install_stat AS installstat,
+            </isEqual>
+            <isEqual prepend="" property="flag" compareValue = "1" >
+                tb_onlineapp_install_stat AS installstat,
+            </isEqual>
+            tb_pad_channel AS padChannel
+        WHERE
+            apps.appid = installstat.appid
+            AND
+            installstat.cid = padChannel.id
+            AND
+            padChannel.id = #cId#
+            AND
+            details.id = apps.default_detail_id
+            AND
+            details.appid =apps.appid
+            AND STR_TO_DATE(
+            CONCAT(
+            installstat. YEAR,
+            '-',
+            installstat. MONTH,
+            '-',
+            installstat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(installstat.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#partisionsEndTime#, '%Y-%c-%e')
+        GROUP BY
+        appId) AS a
+    </select>
+
+    <!--渠道下按促销员查看安装次数-->
+    <select id="channlStatBySaler" parameterClass="marketStatInput" resultClass="marketStatOutput">
+        SELECT
+            count(DISTINCT(STR_TO_DATE(
+            CONCAT(
+            installstat. YEAR,
+            '-',
+            installstat. MONTH,
+            '-',
+            installstat. DAY
+            ),
+            '%Y-%c-%e'
+            ))) as activeDays,
+            count(DISTINCT installstat.appid,installstat.phone_imei) AS installTimes,
+            count(DISTINCT phone_imei) AS phoneTimes,
+            installstat.saler as saler,
+            installstat.saler_name as salerName,
+            installstat.shop_name as shopName,
+            padChannel.id AS cId,
+            padChannel.cname as padName,
+            salerDetails.phone_number as phoneNumber,
+            salerDetails.saler_category as level
+        FROM
+            tb_apps AS apps,
+            tb_pad_channel AS padChannel,
+            <isEqual prepend="" property="flag" compareValue = "0" >
+                tb_offlineapp_install_stat AS installstat
+            </isEqual>
+            <isEqual prepend="" property="flag" compareValue = "1" >
+                tb_onlineapp_install_stat AS installstat
+            </isEqual>
+            LEFT JOIN
+            tb_saler_details as salerDetails
+            ON
+            salerDetails.only_code = installstat.saler
+        WHERE
+            apps.appid = installstat.appid
+            AND installstat.cid = padChannel.id
+            AND padChannel.id = #cId#
+            AND STR_TO_DATE(
+            CONCAT(
+            installstat. YEAR,
+            '-',
+            installstat. MONTH,
+            '-',
+            installstat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(installstat.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#partisionsEndTime#, '%Y-%c-%e')
+        GROUP BY
+        saler
+        ORDER BY
+        phoneTimes
+        DESC
+        <isEqual prepend="" property="statsFlag" compareValue = "0">
+            LIMIT #limit#
+            OFFSET #offset#
+        </isEqual>
+    </select>
+    <!--渠道下按促销员查看安装次数 统计条数用于分页-->
+    <select id="channlStatBySalerCount" parameterClass="marketStatInput" resultClass="int">
+        SELECT
+        count(*)
+        FROM
+        (SELECT
+        count(DISTINCT(STR_TO_DATE(
+        CONCAT(
+        installstat. YEAR,
+        '-',
+        installstat. MONTH,
+        '-',
+        installstat. DAY
+        ),
+        '%Y-%c-%e'
+        ))) as activeDays,
+        count(installstat.appid) AS installTimes,
+        count(DISTINCT phone_imei) AS phoneTimes,
+        installstat.saler as saler,
+        installstat.saler_name as salerName,
+        installstat.shop_name as shopName,
+        padChannel.id AS cId,
+        padChannel.cname as padName,
+        salerDetails.phone_number as phoneNumber,
+        salerDetails.saler_category as level
+        FROM
+        tb_apps AS apps,
+        tb_pad_channel AS padChannel,
+        <isEqual prepend="" property="flag" compareValue = "0" >
+            tb_offlineapp_install_stat AS installstat
+        </isEqual>
+        <isEqual prepend="" property="flag" compareValue = "1" >
+            tb_onlineapp_install_stat AS installstat
+        </isEqual>
+        LEFT JOIN
+        tb_saler_details as salerDetails
+        ON
+        salerDetails.only_code = installstat.saler
+        WHERE
+        apps.appid = installstat.appid
+        AND installstat.cid = padChannel.id
+        AND padChannel.id = #cId#
+        AND STR_TO_DATE(
+        CONCAT(
+        installstat. YEAR,
+        '-',
+        installstat. MONTH,
+        '-',
+        installstat. DAY
+        ),
+        '%Y-%c-%e'
+        ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(installstat.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#partisionsEndTime#, '%Y-%c-%e')
+        GROUP BY
+        saler
+        ORDER BY
+        phoneTimes
+        DESC)
+        as a
+    </select>
+    <!--促销员按应用查看安装次数-->
+    <select id="salerStatsByApps" parameterClass="marketStatInput" resultClass="marketStatOutput">
+        SELECT
+        count(DISTINCT installstat.appid,
+        phone_imei) AS InstallTimes,
+        apps.appid         AS appId,
+        apps.app_name      AS appName,
+        padChannel.id      AS cId,
+        padChannel.cname as padName,
+        details.logo_url AS logoUrl,
+        count(DISTINCT installstat.appid,
+        phone_imei) AS phoneTimes,
+        installstat.saler as saler,
+        details.zhuowangMark AS zhuoWangMark
+        FROM
+        tb_apps AS apps,
+        tb_app_details as details,
+        <isEqual prepend="" property="flag" compareValue = "0" >
+            tb_offlineapp_install_stat AS installstat,
+        </isEqual>
+        <isEqual prepend="" property="flag" compareValue = "1" >
+            tb_onlineapp_install_stat AS installstat,
+        </isEqual>
+        tb_pad_channel AS padChannel
+        WHERE
+        apps.appid = installstat.appid
+        AND
+        installstat.cid = padChannel.id
+        AND
+        padChannel.id = #cId#
+        AND
+        details.id = apps.default_detail_id
+        AND
+        details.appid =apps.appid
+        AND
+        installstat.saler = #saler#
+        AND STR_TO_DATE(
+        CONCAT(
+        installstat. YEAR,
+        '-',
+        installstat. MONTH,
+        '-',
+        installstat. DAY
+        ),
+        '%Y-%c-%e'
+        ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(installstat.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#partisionsEndTime#, '%Y-%c-%e')
+        GROUP BY
+        appId
+        ORDER BY
+        phoneTimes
+        DESC
+        <isEqual prepend="" property="statsFlag" compareValue = "0">
+            LIMIT #limit#
+            OFFSET #offset#
+        </isEqual>
+    </select>
+    <!--促销员按应用查看安装次数 统计条数 用于分页-->
+    <select id="salerStatsByAppsCount" parameterClass="marketStatInput" resultClass="int">
+        SELECT
+        count(*)
+        FROM
+        ( SELECT
+        count(DISTINCT installstat.appid,
+        phone_imei) AS InstallTimes,
+        apps.appid         AS appId,
+        apps.app_name      AS appName,
+        padChannel.id      AS cId,
+        padChannel.cname as padName,
+        details.logo_url AS logoUrl,
+        count(DISTINCT installstat.appid,
+        phone_imei) AS phoneTimes,
+        installstat.saler as saler,
+        details.zhuowangMark AS zhuoWangMark
+        FROM
+        tb_apps AS apps,
+        tb_app_details as details,
+        <isEqual prepend="" property="flag" compareValue = "0" >
+            tb_offlineapp_install_stat AS installstat,
+        </isEqual>
+        <isEqual prepend="" property="flag" compareValue = "1" >
+            tb_onlineapp_install_stat AS installstat,
+        </isEqual>
+        tb_pad_channel AS padChannel
+        WHERE
+        apps.appid = installstat.appid
+        AND
+        installstat.cid = padChannel.id
+        AND
+        padChannel.id = #cId#
+        AND
+        details.id = apps.default_detail_id
+        AND
+        details.appid =apps.appid
+        AND
+        installstat.saler = #saler#
+        AND STR_TO_DATE(
+        CONCAT(
+        installstat. YEAR,
+        '-',
+        installstat. MONTH,
+        '-',
+        installstat. DAY
+        ),
+        '%Y-%c-%e'
+        ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(installstat.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#partisionsEndTime#, '%Y-%c-%e')
+        GROUP BY
+        appId
+        ORDER BY
+        phoneTimes
+        DESC) as a
+    </select>
+
+    <insert id="insertOfflineAppStat" parameterClass="installStat">
+        INSERT INTO `tb_offlineapp_install_stat` (
+        `id`,
+        `appid`,
+        `cid`,
+        `saler`,
+        `year`,
+        `month`,
+        `day`,
+        `install_times`
+        )
+        VALUES
+        (
+        #Id#,
+        #appId#,
+        #cid#,
+        #saler#,
+        #year#,
+        #month#,
+        #day#,
+        #installTimes#
+        )
+    </insert>
+    <select id="getAppIdFromTopicApp" resultClass="Integer">
+        select DISTINCT topicapp.appid as appId from tb_topic_app as topicapp,tb_topic as topic where topicapp.topicid = topic.topicid
+    </select>
+
+</sqlMap>

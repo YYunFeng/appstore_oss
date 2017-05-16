@@ -1,0 +1,59 @@
+#set($layout="content.vm")
+<script type="text/javascript">
+    $(document).ready(function () {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+    function searchAppForRanking() {
+        var appName = jQuery.trim(document.getElementById('appName').value);
+        jQuery.ajax({
+            type: 'POST',
+            url: '/search/SearchRankingApp.action',
+            data: 'appName=' + appName,
+            dataType: 'json',
+            complete: function (data) {
+                var result = eval("(" + data.responseText + ")");
+                var appPath = result.map.appPath;
+                var imgPath = result.map.IMG_N5;
+                if (result.map.apps.length <= 0) {
+                    alert('未找到相关应用');
+                } else {
+                    var html = '<table align="center" class="tb" cellspacing="0" cellpadding="0">';
+                    html += '<tr><td width="50"><p class="ac">选择</p></td>';
+                    html += '<td width="80"><p class="ac">图标</p></td>';
+                    html += '<td width="200"><p class="ac">名称</p></td></tr>';
+                    for (var i = 0; i < result.map.apps.length; i++) {
+                        html += '<tr><td><p class="ac"><input name="installApp" type="radio" value="' + result.map.apps[i].appId + '"/></p></td>';
+                        html += '<td><div class="app-ico ac"><img src="$imgserver.getTarget('')cover/' + result.map.apps[i].logo + '"/></div></td>';
+                        html += '<td><p class="ac">' + result.map.apps[i].appName + '</p></td></tr>';
+                    }
+                    jQuery('#rankingResult').empty().html(html);
+                }
+            }
+        });
+    }
+
+
+
+</script>
+
+<div class="pop-top">
+    <div class="ac">
+        <h2>添加强制安装应用</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+        <div class="con">
+            <p class="ac">应用名称：
+                <input id="appName" class="input" style="width:150px;" type="text"/>
+                <input class="btn" type="button" value="搜 索" onclick="searchAppForRanking();"/>
+            </p>
+            <p id="rankingResult"></p>
+        </div>
+    </div>
+</div>
+<div class="btn-box">
+    <input class="btn" type="button" value=" 确 认 完 成 " onclick="saveIntallApp();">
+    <input id="close" class="close" type="button" value="取 消">
+</div>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="exceptionLog">
+    <typeAlias alias="exceptionLog" type="com.jd.cms.domain.systemmaintenance.ExceptionLog"/>
+    <typeAlias alias="exceptionInput" type="com.jd.cms.domain.systemmaintenance.ExceptionLogInput"/>
+
+    <select id="getExceptionLog" resultClass="exceptionLog" parameterClass="exceptionInput">
+        select
+        id as id,
+        pad_imei as padImei,
+        saler as saler,
+        exception_mess as exceptionMess,
+        exception_type as exceptionType,
+        created as created
+        from
+        tb_exception_log
+        where
+          1=1
+        <isNotEmpty prepend="and" property="padImei">
+            pad_imei like  '%$padImei$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="saler">
+            saler like '%$saler$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="exceptionType">
+            exception_type = #exceptionType#
+        </isNotEmpty>
+        order by
+        created desc
+        limit #endRow# offset #startRow#
+    </select>
+
+    <select id="getExceptionLogCounts" resultClass="Integer" parameterClass="exceptionInput">
+        select
+        count(*)
+        from
+        tb_exception_log
+        where
+        1=1
+        <isNotEmpty prepend="and" property="padImei">
+            pad_imei like  '%$padImei$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="saler">
+            saler like '%$saler$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="exceptionType">
+            exception_type = #exceptionType#
+        </isNotEmpty>
+    </select>
+
+</sqlMap>

@@ -1,0 +1,24 @@
+<!--应用的安装总量-->
+#set($layout="content.vm")
+<table class="tb" cellspacing="0" cellpadding="0">
+    <tr class="tit-bg">
+        <td>排名</td>
+        <td>促销员编号</td>
+        <td>安装手机台数</td>
+        <td>安装量</td>
+        <td>平均每台手机安装量</td>
+    </tr>
+    #foreach($ranking in $salerRanking)
+        <tr>
+            <td>#if($!ranking.ranking)
+                $velocityCount
+            #else
+                --
+            #end</td>
+            <td>$!ranking.saler</td>
+            <td>$!ranking.phoneTimes</td>
+            <td>$!ranking.installTimes</td>
+            <td>$!ranking.averageInstallTimes</td>
+        </tr>
+    #end
+</table>

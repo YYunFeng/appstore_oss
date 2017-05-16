@@ -1,0 +1,130 @@
+#set($title = "系统维护-公司应用价格设置")
+#set($layout="content.vm")
+<script type="text/javascript">
+    $(document).ready(function () {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.2 });
+    });
+    function changeArea(val) {
+        $("#chargeAreaHidden").val(val);
+        appPrice();
+    }
+    function changeModel(val) {
+        $("#chargeModelHidden").val(val);
+        appPrice();
+    }
+    function changeTopicid(val) {
+        $("#topicIdHidden").val(val);
+        appPrice();
+    }
+    function searchPrice() {
+        var appName = $("#appNameSear").val();
+        $("#appNameHidden").val(appName);
+        appPrice();
+    }
+</script>
+<div class="fr">
+    <div class="right-box rounded">
+        <div class="form-row">
+            <div style="width:695px;float: left;text-align: left;">
+                <label style="margin-left: 12px;line-height: 26px;font-family: Microsoft YaHei;">专题:</label>
+                <select  onchange="changeTopicid(this.value)">
+                    <option value="">全部</option>
+                    <option value="67"
+                        #if($appPriceParameter.topicId==67)
+                            selected="selected"
+                        #end>精彩推荐</option>
+                    <option value="106"
+                        #if($appPriceParameter.topicId==106)
+                            selected="selected"
+                        #end>装机必备</option>
+                </select>
+                <label class="label">计费模式:</label>
+                <select style="margin-right: 12px" onchange="changeModel(this.value)">
+                    <option value="">全部</option>
+                    <option value="0"
+                    #if($appPriceParameter.chargeModel==0)
+                        selected="selected"
+                    #end
+                    >安装</option>
+                    <option value="1"
+                        #if($appPriceParameter.chargeModel==1)
+                            selected="selected"
+                        #end
+                    >激活</option>
+                    <option value="2"
+                        #if($appPriceParameter.chargeModel==2)
+                            selected="selected"
+                        #end
+                    >到达</option>
+                </select>
+                <label class="label1">应用名称：</label>
+                <input class="input" type="text" id="appNameSear" value="$appPriceParameter.appName"/>
+                <input type="button" onclick="searchPrice()" value="查 询" class="to-select"/>
+            </div>
+            <div align="right">
+                <input class="to-del open" type="button" value="添加应用价格" onclick="createAppPrice()"/>
+            </div>
+        </div>
+        <div class="tb-box" id="userList">
+            <table class="tb" cellspacing="0" cellpadding="0">
+                <tr class="tit-bg">
+                    <td width="100"><label>应用图标</label></td>
+                    <td width="100"><label>应用名称</label></td>
+                    <td width="100"><label>计费模式</label></td>
+                   #* <td width="100"><label>计费地区</label></td>*#
+                    <td width="100"><label>价格</label></td>
+                    <td width="100"><label>创建时间</label></td>
+                    <td width="170"><label>操作</label></td>
+                </tr>
+                #foreach($appPrice in $appPriceList)
+                    <tr>
+                        <td>
+                            <label> <img width="75" height="75"
+                                         src="$imgserver.getTarget('')cover/$appPrice.logoUrl"></label>
+                        </td>
+                        <td>
+                            <label>$!appPrice.appName</label>
+                        </td>
+                        <td>
+                            #if($appPrice.chargeModel==0)
+                                <label>安装</label>
+                            #elseif($appPrice.chargeModel==1)
+                                <label>激活</label>
+                            #elseif($appPrice.chargeModel==2)
+                                <label>到达</label>
+                            #end
+                        </td>
+
+                        #*<td>
+                            #if($appPrice.chargeArea==0)
+                                <label>总公司</label>
+                            #elseif($appPrice.chargeArea==1)
+                                <label>省办</label>
+                            #end
+                        </td>
+                        <td>
+                            #if($appPrice.chargeCompany==0)
+                                <label>华盛</label>
+                            #elseif($appPrice.chargeCompany==1)
+                                <label>自有</label>
+                            #end
+                        </td>*#
+
+                        <td>
+                            <label>$!appPrice.price</label>
+                        </td>
+                        <td>
+                            <label>$!dateFormatUtils.format($!appPrice.created,"yyyy-MM-dd HH:mm")
+                        </td>
+                        <td>
+                            <label>
+                                <a href="javascript:void(0)" class="open" onclick="modifyAppPrice($!appPrice.id)">修改</a>|
+                                <a href="javascript:void(0)" onclick="deleteAppPrice($!appPrice.id)">删除</a>
+                            </label>
+                        </td>
+                    </tr>
+                #end
+            </table>
+        </div>
+    </div>
+</div>

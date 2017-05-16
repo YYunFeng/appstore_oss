@@ -1,0 +1,61 @@
+#set($layout="content.vm")
+<div class="right-box rounded">
+    <div class="form-row">
+        <input id="d5221" type="hidden"/>
+        <input id="d5222" type="hidden"/>
+        <input id="averageInstallTimes" type="hidden"/>
+        <input id="exportExcel" class="to-select" type="button" onclick="statisticsExcel(2)"  style="float:right" value="导出报表"/>
+    </div>
+    <!--paging_start-->
+    <div class="paging fr">
+        <div class="paging-box_2">
+            #set($pageModule = $domain.getTarget("/salesStatistics/dayInstallMess.action").addQueryData("pageSize",$!pageSize))
+                        #showPage($pageModule $installMessList)
+        </div>
+    </div>
+    <div class="tb-box" id="content">
+        <table class="tb" cellspacing="0" cellpadding="0">
+            <tr class="tit-bg">
+                <td>时间</td>
+                <td>安装手机台数</td>
+                <td>安装的店数</td>
+                <td>安装的应用数</td>
+                <td>平均每台手机安装数</td>
+                <td>平均每个店安装台数</td>
+            </tr>
+            #foreach($installMess in $installMessList)
+                <tr>
+                    <td>$installMess.dateTime</td>
+                    <td>$installMess.phoneTimes</td>
+                    <td>$installMess.shopTimes</td>
+                    <td>$installMess.appsTimes</td>
+                    <td>$installMess.phoneAverageInstallTimes</td>
+                    <td>$installMess.shopAverageInstallTimes</td>
+                </tr>
+            #end
+        </table>
+    </div>
+    <!--paging_start-->
+    <div class="paging fr">
+        <div class="paging-box_2">
+            #set($pageModule = $domain.getTarget("/salesStatistics/dayInstallMess.action").addQueryData("pageSize",$!pageSize))
+                        #showPage($pageModule $installMessList)
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    //分页
+    function macroAjaxSubmit(url) {
+        document.getElementById("Loading").style.display = "block";
+        document.getElementById("Loading2").style.display = "block";
+        jQuery.ajax({
+            type: 'post',
+            url: url,
+            success: function (data) {
+                jQuery('#appTable').html(data);
+                document.getElementById("Loading").style.display = "none";
+                document.getElementById("Loading2").style.display = "none";
+            }
+        });
+    }
+</script>

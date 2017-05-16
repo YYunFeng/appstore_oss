@@ -1,0 +1,56 @@
+#set($layout="content.vm")
+
+<script type="text/javascript">
+    var _parentLeft;
+    $(document).ready(function() {
+        _parentLeft = document.getElementsByName("left");
+    });
+    function macroAjaxSubmit(url) {
+        var appName = jQuery.trim(document.getElementById('appName').value);
+        jQuery.ajax({
+                    type:'POST',
+                    url:url,
+                    data:'appName=' + appName,
+                    success:function(data) {
+                        jQuery('#appInTopic').html(data);
+                    }
+                });
+    }
+
+
+
+</script>
+
+<div>
+    <form id="ad" name="form1">
+    <table id="appResult" align="center" class="tb" cellspacing="0" cellpadding="0">
+        <tr>
+            <td><p class="ac">选择</p></td>
+            <td width="158"><p class="ac">名称</p></td>
+            <td><p class="ac">图标</p></td>
+        </tr>
+       
+
+        #foreach($app in $apps)
+            <tr>
+                <td><label><input id="a$app.appId" type="checkbox" name="left" value="$app.appId,$app.appName,$app.logo,$app.online,$app.modified,$dateFormatUtils.format($app.pubTime,"yyyy-MM-dd HH:mm:ss"),$appPath,$imgPath,$app.appLogo" /></label></td>
+                <td><p class="ac">$!stringEscapeUtils.escapeHtml($app.appName)</p></td>
+                <td><label><div class="app-ico">
+                        <img src="$imgserver.getTarget('')cover/$app.logo"/>
+                </div></label></td>
+                <td class="hide">$app.online</td>
+                <td class="hide">$app.modified</td>
+            </tr>
+        #end
+        <tr><td colspan="3" align="center">
+           <input class="btn" type="button" id="testtest" value="确认选择" onclick="addAppToTopic();">
+            </td>
+        </tr>
+    </table>
+</form>
+</div>
+<div class="paging fr">
+    <div class="paging-box_2">
+        #set($pageModule=$domain.getTarget("/search/SearchApp.action").addQueryData("pageSize",$!pageSize))
+        #showPage($pageModule $apps) </div>
+</div>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:saf="http://code.360buy.com/schema/saf"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+        http://code.360buy.com/schema/saf http://code.360buy.com/schema/saf/saf.xsd
+        http://code.alibabatech.com/schema/dubbo
+        http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+        http://code.360buy.com/schema/saf
+        http://code.360buy.com/schema/saf/saf.xsd"
+       default-lazy-init="true">
+    <saf:application name="${appstore.oss.domain.name}" />
+    <!-- saf配置 -->
+    <saf:registry protocol="jdZooKeeper" address="${appstore.oss.dubbo.registry.address}"/>
+    <!-- 上下架 -->
+    <saf:reference id="skuClient" interface="jd.gms.item.dubbo.service.SkuService" timeout="30000" version="1.0"/>
+    <!-- 同步基本信息 -->
+    <saf:reference id="productInfoService" interface="jd.gms.item.dubbo.service.ProductInfoService" timeout="30000"
+                   version="1.0"/>
+</beans>

@@ -1,0 +1,196 @@
+#set($layout="content.vm")
+
+<script type="text/javascript">
+    var tType = 1;
+    $(document).ready(function() {
+        jQuery.ajax({
+                    type:"POST",
+                    url:"/versionManager/getVersionList.action",
+                    data:"clientType=1",
+                    dataType:"html",
+                    success:function(data) {
+                        $('#slidingList1').html(data);
+                    }
+                });
+
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+    function getClientVersion(clientType) {
+        tType = clientType;
+        jQuery.ajax({
+                    type:"POST",
+                    url:"/versionManager/getVersionList.action",
+                    data:"clientType=" + clientType,
+                    dataType:"html",
+                    success:function(data) {
+                        if (tType == 1) {
+                            jQuery('#slidingList1').html(data);
+                        } else if (tType == 2) {
+                            jQuery('#slidingList2').html(data);
+                        } else if (tType == 3) {
+                            jQuery('#slidingList3').html(data);
+                        }
+                    }
+                });
+    }
+
+    function addClientVersion(){
+        jQuery("#confirmPop").css("width", "640px");
+        jQuery("#confirmPop").css("height", "500px");
+        document.getElementById("Loading").style.display = "block";
+        document.getElementById("Loading2").style.display = "block";
+        jQuery.ajax({
+                    type:"POST",
+                    async:false,
+                    url:"/versionManager/addClientVersion.action",
+                    dataType:"html",
+                    success:function(data){
+                        document.getElementById("Loading").style.display = "none";
+                        document.getElementById("Loading2").style.display = "none";
+                        jQuery('#confirmPop').html(data);
+                    }
+                });
+    }
+
+    function macroAjaxSubmit(url) {
+        jQuery.ajax({
+                    type:'POST',
+                    url:url,
+                    data:"clientType=" + tType,
+                    success:function(data) {
+                        if (tType == 1) {
+                            jQuery('#slidingList1').html(data);
+                        } else if (tType == 2) {
+                            jQuery('#slidingList2').html(data);
+                        } else if (tType == 3) {
+                            jQuery('#slidingList3').html(data);
+                        }
+                    }
+                });
+    }
+
+    function updateVersion(valid, id, clientType) {
+        jQuery.ajax({
+            type: 'POST',
+            url: '/versionManager/updateClientVersionValid.action',
+            data: 'clientPackage.id=' + id + '&clientPackage.valid=' + valid + '&clientPackage.clientType=' + clientType,
+            dataType: 'html',
+            success: function (data) {
+                getClientVersion(tType);
+            }
+        });
+    }
+
+    function downloadClient(url) {
+        if (url == null || url == '') {
+            alert('下载链接为空，请先上传APK');
+        } else {
+            jQuery.ajax({
+                type: 'POST',
+                url: '/driverManager/downloadDriver.action',
+                data: 'url=' + url,
+                dataType: 'json',
+                complete: function (data) {
+                    window.open(data.responseText);
+                }
+            });
+        }
+    }
+
+    function deleteClientVersion(id) {
+        var r = confirm("确定删除？");
+        if (r == true) {
+            jQuery.ajax({
+                type: 'POST',
+                url: '/versionManager/deleteClientVersion.action',
+                data: 'clientPackage.id=' + id,
+                dataType: 'html',
+                success: function (data) {
+                    getClientVersion(tType);
+                }
+            });
+        }
+    }
+
+    function editClientVersion(id) {
+        jQuery("#confirmPop").css("width", "640px");
+        jQuery("#confirmPop").css("height", "500px");
+        document.getElementById("Loading").style.display = "block";
+        document.getElementById("Loading2").style.display = "block";
+        jQuery.ajax({
+            type: 'POST',
+            url: '/versionManager/editClientVersion.action',
+            data: 'clientPackage.id=' + id,
+            dataType: 'html',
+            success: function (data) {
+                document.getElementById("Loading").style.display = "none";
+                document.getElementById("Loading2").style.display = "none";
+                jQuery('#confirmPop').html(data);
+            }
+        });
+    }
+
+
+    function updateClientVersion(id) {
+        var version = jQuery.trim(document.getElementById('version').value);
+        var clientType = document.getElementById('clientType').value;
+        var intro = jQuery.trim(document.getElementById('intro').value);
+        var packageUrl = document.getElementById('packageUrl').value;
+        var versionCode = jQuery.trim(document.getElementById('versionCode').value);
+        if (version == '') {
+            alert("版本号不能为空！")
+        } else {
+            if (intro == '') {
+                alert("版本描述不能为空！");
+            } else {
+                jQuery.ajax({
+                    type:'POST',
+                    url:'/versionManager/updateClientVersion.action',
+                    data:'clientPackage.id=' + id + '&clientPackage.version=' + version + '&clientPackage.intro=' + intro + '&clientPackage.clientType=' + clientType + '&clientPackage.packageUrl=' + packageUrl+'&clientPackage.versionCode='+versionCode,
+                    dataType:'html',
+                    success:function(data) {
+                        $('#close').click();
+                        getClientVersion(tType);
+                    }
+                });
+            }
+        }
+    }
+</script>
+
+<div class="fr">
+    <div class="right-box rounded" id="slidingBlock">
+        <div class="form-row">
+            <script language="javascript">
+                function switchModTag(modtag, modcontent, modk) {
+                    for (i = 1; i < 4; i++) {
+                        if (i == modk) {
+                            document.getElementById(modtag + i).className = "menuOn";
+                            document.getElementById(modcontent + i).className = "slidingList";
+                            getClientVersion(i);
+                        } else {
+                            document.getElementById(modtag + i).className = "menuNo";
+                            document.getElementById(modcontent + i).className = "slidingList_none";
+                        }
+                    }
+                }
+            </script>
+            <div class="tabs">
+              #*  <span class="menuOn" id="mod1" onmouseover="switchModTag('mod','slidingList','1');this.blur();">Android 手机</span>*#
+                <span class="menuOn" id="mod1" onmouseover="switchModTag('mod','slidingList','1');this.blur();">Android Pad</span>
+                <span class="menuNo" id="mod2" onmouseover="switchModTag('mod','slidingList','2');this.blur();">应用商店</span>
+                <span class="menuNo" id="mod3" onmouseover="switchModTag('mod','slidingList','3');this.blur();">PC 客户端</span>
+            </div>
+            <input id="add" class="to-select fr open" type="button" value="添 加" onclick="addClientVersion();">
+        </div>
+        <div class="slidingList" id="slidingList1">
+
+        </div>
+        <div class="slidingList_none" id="slidingList2">
+
+        </div>
+        <div class="slidingList_none" id="slidingList3">
+
+        </div>
+    </div>
+</div>

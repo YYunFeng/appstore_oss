@@ -1,0 +1,6 @@
+<script type="text/javascript" src="$assetModule.getTarget("/appstore-man/js/jquery-1.4.2.min.js")"></script>
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    alert("您已经提交过了");
+});
+</script>

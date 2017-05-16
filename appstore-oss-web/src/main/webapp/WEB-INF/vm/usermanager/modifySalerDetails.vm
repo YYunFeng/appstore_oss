@@ -1,0 +1,115 @@
+#set($title = "用户管理-修改促销员信息")
+#set($layout="content.vm")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.2 });
+
+    });
+</script>
+<div class="pop-top">
+    <div class="ac">
+        <h2>修改促销员</h2>
+    </div>
+</div>
+<div class="pop-box">
+    <div class="con">
+        <table class="tb" cellspacing="0" cellpadding="0">
+            <tr>
+                <td width="100"><label>省份：</label></td>
+                <td width="250">
+                    <select id="channelId" style="margin-left: 2px">
+                        #foreach($channel in $channelList)
+                            <option value="$channel.id"
+                                #if($channel.id==$salerDetails.cid)
+                                    selected
+                                #end>$channel.cname</option>
+                        #end
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td width="100"><label>唯一号：</label></td>
+                <td width="250"><input class="input" type="text" name="salerNo" id="updateSalerNo"
+                                       value="$salerDetails.salerNo"/></td>
+            </tr>
+            <tr>
+                <td width="100"><label>姓名：</label></td>
+                <td width="250"><input class="input" type="text" name="salerName" id="salerName"
+                                       value="$salerDetails.salerName"/></td>
+            </tr>
+            <tr>
+                <td width="100"><label>渠道类型：</label></td>
+                <td width="250">
+                    <select style="margin-left: 2px" id="updateChannelType" onchange="chooseChannelType(this.value)">
+                        <option value="0"
+                            #if($salerDetails.channelType==0)
+                                selected="selected"
+                            #end>分销
+                        </option>
+                        <option value="1"
+                            #if($salerDetails.channelType==1)
+                                selected="selected"
+                            #end>零售
+                        </option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td width="100"><label>促销员类型：</label></td>
+                <td width="250">
+                    <span id="salerTypeContent">
+                        <select style="margin-left: 2px" id="updateSalerType" onchange="changerSalerType(this.value)">
+                            #if($salerDetails.channelType==0)
+                                <option value="0"
+                                    #if($salerDetails.salerType==0)
+                                        selected="selected"
+                                    #end>督导
+                                </option>
+                            #end
+                            #if($salerDetails.channelType==1)
+                                <option value="1"
+                                    #if($salerDetails.salerType==1)
+                                        selected="selected"
+                                    #end>店长
+                                </option>
+                            #end
+                            <option value="2"
+                                #if($salerDetails.salerType==2)
+                                    selected="selected"
+                                #end>促销员
+                            </option>
+                        </select>
+                     </span>
+                </td>
+            </tr>
+            <tr id="parentIdContent" #if($salerDetails.salerType==0 ||$salerDetails.salerType==1)
+                class="hide"
+            #end>
+                <td width="100"><label>上级促销员ID：</label></td>
+                <td width="250">
+                    <select style="margin-left: 2px" id="parentId">
+                        #foreach($saler in $salerList)
+                            <option value="$saler.salerNo"
+                                #if($saler.salerNo == $salerDetails.parentId)
+                                    selected
+                                #end>
+                                $saler.salerName
+                            </option>
+                        #end
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td width="100"><label>门店名称：</label></td>
+                <td width="250"><input class="input" type="text" name="shopName" id="shopName"
+                                       value="$salerDetails.shopName"/>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="btn-box">
+    <input id="add" class="btn" type="button" value="确 认" onclick="updateSalerDetails('$!salerDetails.salerNo');">
+    <input id="closeDiv" class="close" type="button" value="取 消">
+</div>

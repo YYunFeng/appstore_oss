@@ -1,0 +1,144 @@
+#set($layout="content.vm")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+        var b = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "add", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+    /*分页*/
+    function macroAjaxSubmit(url) {
+        jQuery.ajax({
+            type: 'POST',
+            url: url,
+            data: 'clientType=4&moduleId=0&areaId=13',
+            success: function (data) {
+                jQuery('#right_start').html(data);
+            }
+        });
+    }
+
+    function addCPRecommend() {
+        document.getElementById("Loading").style.display = "block";
+        document.getElementById("Loading2").style.display = "block";
+        jQuery.ajax({
+            type: 'POST',
+            url: '/recommendManager/addCPRecommend.action',
+            success: function (data) {
+                document.getElementById("Loading").style.display = "none";
+                document.getElementById("Loading2").style.display = "none";
+                jQuery('#confirmPop').html(data);
+            }
+        });
+    }
+
+
+    function deleteCPRecommend(id) {
+        var r = confirm("是否删除?");
+        if (r == true) {
+            jQuery.ajax({
+                type: 'POST',
+                url: '/recommendManager/deleteRecommend.action',
+                data: 'recommendManagerResult.id=' + id,
+                dataType: 'html',
+                success: function (data) {
+                    getCPServer();
+                }
+            });
+        }
+    }
+
+
+    function updateCPRecommendPubedStatus(id, pubedStatus) {
+        jQuery.ajax({
+            type: 'POST',
+            url: '/recommendManager/updateRecommendPub.action',
+            data: 'recommendManagerResult.id=' + id + '&recommendManagerResult.pubedStatus=' + pubedStatus,
+            dataType: 'html',
+            success: function (data) {
+                getCPServer();
+            }
+        });
+    }
+
+
+    function editCPRecommend(id) {
+        document.getElementById("Loading").style.display = "block";
+        document.getElementById("Loading2").style.display = "block";
+        jQuery.ajax({
+            type: 'POST',
+            url: '/recommendManager/editCPRecommend.action',
+            data: 'recommendManagerResult.id=' + id,
+            dataType: 'html',
+            success: function (data) {
+                document.getElementById("Loading").style.display = "none";
+                document.getElementById("Loading2").style.display = "none";
+                jQuery('#confirmPop').html(data);
+            }
+        });
+    }
+
+</script>
+<div class="right-box rounded">
+    <div class="form-row">
+        <div align="right">
+            <input type="hidden" id="clientType" value="4"/>
+            <input type="hidden" id="moduleId" value="0"/>
+            <input type="hidden" id="areaId" value="13"/>
+            <input class="to-del add" type="button" value="增加" onclick="addCPRecommend();"/>
+        </div>
+    </div>
+    <div class="tb-box">
+        <table class="tb" cellspacing="0" cellpadding="0">
+            <tr class="tit-bg">
+                <td width="180">图片</td>
+                <td width="84">链接</td>
+                <td width="40">排序</td>
+                <td width="40">状态</td>
+                <td width="92">操作</td>
+            </tr>
+            #foreach($recommend in $recommends)
+                <tr>
+                    #if($!recommend.url)
+                        <td>
+                            <div style="margin: 5px 5px 5px 5px">
+                                <img style="width:280px;height:160px;"
+                                     src="$recimageserver.getTarget("")$recommend.url"/>
+                            </div>
+                        </td>
+                    #else
+                        <td><img style="width: 100px;height: 100px;" src="/appstore-man/images/appimg.png"/></td>
+                    #end
+                    <td>
+                        <div><label>$!recommend.linkedUrl</label></div>
+                    </td>
+                    <td><input style="width: 20px;" type="text" value="$!recommend.seq"
+                               onblur="updateRecommendSeq($recommend.id,$recommend.seq,this.value);"/></td>
+                    #if($!recommend.pubedStatus==0)
+                        <td>未上线</td>
+                    #else
+                        <td>已上线</td>
+                    #end
+                    <td>
+                        #if($!recommend.pubedStatus==0)
+                            <a href="javascript:void(0)" onclick="updateCPRecommendPubedStatus($recommend.id,1)">上线</a>
+                        #else
+                            <a href="javascript:void(0)" onclick="updateCPRecommendPubedStatus($recommend.id,0)">下线</a>
+                        #end
+                        |<a href="javascript:void(0)" class="add"
+                            onclick="editCPRecommend($recommend.id);">编辑</a>
+                        |<a href="javascript:void(0)" onclick="deleteCPRecommend($recommend.id);">删除</a>
+                    </td>
+                </tr>
+            #end
+        </table>
+    </div>
+</div>
+<div class="paging fr">
+    <div class="paging-box_2"> #set($pageModule=$domain.getTarget("/recommendManager/getCPServer.action").addQueryData("pageSize",$!pageSize))
+        #showPage($pageModule $recommends) </div>
+</div>
+
+<div class="classPop" style="width:500px;height:500px;" id="confirmPop">
+
+</div>

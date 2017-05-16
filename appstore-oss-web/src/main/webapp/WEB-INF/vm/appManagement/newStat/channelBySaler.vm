@@ -1,0 +1,62 @@
+#set($layout="content.vm")
+<div class="newStat">
+    <ul>
+        #if($userCid==138)
+            <li style="cursor: pointer" onclick="appInstallTotal()">应用的安装总量</li>
+            <li onclick="totalByChannel()" style="cursor: pointer">按渠道查看</li>
+        #end
+        <li onclick="channelType($cid)" style="cursor: pointer">
+            按渠道类型查看
+        </li>
+        <li class="current">
+            #if($channelType==0)
+                按督导查看
+            #elseif($channelType==1)
+                按店长查看
+            #end
+        </li>
+    </ul>
+</div>
+<div class="tb-box">
+    <table class="tb" cellspacing="0" cellpadding="0">
+
+        <tr class="tit-bg">
+            <td width="80">渠道类型</td>
+            <td width="80">促销员编号</td>
+            <td width="80">促销员名字</td>
+            <td width="60">促销员类型</td>
+            <td width="100">门店名称</td>
+            <td width="100">安装手机台数</td>
+            <td width="100">安装应用个数</td>
+            <td width="150">操作</td>
+        </tr>
+        #if($channelBySaler.size()==0)
+            <td colspan="8"><span style="color:#F65D00">无安装数据，请选择别的日期！</span></td>
+        #else
+            #foreach($newStat in $channelBySaler)
+                <tr>
+                    <td>#if($!newStat.channelType==0)
+                        分销
+                    #elseif($!newStat.channelType==1)
+                        零售
+                    #end</td>
+                    <td>$!newStat.salerNo</td>
+                    <td>$!newStat.salerName</td>
+                    <td>#if($!newStat.salerType==0)
+                        督导
+                    #elseif($!newStat.salerType==1)
+                        店长
+                    #end</td>
+                    <td>$!newStat.shopName</td>
+                    <td>$!newStat.phoneCounts</td>
+                    <td>$!newStat.appCounts</td>
+                    <td>
+                        <a href="javascript:void(0);" onclick="channelBySalerDetails('$newStat.salerNo')">
+                            按店员查看
+                        </a>
+                    </td>
+                </tr>
+            #end
+        #end
+    </table>
+</div>

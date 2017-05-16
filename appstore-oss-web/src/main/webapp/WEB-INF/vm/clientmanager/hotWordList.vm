@@ -1,0 +1,110 @@
+#set($layout="content.vm")
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/clientmanager/util.js")"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+        var b = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "add", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+    function macroAjaxSubmit(url) {
+        var published = document.getElementById('published').value;
+        jQuery.ajax({
+                    type:'POST',
+                    data:'published=' + published,
+                    url:url,
+                    success:function(data) {
+                        jQuery('#right_start').html(data);
+                        jQuery('#published').get(0).value = published;
+                    }
+                });
+    }
+    ;
+
+
+    function addHotWords(){
+        jQuery.ajax({
+                    type:'POST',
+                    url:'/hotWordManager/addHotWords.action',
+                    success:function(data){
+                        jQuery('#confirmPop').html(data);
+                    }
+                });
+    };
+
+    function editHotWord(id){
+        jQuery.ajax({
+                    type:'POST',
+                    url:'/hotWordManager/editHotWord.action',
+                    data:'hotWord.id='+id,
+                    dataType:'html',
+                    success:function(data){
+                        jQuery('#confirmPop').html(data);
+                    }
+                });
+    };
+</script>
+
+<div class="fr">
+    <div class="right-box rounded">
+        <div class="form-row">
+
+                <label class="label fl" style="width: 160px;text-align: left; padding-left: 12px;">发布状态
+                    <select id="published" size="1">
+                        <option value="2">全部</option>
+                        <option value="0">未上线</option>
+                        <option value="1">已上线</option>
+                    </select>
+                </label>
+                <input id="disabled" class="to-del" type="button" value="检 索" onclick="getHotWordsByPub();">
+
+            <input class="to-del add fr" type="button" value="添加热词" onclick="addHotWords();"/>
+        </div>
+        <div class="tb-box">
+            <table class="tb" cellspacing="0" cellpadding="0">
+                <tr class="tit-bg">
+                    <td width="120">搜索词</td>
+                    <td width="92">创建时间</td>
+                    <td width="40">排序</td>
+                    <td width="92">状态</td>
+                    <td width="92">操作</td>
+                </tr>
+                #foreach($hotWord in $hotWords)
+                <tr>
+                    <td>$!hotWord.word</td>
+                    <td>$dateFormatUtils.format($!hotWord.created,"yyyy-MM-dd HH:mm:ss")</td>
+                    <td><input style="width: 15px;" type="text" value="$!hotWord.orderSeq"
+                               onblur="updateHotWordSeq($hotWord.id,$hotWord.orderSeq,this.value);"/></td>
+                    #if($!hotWord.published==0)
+                        <td>未上线</td>
+                    #else
+                        <td>已上线</td>
+                    #end
+                    <td>
+                        #if($!hotWord.published==0)
+                            <a href="javascript:void(0)" onclick="updateHotWordPublished($hotWord.id,1)">上线</a>
+                        #else
+                            <a href="javascript:void(0)" onclick="updateHotWordPublished($hotWord.id,0)">下线</a>
+                        #end
+                        |<a href="javascript:void(0)" class="add" onclick="editHotWord($hotWord.id);">编辑</a>
+                        |<a href="javascript:void(0)" onclick="deleteHotWord($hotWord.id,$hotWord.orderSeq)">移除</a>
+                    </td>
+                </tr>
+            #end
+            </table>
+        </div>
+    </div>
+
+    <div class="paging fr">
+        <div class="paging-box_2">
+            #set($pageModule=$domain.getTarget("/topicManager/getHotWords.action").addQueryData("pageSize",$!pageSize))
+        #showPage($pageModule $hotWords)
+        </div>
+    </div>
+
+
+</div>
+<div class="classPop" style="width:800px;height:500px;" id="confirmPop">
+
+</div>

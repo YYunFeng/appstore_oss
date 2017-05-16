@@ -1,0 +1,103 @@
+#set($layout="content.vm")
+<script type="text/javascript">
+    $(document).ready(function () {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+    function searchAppForRanking() {
+        var appName = jQuery.trim(document.getElementById('appName').value);
+        jQuery.ajax({
+            type: 'POST',
+            url: '/search/SearchRankingApp.action',
+            data: 'appName=' + appName,
+            dataType: 'json',
+            complete: function (data) {
+                var result = eval("(" + data.responseText + ")");
+                var appPath = result.map.appPath;
+                var imgPath = result.map.IMG_N5;
+                if (result.map.apps.length <= 0) {
+                    alert('未找到相关应用');
+                } else {
+                    var html = '<table align="center" class="tb" cellspacing="0" cellpadding="0">';
+                    html += '<tr><td width="50"><p class="ac">选择</p></td>';
+                    html += '<td width="80"><p class="ac">图标</p></td>';
+                    html += '<td width="200"><p class="ac">名称</p></td></tr>';
+                    for (var i = 0; i < result.map.apps.length; i++) {
+                        html += '<tr><td><p class="ac"><input name="appPrice" type="radio" value="' + result.map.apps[i].appId + '"/></p></td>';
+                        html += '<td><div class="app-ico ac"><img src="$imgserver.getTarget('')cover/' + result.map.apps[i].logo + '"/></div></td>';
+                        html += '<td><p class="ac">' + result.map.apps[i].appName + '</p><input type="hidden" value="' + result.map.apps[i].appName + '" id="' + result.map.apps[i].appId + '"/></td></tr>';
+                    }
+                    jQuery('#rankingResult').empty().html(html);
+                }
+            }
+        });
+    }
+
+
+</script>
+
+<div class="pop-top">
+    <div class="ac">
+        <h2>添加应用价格</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+        <div class="con">
+            <table class="tb" cellspacing="0" cellpadding="0" id="content" width="100%" height="100%">
+                #*<tr>
+                    <td width="100"><label>计费地区：</label></td>
+                    <td width="250">
+                        <select id="chargeArea" class="input" style="width: 150px;" onchange="changeCompany(this.value)">
+                            <option value="0">总公司</option>
+                            <option value="1">省办</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr id="company">
+                    <td width="100"><label>计费公司：</label></td>
+                    <td width="250">
+                        <select id="chargeCompany" class="input" style="width: 150px;">
+                            <option value="0">华盛</option>
+                            <option value="1">自有</option>
+                        </select>
+                    </td>
+                </tr>
+                *#
+                <tr>
+                    <td width="100"><label>计费模式：</label></td>
+                    <td width="250">
+                        <select id="chargeModel" class="input" style="width: 150px;">
+                            <option value="0">安装</option>
+                            <option value="1">激活</option>
+                            <option value="2">到达</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td width="100"><label>应用名称：</label></td>
+                    <td width="250">
+                        <input id="appName" class="input" style="width:150px;" type="text"/>
+                        <input class="btn" type="button" value="搜 索" onclick="searchAppForRanking();"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="height:250px;">
+                        <p id="rankingResult"></p>
+                    </td>
+                </tr>
+                #*<tr>
+                    <td width="100"><label>价格：</label></td>
+                    <td width="250">
+                        <input id="price" class="input" style="width:150px;" type="text"/>
+                        <span>元</span>
+                    </td>
+                </tr>*#
+            </table>
+        </div>
+    </div>
+</div>
+<div class="btn-box">
+    <input class="btn" type="button" value="确认" onclick="saveAppPrice();">
+    <input id="close" class="close" type="button" value="取消">
+</div>

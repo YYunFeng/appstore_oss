@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CpChargeQualification">
+
+    <typeAlias alias="SelCpPageOutPut" type="com.jd.cms.domain.cpQualityManagement.SelCpPageOutPut"/>
+    <typeAlias alias="SelCpPageInPut" type="com.jd.cms.domain.cpQualityManagement.SelCpPageInPut"/>
+
+    <!--取得cp的总记录数-->
+    <select id="getCpCount" resultClass="int" parameterClass="SelCpPageInPut">
+        select
+            count(*) as value
+        from
+            tb_cp_baseinfo b
+        left join
+            tb_cp_reginfo r
+        on
+            b.id = r.accountid
+        where
+            <!--除掉为申请的-->
+            fee_status in (2,3,4)
+            <isNotEmpty prepend="AND" property="account" >
+                b.account like #account#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="cpName" >
+                b.cp_name like #cpName#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="contractNumber" >
+                b.contract_number like #contractNumber#
+            </isNotEmpty>
+            <isNotEqual prepend="AND" property="cpProperty" compareValue = "0" >
+                b.cp_property = #cpProperty#
+            </isNotEqual>
+            <isNotEqual prepend="AND" property="feeStatus" compareValue = "0" >
+                b.fee_status = #feeStatus#
+            </isNotEqual>
+    </select>
+
+    <!--取得cp收费资质信息集合-->
+    <select id="findCpChargePage" parameterClass="SelCpPageInPut" resultClass="SelCpPageOutPut">
+        select
+            b.id as id,
+            b.account as account,
+            b.cp_property as cpProperty,
+            b.cp_name as cpName,
+            b.contract_number as contractNumber,
+            b.default_percent as defaultPercent,
+            b.fee_status as feeStatus,
+            b.valid_period_begin as validPeriodBegin,
+            b.valid_period_end as validPeriodEnd,
+            b.fee_status as feeStatus
+        from
+            tb_cp_baseinfo b
+        left join
+            tb_cp_reginfo r
+        on
+            b.id = r.accountid
+        where
+            <!--除掉为申请的-->
+            fee_status in (2,3,4)
+            <isNotEmpty prepend="AND" property="account" >
+                b.account like #account#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="cpName" >
+                b.cp_name like #cpName#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="contractNumber" >
+                b.contract_number like #contractNumber#
+            </isNotEmpty>
+            <isNotEqual prepend="AND" property="cpProperty" compareValue = "0" >
+                b.cp_property = #cpProperty#
+            </isNotEqual>
+            <isNotEqual prepend="AND" property="feeStatus" compareValue = "0" >
+                b.fee_status = #feeStatus#
+            </isNotEqual>
+        order by r.created desc
+        limit #endRow# offset #startRow#
+    </select>
+
+    <!--收费资质不通过-->
+    <update id="upFeeStatus" parameterClass="SelCpPageInPut" >
+		UPDATE
+		    tb_cp_baseinfo
+		SET
+            fee_status = #upFeeStatus#,
+            comment = #comment#,
+            modified = now()
+	    WHERE
+		    id in ($idList$)
+	</update>
+
+    <!--根据Id查询单条CP审核信息-->
+    <select id="findCpChargeById" parameterClass="int" resultClass="SelCpPageOutPut" >
+        select
+            b.id as id,
+            b.account as account,
+            b.cp_name as cpName,
+            b.contract_number as contractNumber,
+            b.default_percent as defaultPercent,
+            b.default_fee_mode as defaultFeeMode,
+            b.valid_period_begin as validPeriodBegin,
+            b.valid_period_end as validPeriodEnd,
+            b.comment as comment,
+            r.certificate_type as certificateType,
+            r.certificate_no as certificateNo,
+            b.supplier_no as supplierNo
+        from
+            tb_cp_baseinfo b
+        left join
+            tb_cp_reginfo r
+        on
+            b.id = r.accountid
+        where
+            b.id = #id#
+    </select>
+
+    <!--CP审核通过更新为通过-->
+    <update id="upCpCharge" parameterClass="SelCpPageInPut" >
+		UPDATE
+		    tb_cp_baseinfo
+		SET
+            fee_status = #upFeeStatus#,
+            contract_number = #upContractNumber#,
+            supplier_no = #upSupplierNo#,
+            supplier_name = #upSupplierName#,
+            default_fee_mode = #upDefaultFeeMode#,
+            default_percent = #upDefaultPercent#,
+            valid_period_begin = #upValidPeriodBegin#,
+            valid_period_end = #upValidPeriodEnd#,
+            comment = #comment#,
+            modified = now()
+	    WHERE
+		    id = #upId#
+	</update>
+
+</sqlMap>

@@ -1,0 +1,39 @@
+#set($layout="content.vm")
+    <div class="tb-box" id="content">
+        <table class="tb" cellspacing="0" cellpadding="0">
+            <tr class="tit-bg">
+                <td width="120">串码</td>
+                <td width="120">促销员</td>
+                <td width="120">省份</td>
+                <td width="120">手机型号</td>
+                <td width="220">安装时间</td>
+                <td width="120">应用名称</td>
+            </tr>
+            #if($phoneInstallMessList.size()>0)
+
+                #foreach($phoneInstallMess in $phoneInstallMessList)
+                    <tr>
+                        <td>$phoneInstallMess.phoneImei</td>
+                        <td>$phoneInstallMess.salerName</td>
+                        <td>$phoneInstallMess.cname</td>
+                        <td>$phoneInstallMess.phoneModelName</td>
+                        <td>$phoneInstallMess.installTime</td>
+                        <td>$phoneInstallMess.appName</td>
+                    </tr>
+                #end
+            #else
+                <tr>
+                    <td colspan="6"><span style="color:#F65D00 ">暂无手机安装信息</span></td>
+                </tr>
+            #end
+        </table>
+    </div>
+    <div class="paging fr">
+        <div class="paging-box_2">
+            #set($pageModule = $domain.getTarget("/salesStatistics/phoneInstallMessContent.action").addQueryData("pageSize",$!pageSize))
+                        #showPage($pageModule $phoneInstallMessList)
+        </div>
+    </div>
+</div>
+
+

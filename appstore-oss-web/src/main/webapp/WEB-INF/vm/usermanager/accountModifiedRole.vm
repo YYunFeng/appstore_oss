@@ -1,0 +1,44 @@
+#set($title = "用户管理-设置账号角色")
+#set($layout="content.vm")
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.2 });
+
+    });
+</script>
+  <div class="pop-top">
+    <div class="ac">
+      <h2>设置账号角色</h2>
+    </div>
+  </div>
+    <div class="pop-box">
+      <div class="con">
+        <table class="tb" cellspacing="0" cellpadding="0" id="content" width="100%" height="100%">
+        <tr>
+          <td width="100"><label>用 户 名：</label></td>
+          <td width="308"><p>$!account
+                    <input  type="hidden" name="supportUsers.account" value="$!account"/></p></td>
+        </tr>
+
+        <tr>
+          <td colspan="2"><p>角色设置：</p>
+            <p>
+                #foreach($role in $roles)
+                   <label>
+                #if($!role.roleId==$!roleId)
+                         <input type="radio" name="role"  value="$!role.roleId"  id="$!role.roleId"  checked="checked" onclick="clickRole('$!role.roleId');" />$!role.roleName
+                     #else
+                        <input type="radio" name="role"  value="$!role.roleId"   id="$!role.roleId" onclick="clickRole('$!role.roleId');" />$!role.roleName
+                     #end</label>
+                #end
+                <input type="hidden" name="supportUsers.roleId" value="" />
+            </p></td>
+        </tr>
+      </table>
+      </div>
+    </div>
+  <div class="btn-box">
+    <input class="btn" type="button" value="确 定" onclick="modifiedRole();">
+    <input id="closeDiv" class="close" type="button" value="取 消" >
+  </div>

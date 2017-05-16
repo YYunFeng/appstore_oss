@@ -1,0 +1,836 @@
+package com.jd.cms.manager.schedule.impl;
+
+import com.jd.appstore.domain.*;
+import com.jd.appstore.domain.utils.IncomePrice;
+import com.jd.cms.dao.schedule.SyncScheduleDao;
+import com.jd.cms.domain.systemmaintenance.*;
+import com.jd.cms.domain.taskmanager.CpInfoResult;
+import com.jd.cms.domain.taskmanager.TaskInfoQuery;
+import com.jd.cms.domain.taskmanager.TaskInfoResult;
+import com.jd.cms.manager.contains.SequenceConstants;
+import com.jd.cms.manager.schedule.SyncScheduleManager;
+import com.jd.common.manager.BaseManager;
+import org.apache.log4j.Logger;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+/**
+ * Created by IntelliJ IDEA.
+ * User: LiangYu
+ * Date: 12-7-26
+ * Time: 下午12:44
+ * To change this template use File | Settings | File Templates.
+ * 周期同步任务
+ */
+public class SyncScheduleManagerImplBak extends BaseManager implements SyncScheduleManager {
+    private final static Logger log = Logger.getLogger(SyncScheduleManagerImplBak.class);
+    private SyncScheduleDao syncScheduleDao;
+
+    /**
+     * 查询周期性同步任务信息
+     *
+     * @param taskTypeId
+     * @param status
+     * @return
+     */
+    public TaskInfoResult findSyncTaskInfo(String taskTypeId, int status) {
+        TaskInfoResult taskInfoResult = new TaskInfoResult();
+        TaskInfoQuery taskInfoQuery = new TaskInfoQuery();
+        taskInfoQuery.setTaskTypeId(taskTypeId);
+        taskInfoQuery.setStatus(status);
+        try {
+            taskInfoResult = syncScheduleDao.findSyncTaskInfo(taskInfoQuery);
+        } catch (Exception ex) {
+            log.error("findTaskInfo 查询同步任务方法 taskTypeId=" + taskTypeId + " status" + status + " error!", ex);
+            throw new RuntimeException("findTaskInfo 查询同步任务方法 taskTypeId=" + taskTypeId + " status" + status + " error!", ex);
+        }
+        return taskInfoResult;
+    }
+
+    /**
+     * 更新类目信息
+     *
+     * @param categoryList SDK类目实体
+     * @return
+     */
+    public int createCategory(final List<com.jd.digital.common.rpc.domain.bean.category.Category> categoryList) {
+        TransactionTemplate transactionTemplate = getDataSourceTransactionManager();
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                try {
+                    if (categoryList.size() > 0) {
+                        for (int i = 0; i < categoryList.size(); i++) {
+                            //实例化
+                            Category category = new Category();
+                            category.setCategoryId(categoryList.get(i).getId());
+                            category.setCategoryName(categoryList.get(i).getName());
+                            category.setLevel(categoryList.get(i).getLev() + 1);
+                            category.setParentId(categoryList.get(i).getFid());
+                            category.setLeaf(categoryList.get(i).getLev());
+                            category.setPubedStatus(categoryList.get(i).getStatus());
+                            //更新类目，并返回成功、失败标识
+                            int ischeduleDao = syncScheduleDao.updateCategory(category);
+                            //判断更新是否成功
+                            if (ischeduleDao != 1) {
+                                //更新不成功，则代表数据库里没此类目信息，所以插入新类目到数据库
+                                syncScheduleDao.createCategory(category);
+                            }
+                        }
+                        //删除下柜类目
+                        syncScheduleDao.deleteCategory();
+                        //更新类目过期状态成未过期
+                        syncScheduleDao.updateAllCategory();
+                    }
+                } catch (Exception ex) {
+                    log.error("createCategory 同步类目方法 categoryList=" + categoryList + " error!", ex);
+                    transactionStatus.setRollbackOnly();
+                    throw new RuntimeException("createCategory 同步类目方法 categoryList=" + categoryList + " error!", ex);
+                }
+            }
+        });
+        return 1;
+    }
+
+    /**
+     * 按应用统计前一天的下载次数
+     *
+     * @return
+     */
+    public List<AppDownloadStat> findAppDownloadStat() {
+        List<AppDownloadStat> appDownloadStatList;
+        try {
+            appDownloadStatList = syncScheduleDao.findAppDownloadStat();
+        } catch (Exception ex) {
+            log.error("findAppDownloadStat 查询应用下载统计结果方法 error!", ex);
+            throw new RuntimeException("findAppDownloadStat 查询应用下载统计结果方法 error!", ex);
+        }
+        return appDownloadStatList;
+    }
+
+    /**
+     * 创建应用下载统计结果
+     *
+     * @param appDownloadStatList
+     */
+    public void createAppDownloadStat(final List<AppDownloadStat> appDownloadStatList) {
+        TransactionTemplate transactionTemplate = getDataSourceTransactionManager();
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                try {
+                    if (appDownloadStatList.size() > 0) {
+                        AppDownloadStat appDownloadStat;
+                        appDownloadStat = new AppDownloadStat();
+                        appDownloadStat.setYear(appDownloadStatList.get(0).getYear());
+                        appDownloadStat.setMonth(appDownloadStatList.get(0).getMonth());
+                        appDownloadStat.setDay(appDownloadStatList.get(0).getDay());
+                        //删除年月日一同样的下载统计记录
+                        syncScheduleDao.deleteAppDownloadStat(appDownloadStat);
+                        for (int i = 0; i < appDownloadStatList.size(); i++) {
+                            appDownloadStat = new AppDownloadStat();
+                            appDownloadStat = (AppDownloadStat) appDownloadStatList.get(i);
+                            appDownloadStat.setId((int) sequenceUtil.get(SequenceConstants.APP_DOWNLOAD_STAT));
+                            syncScheduleDao.createAppDownloadStat(appDownloadStat);
+                        }
+                    }
+                } catch (Exception ex) {
+                    log.error("createAppDownloadStat 增加应用下载统计结果方法 appDownloadStatList=" + appDownloadStatList + " error!", ex);
+                    transactionStatus.setRollbackOnly();
+                    throw new RuntimeException("createAppDownloadStat 增加应用下载统计结果方法 appDownloadStatList=" + appDownloadStatList + " error!", ex);
+                }
+            }
+        });
+    }
+
+    /**
+     * 查询排行榜锁定记录
+     *
+     * @param rankingApp
+     * @return
+     */
+    public List<RankingApp> findRankingApp(RankingApp rankingApp) {
+        List<RankingApp> rankingAppList;
+        try {
+            rankingAppList = syncScheduleDao.findRankingApp(rankingApp);
+        } catch (Exception ex) {
+            log.error("findRankingApp 查询排行榜锁定记录方法 rankingApp=" + rankingApp + " error!", ex);
+            throw new RuntimeException("findRankingApp 查询排行榜锁定记录方法 rankingApp=" + rankingApp + " error!", ex);
+        }
+        return rankingAppList;
+    }
+
+    /**
+     * 查询最新上架记录
+     *
+     * @param rankingApp
+     * @return
+     */
+    public List<RankingApp> findRankingAppNewest(RankingApp rankingApp) {
+        List<RankingApp> rankingAppNewestList;
+        try {
+            rankingAppNewestList = syncScheduleDao.findRankingAppNewest(rankingApp);
+        } catch (Exception ex) {
+            log.error("findRankingAppNewest 查询最新上架记录方法 rankingApp=" + rankingApp + " error!", ex);
+            throw new RuntimeException("findRankingAppNewest 查询最新上架记录方法 rankingApp=" + rankingApp + " error!", ex);
+        }
+        return rankingAppNewestList;
+    }
+
+    /**
+     * 更新排行榜
+     *
+     * @param rankingAppNewestList
+     * @param rankingAppList
+     * @param rankingStyle
+     * @param rankingType
+     */
+    public void updateRankingAppNewest(final List<RankingApp> rankingAppNewestList, final List<RankingApp> rankingAppList, final int rankingStyle, final int rankingType) {
+        TransactionTemplate transactionTemplate = getDataSourceTransactionManager();
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                try {
+                    RankingApp rankingApp;
+                    rankingApp = new RankingApp();
+                    rankingApp.setRankingStyle(rankingStyle);
+                    rankingApp.setRankingType(rankingType);
+                    //删除未被锁定记录
+                    syncScheduleDao.deleteRankingApp(rankingApp);
+                    int orderSeq = 1;/*序号*/
+                    //循环设置序号
+                    if (rankingAppNewestList.size() > 0) {
+                        for (int i = 0; i < rankingAppNewestList.size(); ) {
+                            int index = 0;
+                            if (rankingAppList.size() > 0) {
+                                for (int j = 0; j < rankingAppList.size(); j++) {
+                                    if (rankingAppList.get(j).getOrderSeq() == orderSeq) {
+                                        index++;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (index != 0) {
+                                orderSeq++;
+                            } else {
+                                rankingApp = new RankingApp();
+                                rankingApp.setId((int) sequenceUtil.get(SequenceConstants.CMS_RANKING_APP));
+                                rankingApp.setRankingStyle(rankingStyle);
+                                rankingApp.setRankingType(rankingType);
+                                rankingApp.setAppId(rankingAppNewestList.get(i).getAppId());
+                                rankingApp.setOrderSeq(orderSeq);
+                                rankingApp.setPubedStatus(1);
+                                rankingApp.setLocked(0);
+                                syncScheduleDao.createRankingApp(rankingApp);
+                                orderSeq++;
+                                i++;
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    log.error("updateRankingAppNewest 更新排行榜方法 rankingAppNewestList=" + rankingAppNewestList + " rankingAppList" + rankingAppList + " rankingStyle" + rankingStyle + " rankingType" + rankingType + " error!", ex);
+                    transactionStatus.setRollbackOnly();
+                    throw new RuntimeException("updateRankingAppNewest 更新排行榜方法 rankingAppNewestList=" + rankingAppNewestList + " rankingAppList" + rankingAppList + " rankingStyle" + rankingStyle + " rankingType" + rankingType + " error!", ex);
+                }
+            }
+        });
+    }
+
+    /**
+     * 查询热门收费记录
+     *
+     * @param rankingApp
+     * @return
+     */
+    public List<RankingApp> findRankingAppFee(RankingApp rankingApp) {
+        List<RankingApp> rankingAppFeeList;
+        try {
+            rankingAppFeeList = syncScheduleDao.findRankingAppFee(rankingApp);
+        } catch (Exception ex) {
+            log.error("findRankingAppFee 查询热门收费记录方法 rankingApp=" + rankingApp + " error!", ex);
+            throw new RuntimeException("findRankingAppFee 查询热门收费记录方法 rankingApp=" + rankingApp + " error!", ex);
+        }
+        return rankingAppFeeList;
+    }
+
+    /**
+     * 查询热门免费记录
+     *
+     * @param rankingApp
+     * @return
+     */
+    public List<RankingApp> findRankingAppFree(RankingApp rankingApp) {
+        List<RankingApp> rankingAppFreeList;
+        try {
+            rankingAppFreeList = syncScheduleDao.findRankingAppFree(rankingApp);
+        } catch (Exception ex) {
+            log.error("findRankingAppFree 查询热门免费记录方法 rankingApp=" + rankingApp + " error!", ex);
+            throw new RuntimeException("findRankingAppFree 查询热门免费记录方法 rankingApp=" + rankingApp + " error!", ex);
+        }
+        return rankingAppFreeList;
+    }
+
+    /**
+     * 查询热门免费记录
+     *
+     * @param rankingApp
+     * @return
+     */
+    public List<RankingApp> findRankingAppFastest(RankingApp rankingApp) {
+        List<RankingApp> rankingAppFastestList;
+        try {
+            rankingAppFastestList = syncScheduleDao.findRankingAppFastest(rankingApp);
+        } catch (Exception ex) {
+            log.error("findRankingAppFree 查询热门免费记录方法 rankingApp=" + rankingApp + " error!", ex);
+            throw new RuntimeException("findRankingAppFree 查询热门免费记录方法 rankingApp=" + rankingApp + " error!", ex);
+        }
+        return rankingAppFastestList;
+    }
+
+    /**
+     * 更新周期性任务起动时间
+     *
+     * @param id
+     * @param startTimeFact
+     */
+    public void updateTaskFactTime(final int id, final Date startTimeFact) {
+        TransactionTemplate transactionTemplate = getDataSourceTransactionManager();
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                try {
+                    TaskInfoQuery taskInfoQuery = new TaskInfoQuery();
+                    taskInfoQuery.setId(id);
+                    taskInfoQuery.setStartTimeFact(startTimeFact);
+                    syncScheduleDao.updateTaskFactTime(taskInfoQuery);
+                } catch (Exception ex) {
+                    log.error("updateTaskFactTime 更新周期性任务起动时间方法 id=" + id + " startTimeFact" + startTimeFact + " error!", ex);
+                    transactionStatus.setRollbackOnly();
+                    throw new RuntimeException("updateTaskFactTime 更新周期性任务起动时间方法 id=" + id + " startTimeFact" + startTimeFact + " error!", ex);
+                }
+            }
+        });
+    }
+
+    /**
+     * 查询合同预警期内CP信息
+     *
+     * @return
+     */
+    public List<CpInfoResult> findCpInfoResult() {
+        List<CpInfoResult> cpReginfoList;
+        try {
+            cpReginfoList = syncScheduleDao.findCpInfoResult();
+        } catch (Exception ex) {
+            log.error("findCpReginfos 查询合同预警期内CP信息方法 error!", ex);
+            throw new RuntimeException("findCpReginfos 查询合同预警期内CP信息方法 error!", ex);
+        }
+        return cpReginfoList;
+    }
+
+    /**
+     * 更新合同预警状态
+     *
+     * @param cpBaseInfo
+     */
+    public void updateCpBaseInfo(final CpBaseInfo cpBaseInfo) {
+        TransactionTemplate transactionTemplate = getDataSourceTransactionManager();
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                try {
+                    syncScheduleDao.updateCpBaseInfo(cpBaseInfo);
+                } catch (Exception ex) {
+                    log.error("updateCpBaseInfo 更新合同预警状态方法 cpBaseInfo=" + cpBaseInfo + " error!", ex);
+                    transactionStatus.setRollbackOnly();
+                    throw new RuntimeException("updateCpBaseInfo 更新合同预警状态方法 cpBaseInfo=" + cpBaseInfo + " error!", ex);
+                }
+            }
+        });
+    }
+
+    /**
+     * 创建应用下载汇总
+     */
+    public void createDownloadTotalstat() {
+        TransactionTemplate transactionTemplate = getDataSourceTransactionManager();
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                try {
+                    //统计应用下载汇总
+                    List<DownloadTotalstat> downloadTotalstatList = syncScheduleDao.findDownloadTotalstat();
+                    if (downloadTotalstatList.size() > 0) {
+                        //删除应用下载汇总表
+                        syncScheduleDao.deleteDownloadTotalstat();
+                        for (int i = 0; i < downloadTotalstatList.size(); i++) {
+                            DownloadTotalstat downloadTotalstat = new DownloadTotalstat();
+                            downloadTotalstat.setId((int) sequenceUtil.get(SequenceConstants.CMS_DOWNLOADTOTALSTAT_SEQUENCE));
+                            downloadTotalstat.setAppId(downloadTotalstatList.get(i).getAppId());
+                            downloadTotalstat.setDownloadTimes(downloadTotalstatList.get(i).getDownloadTimes());
+                            //插入应用下载汇总表
+                            syncScheduleDao.createDownloadTotalstat(downloadTotalstat);
+                        }
+                    }
+                } catch (Exception ex) {
+                    log.error("createDownloadTotalstat 新增下载汇总信息方法 error!", ex);
+                    transactionStatus.setRollbackOnly();
+                    throw new RuntimeException("createDownloadTotalstat 新增下载汇总信息方法 error!", ex);
+                }
+            }
+        });
+    }
+
+
+    /**
+     * 创建营销日志
+     */
+    public void createMarketLog() {
+        log.info("营销日志入库开始");
+        TransactionTemplate transactionTemplate = getDataSourceTransactionManager();
+        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                try {
+                    Integer offlineId = syncScheduleDao.getOfflineLogMaxId();
+                    Integer onlineId = syncScheduleDao.getOnlineLogMaxId();
+                    // 获得离线应用安装日志
+                    List<InstallStat> offlineSaleLog = syncScheduleDao.getOfflineSaleLog(offlineId);
+                    // 获得在线应用安装日志
+                    List<InstallStat> onlineSaleLog = syncScheduleDao.getOnlineSaleLog(onlineId);
+                    int offlineLogSize = offlineSaleLog.size();
+                    int onlineLogSize = onlineSaleLog.size();
+
+                    // 离线应用日志统计入最终结果表
+                    if (offlineLogSize > 0) {
+                        log.info("离线应用营销日志入库开始");
+                        for (int i = 0; i < offlineLogSize; i++) {
+                            Integer id = (int) sequenceUtil.get(SequenceConstants.CMS_OFFLINEINSTALLSTAT_SEQUENCE);
+                            offlineSaleLog.get(i).setId(id);
+                            syncScheduleDao.createOfflineInstallStats(offlineSaleLog.get(i));
+                        }
+                        // 更新离线应用中间表标示
+                        syncScheduleDao.updateStatisticsStatusOffline(offlineId);
+                        log.info("离线应用营销日志中间表标示更新完成");
+                        log.info("离线应用营销日志入库结束");
+                    }
+                    // 在线应用日志统计入最终结果表
+                    if (onlineLogSize > 0) {
+                        log.info("在线应用营销日志入库开始");
+                        for (int i = 0; i < onlineLogSize; i++) {
+                            onlineSaleLog.get(i).setId((int) sequenceUtil.get(SequenceConstants.CMS_ONLINEINSTALLSTAT_SEQUENCE));
+                            syncScheduleDao.createOnlineInstallStats(onlineSaleLog.get(i));
+                        }
+                        // 更新在线应用中间表标示
+                        syncScheduleDao.updateStatisticsStatusOnline(onlineId);
+                        log.info("在线应用营销日志中间表标示更新完成");
+                        log.info("在线应用营销日志入库结束");
+                    }
+                    log.info("营销日志入库完成 离线日志入库条数：" + offlineLogSize + "，在线日志入库条数：" + onlineLogSize);
+                } catch (Exception e) {
+                    log.error("营销日志更新失败 失败信息：" + e.getMessage());
+                    transactionStatus.setRollbackOnly();
+                }
+            }
+        });
+    }
+
+    public void createIncomeStatistic() {
+        log.info("--创建收入统计任务开始--");
+        try {
+            // 需要入库的List
+            List<IncomeStatistic> incomeStatisticListRes = new ArrayList<IncomeStatistic>();
+
+            Calendar c = Calendar.getInstance();
+            SimpleDateFormat datef = new SimpleDateFormat("yyyy-MM-dd");
+            IncomeParameter income = new IncomeParameter();
+            // 得到本月的那一天
+            int today = c.get(c.DAY_OF_MONTH);
+            // 判断是不是本月的第一天
+            if (today == 1) {  //是
+                c.setTime(new Date());
+                c.add(Calendar.MONTH, -1);
+                Date theDate = c.getTime();
+                String st = datef.format(theDate);
+
+                c.add(Calendar.MONTH, 1);
+                c.set(Calendar.DATE, 1);
+                c.add(Calendar.DATE, -1);
+                String et = datef.format(c.getTime());
+                income.setStartTime(st);
+                income.setEndTime(et);
+
+            } else {  // 否
+                // 当前月的最后一天
+                c.set(Calendar.DATE, 1);
+                c.roll(Calendar.DATE, -1);
+                Date endTime = c.getTime();
+                String endTime1 = datef.format(endTime);
+
+                //当前月的第一天
+                c.set(GregorianCalendar.DAY_OF_MONTH, 1);
+                Date beginTime = c.getTime();
+                String beginTime1 = datef.format(beginTime);
+
+                income.setStartTime(beginTime1);
+                income.setEndTime(endTime1);
+            }
+
+            Test();
+
+            log.info("统计周期：" + income.getStartTime() + "-" + income.getEndTime());
+            // 取出要统计的LIST--取出当月数据
+            List<IncomeStatistic> incomeStatisticList = syncScheduleDao.getIncomeStatistic(income);
+            // 总公司的应用价格和计费模式
+            List<AppPrice> appPriceListCompany = syncScheduleDao.getAppPrice(0); // 0:总公司
+            // 省办的应用价格和计费模式
+            List<AppPrice> appPriceListProvince = syncScheduleDao.getAppPrice(1); // 1:省办
+
+            IncomeStatistic incomeStatistic = null;
+            int listSize = incomeStatisticList.size();
+            log.info("当月数据size" + listSize);
+            if (incomeStatisticList != null && incomeStatisticList.size() > 0) {
+                for (int i = 0; i < listSize; i++) {
+                    log.info("按时间分出每个促销员的精彩推荐安装量和装机必备安装量");
+                    // 按时间分出每个促销员的精彩推荐安装量和装机必备安装量
+                    if (incomeStatisticList.get(i).getInstallTime() != null && !incomeStatisticList.get(i).getInstallTime().equals("") && incomeStatisticList.get(i).getSalerNo() != null && !incomeStatisticList.get(i).getSalerNo().equals("")) {
+                        if (incomeStatistic == null || !incomeStatisticList.get(i).getInstallTime().equals(incomeStatistic.getInstallTime()) || !incomeStatisticList.get(i).getSalerNo().equals(incomeStatistic.getSalerNo())) {
+                            //将数据放入输出List中去
+                            if (incomeStatistic != null && !incomeStatisticList.get(i).getSalerNo().equals(incomeStatistic.getSalerNo())) {
+                                // 拿促销员去查询安装精彩推荐的appid
+                                if (incomeStatistic.getSalerNo() != null && incomeStatistic.getInstallTime() != null) {
+                                    IncomeParameter incomeParameter = new IncomeParameter();
+                                    incomeParameter.setSalerNo(incomeStatistic.getSalerNo());
+                                    incomeParameter.setInstallTime(incomeStatistic.getInstallTime());
+                                    log.info("开始计算" + incomeStatistic.getSalerName() + "," + incomeStatistic.getInstallTime() + "的有效装机数");
+                                    //  计算有效装机数
+                                    incomeStatistic.setTotalAppCount(incomeStatistic.getRecommendAppCounts() + incomeStatistic.getNeedAppCounts());
+                                    Double phoneCounst = (double) incomeStatistic.getTotalAppCount() / IncomePrice.VAILDMACHINECOUNTS;
+                                    BigDecimal a = new BigDecimal(phoneCounst);
+                                    double f1 = a.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                                    incomeStatistic.setVaildMachineCounts(f1);
+                                    log.info(incomeStatistic.getSalerName() + "的有效装机数为" + incomeStatistic.getVaildMachineCounts());
+                                    // 促销员某天的精彩推荐的安装appid 和 手机串号
+                                    List<IncomeRes> incomeRecommendResList = getPhoneImei(syncScheduleDao.getSalePhoneImeiForRecommend(incomeParameter));
+                                    if (incomeRecommendResList != null && incomeRecommendResList.size() > 0) {
+                                        log.info("开始计算总公司的精彩推荐的价格");
+                                        // 开始计算总公司的精彩推荐的价格
+                                        if (appPriceListCompany != null && appPriceListCompany.size() > 0) {
+                                            incomeStatistic.setRecommendAppIncomeForCompany(getPrice(incomeRecommendResList, appPriceListCompany, 0));
+                                            log.info("计算结束：" + incomeStatistic.getRecommendAppIncomeForCompany());
+                                        }
+                                        log.info("开始计算精彩推荐省办的价格");
+                                        // 开始计算精彩推荐省办的价格
+                                        if (appPriceListProvince != null && appPriceListProvince.size() > 0) {
+                                            incomeStatistic.setRecommendAppIncomeForProvince(getPrice(incomeRecommendResList, appPriceListProvince, 1));
+                                            log.info("计算结束：" + incomeStatistic.getRecommendAppIncomeForProvince());
+                                        }
+                                    }
+                                    // 促销员某天的装机必备的安装appid 和 手机串号
+                                    List<IncomeRes> incomeResNeedList = getPhoneImei(syncScheduleDao.getSalePhoneImeiForNeed(incomeParameter));
+                                    if (incomeResNeedList != null && incomeResNeedList.size() > 0) {
+                                        log.info("开始计算总公司装机必备的价格");
+                                        //  总公司装机必备的价格
+                                        if (appPriceListCompany != null && appPriceListCompany.size() > 0) {
+                                            incomeStatistic.setNeedAppIncomeForCompany(getPrice(incomeResNeedList, appPriceListCompany, 0));
+                                            log.info("计算结束：" + incomeStatistic.getNeedAppIncomeForCompany());
+                                        }
+                                        log.info("开始计算省办装机必备的价格");
+                                        //省办装机必备的价格
+                                        if (appPriceListProvince != null && appPriceListProvince.size() > 0) {
+                                            incomeStatistic.setNeedAppIncomeForProvince(getPrice(incomeResNeedList, appPriceListProvince, 1));
+                                            log.info("计算结束：" + incomeStatistic.getNeedAppIncomeForProvince());
+                                        }
+                                    }
+                                    // 将数据放入要入库的List中
+                                    incomeStatisticListRes.add(incomeStatistic);
+                                }
+                            }
+                            incomeStatistic = new IncomeStatistic();
+                            //安装时间
+                            incomeStatistic.setInstallTime(incomeStatisticList.get(i).getInstallTime());
+                            //渠道号
+                            incomeStatistic.setCid(incomeStatisticList.get(i).getCid());
+                            //促销员编号
+                            incomeStatistic.setSalerNo(incomeStatisticList.get(i).getSalerNo());
+                            // 促销员名字
+                            incomeStatistic.setSalerName(incomeStatisticList.get(i).getSalerName());
+                            // 标识 0：精彩推荐 1：装机必备
+                            if (incomeStatisticList.get(i).getFlag() != null) {
+                                //取精彩推荐信息
+                                if (incomeStatisticList.get(i).getFlag().intValue() == 0) {
+                                    incomeStatistic.setRecommendAppCounts(incomeStatisticList.get(i).getInstallAppsCounts());
+                                } else if (incomeStatisticList.get(i).getFlag().intValue() == 1) {
+                                    incomeStatistic.setNeedAppCounts(incomeStatisticList.get(i).getInstallAppsCounts());
+                                }
+                            }
+                        } else {
+                            // 标识 0：精彩推荐 1：装机必备
+                            if (incomeStatisticList.get(i).getFlag() != null) {
+                                //取精彩推荐信息
+                                if (incomeStatisticList.get(i).getFlag().intValue() == 0) {
+                                    incomeStatistic.setRecommendAppCounts(incomeStatisticList.get(i).getInstallAppsCounts());
+                                } else if (incomeStatisticList.get(i).getFlag().intValue() == 1) {
+                                    incomeStatistic.setNeedAppCounts(incomeStatisticList.get(i).getInstallAppsCounts());
+                                }
+                            }
+                        }
+                    }
+
+
+                    if (i == (listSize - 1)) {
+                        // 拿促销员去查询安装精彩推荐的appid
+                        if (incomeStatistic.getSalerNo() != null && incomeStatistic.getInstallTime() != null) {
+                            IncomeParameter incomeParameter = new IncomeParameter();
+                            incomeParameter.setSalerNo(incomeStatistic.getSalerNo());
+                            incomeParameter.setInstallTime(incomeStatistic.getInstallTime());
+                            log.info("开始计算" + incomeStatistic.getSalerName() + "," + incomeStatistic.getInstallTime() + "的有效装机数");
+                            //  计算有效装机数
+                            incomeStatistic.setTotalAppCount(incomeStatistic.getRecommendAppCounts() + incomeStatistic.getNeedAppCounts());
+                            Double phoneCounst = (double) incomeStatistic.getTotalAppCount() / IncomePrice.VAILDMACHINECOUNTS;
+                            BigDecimal a = new BigDecimal(phoneCounst);
+                            double f1 = a.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
+                            incomeStatistic.setVaildMachineCounts(f1);
+                            log.info(incomeStatistic.getSalerName() + "的有效装机数为" + incomeStatistic.getVaildMachineCounts());
+                            // 促销员某天的精彩推荐的安装appid 和 手机串号
+                            List<IncomeRes> incomeRecommendResList = getPhoneImei(syncScheduleDao.getSalePhoneImeiForRecommend(incomeParameter));
+                            if (incomeRecommendResList != null && incomeRecommendResList.size() > 0) {
+                                log.info("开始计算总公司的精彩推荐的价格");
+                                // 开始计算总公司的精彩推荐的价格
+                                if (appPriceListCompany != null && appPriceListCompany.size() > 0) {
+                                    incomeStatistic.setRecommendAppIncomeForCompany(getPrice(incomeRecommendResList, appPriceListCompany, 0));
+                                    log.info("计算结束：" + incomeStatistic.getRecommendAppIncomeForCompany());
+                                }
+                                log.info("开始计算精彩推荐省办的价格");
+                                // 开始计算精彩推荐省办的价格
+                                if (appPriceListProvince != null && appPriceListProvince.size() > 0) {
+                                    incomeStatistic.setRecommendAppIncomeForProvince(getPrice(incomeRecommendResList, appPriceListProvince, 1));
+                                    log.info("计算结束：" + incomeStatistic.getRecommendAppIncomeForProvince());
+                                }
+                            }
+                            // 促销员某天的装机必备的安装appid 和 手机串号
+                            List<IncomeRes> incomeResNeedList = getPhoneImei(syncScheduleDao.getSalePhoneImeiForNeed(incomeParameter));
+                            if (incomeResNeedList != null && incomeResNeedList.size() > 0) {
+                                log.info("开始计算总公司装机必备的价格");
+                                //  总公司装机必备的价格
+                                if (appPriceListCompany != null && appPriceListCompany.size() > 0) {
+                                    incomeStatistic.setNeedAppIncomeForCompany(getPrice(incomeResNeedList, appPriceListCompany, 0));
+                                    log.info("计算结束：" + incomeStatistic.getNeedAppIncomeForCompany());
+                                }
+                                log.info("开始计算省办装机必备的价格");
+                                //省办装机必备的价格
+                                if (appPriceListProvince != null && appPriceListProvince.size() > 0) {
+                                    incomeStatistic.setNeedAppIncomeForProvince(getPrice(incomeResNeedList, appPriceListProvince, 1));
+                                    log.info("计算结束：" + incomeStatistic.getNeedAppIncomeForProvince());
+                                }
+                            }
+                            // 将数据放入要入库的List中
+                            incomeStatisticListRes.add(incomeStatistic);
+                        }
+                    }
+                }
+                log.info("开始入库。。。");
+                // 如果数据库中有该条数据时，更新该条数据，若没有，往库中插了新的数据
+                if (incomeStatisticListRes != null && incomeStatisticListRes.size() > 0) {
+                    syncScheduleDao.createIncomeStatistic(incomeStatisticListRes);
+                }
+                log.info("入库结束");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("系统异常,异常信息：" + e.getMessage());
+        }
+        log.info("--创建收入统计任务结束--");
+    }
+
+    public void createSalerLog() {
+
+    }
+
+    public void salerArrStatistic() {
+
+    }
+
+
+    public void setSyncScheduleDao(SyncScheduleDao syncScheduleDao) {
+        this.syncScheduleDao = syncScheduleDao;
+    }
+
+
+    public double addition(double a, double b) {
+        BigDecimal b1 = new BigDecimal(Double.toString(a));
+        BigDecimal b2 = new BigDecimal(Double.toString(b));
+        return b1.add(b2).doubleValue();
+    }
+
+    /*
+     * 计算价格
+     *
+     * @param incomeResList
+     * @param appPriceList
+     * @param flag
+     * @return
+     */
+    public double getPrice(List<IncomeRes> incomeResList, List<AppPrice> appPriceList, Integer flag) {
+        double price = 0.0;
+        try {
+            if (incomeResList != null && incomeResList.size() > 0) {
+                if (appPriceList != null && appPriceList.size() > 0) {
+                    for (IncomeRes incomeRes : incomeResList) {
+                        for (AppPrice appPrice : appPriceList) {
+                            if (incomeRes.getAppid() != null && incomeRes.getAppid().equals(appPrice.getAppid())) {
+                                if (appPrice.getChargeModel() != null) { // 0：安装 1:激活 2:到达
+                                    if (appPrice.getChargeModel().intValue() == 0) { // 安装
+                                        Integer installCounts = incomeRes.getPhoneImei().split(",").length;
+                                        if (flag == 1) { // 省办的追加到达的价格
+                                            // 若有应用有到达量，每个追加0.2元
+                                            log.info("phoneImei:-->" + incomeRes.getPhoneImei());
+                                            Integer arrCount = syncScheduleDao.contForArr(incomeRes);
+                                            if (arrCount != null && arrCount.intValue() > 0) {
+//                                                price = addition(price, arrCount * IncomePrice.ADDPRICE_PROVINCES);
+                                            }
+                                        }
+                                        price = addition(price, installCounts.intValue() * appPrice.getPrice());
+                                        break;
+                                    } else if (appPrice.getChargeModel().intValue() == 1) { // 激活
+                                        Integer actCounts = syncScheduleDao.countForAct(incomeRes);
+                                        price = addition(price, actCounts.intValue() * appPrice.getPrice());
+                                        break;
+                                    } else if (appPrice.getChargeModel().intValue() == 2) { // 到达
+                                        Integer arrCounts = syncScheduleDao.contForArr(incomeRes);
+                                        price = addition(price, arrCounts.intValue() * appPrice.getPrice());
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.info("计算价格异常，异常信息：" + e.getMessage());
+        }
+        return price;
+    }
+
+
+    public String spiltString(String str) {
+        String[] strings = str.split(",");
+        StringBuffer stringBuff = new StringBuffer();
+        int length = strings.length;
+        if (strings != null && length > 0) {
+            for (int i = 0; i < length; i++) {
+                stringBuff.append("\"");
+                if (i != (length - 1)) {
+                    stringBuff.append(strings[i] + "\",");
+                } else {
+                    stringBuff.append(strings[i] + "\"");
+                }
+            }
+        }
+        return stringBuff.toString();
+    }
+
+    /**
+     * 按appid得出手机串号
+     *
+     * @param incomeResList
+     * @return
+     */
+    public List<IncomeRes> getPhoneImei(List<IncomeRes> incomeResList) {
+        List<IncomeRes> list = new ArrayList<IncomeRes>();
+        try {
+            int size = incomeResList.size();
+            if (list != null && size > 0) {
+                IncomeRes incomeRes = null;
+                for (int i = 0; i < size; i++) {
+                    if (incomeRes == null || !incomeResList.get(i).getAppid().equals(incomeRes.getAppid())) {
+                        if (incomeRes != null && !incomeResList.get(i).getAppid().equals(incomeRes.getAppid())) {
+                            list.add(incomeRes);
+                        }
+                        incomeRes = new IncomeRes();
+                        incomeRes.setAppid(incomeResList.get(i).getAppid());
+                        incomeRes.setPhoneImei("\"" + incomeResList.get(i).getPhoneImei() + "\"");
+                    } else {
+                        incomeRes.setPhoneImei(incomeRes.getPhoneImei() + ",\"" + incomeResList.get(i).getPhoneImei() + "\"");
+                    }
+                    if (i == (size - 1)) {
+                        list.add(incomeRes);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+
+    public IncomeResObj getIncomeResObj(List<IncomeRes> incomeResList) {
+        List<IncomeRes> list = new ArrayList<IncomeRes>();
+        List<IncomeRes> listTemp = new ArrayList<IncomeRes>();
+        IncomeResObj incomeResObj = new IncomeResObj();
+        try {
+            int size = incomeResList.size();
+            if (list != null && size > 0) {
+                IncomeRes incomeRes = null;
+                IncomeRes incomeResTemp = null;
+                for (int i = 0; i < size; i++) {
+                    if (incomeResList.get(i).getPhoneImei().indexOf("*") > -1) {
+                        if (incomeResTemp == null || !incomeResList.get(i).getAppid().equals(incomeResTemp.getAppid())) {
+                            if (incomeResTemp != null && !incomeResList.get(i).getAppid().equals(incomeResTemp.getAppid())) {
+                                listTemp.add(incomeResTemp);
+                            }
+                            incomeResTemp = new IncomeRes();
+                            incomeResTemp.setAppid(incomeResList.get(i).getAppid());
+                            incomeResTemp.setPhoneImei("\"" + incomeResList.get(i).getPhoneImei().substring(incomeResList.get(i).getPhoneImei().lastIndexOf("*") + 1, incomeResList.get(i).getPhoneImei().length()) + "\"");
+                        } else {
+                            incomeResTemp.setPhoneImei(incomeRes.getPhoneImei() + ",\"" + incomeResList.get(i).getPhoneImei().substring(incomeResList.get(i).getPhoneImei().lastIndexOf("*") + 1, incomeResList.get(i).getPhoneImei().length()) + "\"");
+                        }
+                    } else {
+                        if (incomeRes == null || !incomeResList.get(i).getAppid().equals(incomeRes.getAppid())) {
+                            if (incomeRes != null && !incomeResList.get(i).getAppid().equals(incomeRes.getAppid())) {
+                                list.add(incomeRes);
+                            }
+                            incomeRes = new IncomeRes();
+                            incomeRes.setAppid(incomeResList.get(i).getAppid());
+                            incomeRes.setPhoneImei("\"" + incomeResList.get(i).getPhoneImei() + "\"");
+                        } else {
+                            incomeRes.setPhoneImei(incomeRes.getPhoneImei() + ",\"" + incomeResList.get(i).getPhoneImei() + "\"");
+                        }
+                    }
+                    if (i == (size - 1)) {
+                        list.add(incomeRes);
+                        listTemp.add(incomeResTemp);
+
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return incomeResObj;
+    }
+
+
+    public void Test() {
+        try {
+            IncomeParameter incomeParameter = new IncomeParameter();
+            incomeParameter.setSalerNo("5101581");
+            incomeParameter.setInstallTime("2014-04-02");
+            List<IncomeRes> list = syncScheduleDao.getSalePhoneImeiForNeed(incomeParameter);
+            SyncScheduleManagerImplBak syncScheduleManager = new SyncScheduleManagerImplBak();
+            IncomeResObj incomeResObj = syncScheduleManager.getIncomeResObj(list);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+}

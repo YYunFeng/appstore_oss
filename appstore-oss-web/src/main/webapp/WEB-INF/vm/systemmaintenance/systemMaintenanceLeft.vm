@@ -1,0 +1,79 @@
+#set($title = "系统维护")
+<form name="form1" action="" method="post">
+    <script type="text/javascript"
+            src="$assetModule.getTarget("/appstore-man/js/systemmaintenance/systemmaintenance.js")"></script>
+    <script type="text/javascript"
+            src="$assetModule.getTarget("/appstore-man/js/systemmaintenance/systemmaintenance2.js")"></script>
+    <div class="w">
+        <div id="warp">
+            <div class="content">
+                <!--left_start-->
+                <div class="menu-box rounded fl" id="red">
+                    <div id="menu-box">
+                        <div class="box">
+                            <div class="title_1">系统维护<span class="menu1"></span></div>
+                            <div class="list">
+                                <ul class="treeview-red">
+                                    <li class="opens"><span><a id="menu_1" href="javascript:void(0)" onclick="">类目管理</a></span>
+                                        <ul>
+                                            <li onclick="findCategoryList('$!mobileGameId');"><span id="menu_1_1"
+                                                                                                    class="selected">移动游戏</span>
+                                            </li>
+                                            <li onclick="findCategoryList('$!mobileSoftId')"><span
+                                                    id="menu_1_2">移动软件</span></li>
+                                        #*<li onclick="findCategoryList('$!webAppId')"><span id="menu_1_3">网页应用</span></li>*#
+                                        </ul>
+                                    </li>
+                                    <li onclick="findLoopTaskList();"><span id="menu_2_1">周期性任务</span></li>
+                                   #* <li onclick="padManager();"><span id="menu_5">PAD管理</span></li>*#
+                                #* <li><span><a id="menu_2" href="javascript:void(0)"  onclick="">任务管理</a></span>
+                                      <ul>
+                                         <li onclick="findLoopTaskList();"><span id="menu_2_1">周期性任务</span></li>
+                                           <li onclick="findErpTaskList();"><span id="menu_2_2">ERP同步任务</span></li>
+                                      </ul>
+                                 </li>*#
+                                    <li onclick="versionManager(1);"><span id="menu_3">客户端版本管理</span></li>
+                                    #*<li><span><a id="menu_4" href="javascript:void(0)" onclick="">批量导入</a></span>*#
+                                   #*     <ul>*#
+                                     <li onclick="bulkUploadStart();"><span id="menu_4_1">自有应用批量导入</span></li>
+                                #*      </ul>
+                                  </li>*#
+                                    <li onclick="appPrice()"><span id="menu_6">应用价格设置</span></li>
+                                    <li onclick="exceptionLogContent()"><span id="menu_7">异常信息查看</span></li>
+                                    #* <li onclick="findAndroidDriver();"><span id="menu_6">Android驱动管理</span></li>*#
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--left_end-->
+                <!--right_start-->
+                <div class="fr" id="content">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="classPop" id="confirmPop">
+    </div>
+    <!--div_start-->
+    <div id="Loading" class="hide"
+         style="width:100px;height:100px;position:fixed;left:50%;top:50%;margin: -50px -50px 0 0;z-index: 1001;">
+        <img src="$assetModule.getTarget("/appstore-man/images/loading.gif")"/>
+    </div>
+    <div id="Loading2" class="hide"
+         style="text-align:center;position:fixed;z-index: 1000;filter:alpha(opacity=10);background-color:#666;opacity: 0.1;-moz-opacity: 0.1;width:100%;height: 100%;top:0;left:0;">
+    </div>
+    <script type="text/javascript">
+        (function () {
+            var object = document.getElementById("nav-system");
+            if (object)object.className += " curr";//当前导航
+            findCategoryList('$!mobileGameId');
+        })();
+    </script>
+    <input id="chargeAreaHidden" type="hidden"/>
+    <input id="chargeModelHidden" type="hidden"/>
+    <input id="appNameHidden" type="hidden"/>
+    <input id="topicIdHidden" type="hidden"/>
+</form>

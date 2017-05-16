@@ -1,0 +1,130 @@
+#set($layout="content.vm")
+<link rel="stylesheet" href="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/uploadify.css")" type="text/css"
+      media="screen"/>
+<script type="text/javascript" src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/swfobject.js")"></script>
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/jquery.uploadify.v2.1.4.min.js")"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        uploadDriver();
+
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+
+    });
+
+    function uploadDriver(){
+        $("#file_upload").uploadify({
+                    'uploader':'/appstore-man/js/uploadify-v2.1.4/uploadify.swf',    //组件自带的flash，路径根据情况自行调整
+                    'script':'/upload/uploadClientVersion.action',
+                    'cancelImg':'/appstore-man/js/uploadify-v2.1.4/cancel.png',
+                    'fileDataName':'uploadFile',
+                    'queueID':'fileQueue',     //放置上传文件及上传进度的Html元素Id
+                    'queueSizeLimit':1,        //-次最多选择多少个文件上传，这里限定为一个
+                    'fileDesc':'zip文件',
+                    'fileExt':'*.zip',
+                    'buttonImg':'/appstore-man/images/uploadVersion.png',
+                    'auto':true,            //是否选取文件后自动上传
+                    'multi':false,           //多文件上传时必须打开
+                    'simUploadLimit' : 1,
+                    'onError':function(event, queueID, fileObj, errorObj) {
+                        alert(" 上传失败" + errorObj.info + " 错误类型" + errorObj.type);
+                    },
+                    'onComplete':function(event, queueID, fileObj, response, data) {
+                        $('#driverUrl').val(response);
+                        $('#tip').empty().append("上传成功");
+                    }
+                });
+    }
+
+    function doAddAndroidDriver(){
+        var vid = jQuery.trim(document.getElementById('vid').value);
+        var vName = jQuery.trim(document.getElementById('vName').value);
+        var pid = jQuery.trim(document.getElementById('pid').value);
+        var pName = jQuery.trim(document.getElementById('pName').value);
+        var mainFile = jQuery.trim(document.getElementById('mainFile').value);
+        var driverUrl = jQuery.trim(document.getElementById('driverUrl').value);
+        //alert(vName + " " + pName + " " + driverUrl)
+        if(vid!=''){
+            if(mainFile!=''){
+                if(driverUrl!=''){
+                    jQuery.ajax({
+                    type:'POST',
+                    url:'/driverManager/doAddAndroidDriver.action',
+                    data:'androidDriver.vid='+vid+'&androidDriver.vname='+vName+'&androidDriver.pid='+pid+'&androidDriver.pname='+pName
+                        +'&androidDriver.mainFile='+mainFile+'&androidDriver.driverUrl='+driverUrl,
+                    dataType:'html',
+                    success:function(data){
+                        findAndroidDriver();
+                        $('#close').click();
+                    }
+                });
+                }else{
+                    alert('请上传驱动程序包');
+                }
+            }else{
+                alert('驱动主文件名不能为空');
+            }
+        }else{
+            alert('厂商ID不能为空');
+        }
+
+    };
+</script>
+
+<div class="pop-top">
+    <div class="ac">
+        <h2>增加Android驱动</h2>
+    </div>
+</div>
+#*<div class="pop-scrollbar">*#
+    <div class="pop-box">
+        <div class="con">
+            <table class="tb" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td width="100"><label>厂商ID：</label></td>
+                    <td width="540" colspan="2"><p>
+                        <input class="input" id="vid" style="width:300px;" type="text" maxlength="10"/>
+                    </p></td>
+                </tr>
+                <tr>
+                    <td width="100"><label>厂商名称：</label></td>
+                    <td width="540" colspan="2"><p>
+                        <input class="input" id="vName" style="width:300px;" type="text" maxlength="20"/>
+                    </p></td>
+                </tr>
+                <tr>
+                    <td width="100"><label>产品ID：</label></td>
+                    <td width="540" colspan="2"><p>
+                        <input class="input" id="pid" style="width:300px;" type="text" maxlength="10"/>
+                    </p></td>
+                </tr>
+                <tr>
+                    <td width="100"><label>产品名称：</label></td>
+                    <td width="540" colspan="2"><p>
+                        <input class="input" id="pName" style="width:300px;" type="text" maxlength="20"/>
+                    </p></td>
+                </tr>
+                <tr>
+                    <td width="100"><label>驱动主文件名：</label></td>
+                    <td width="540" colspan="2"><p>
+                        <input class="input" id="mainFile" style="width:300px;" type="text" maxlength="60"/>
+                    </p></td>
+                </tr>
+                <tr>
+                    <td><label>上传文件：</label></td>
+                    <td colspan="2">
+                        <input id="file_upload" name="photo" type="file"/>
+
+                        <div id="fileQueue" style="width: 400px;"></div>
+                        <div id="tip" style="color: #FF0000;"></div>
+                    </td>
+                </tr>
+                <div class="hide"><input type="text" id="driverUrl"/></div>
+            </table>
+        </div>
+    </div>
+#*</div>*#
+<div class="btn-box">
+    <input class="btn" type="button" value="保 存" onclick="doAddAndroidDriver();">
+    <input id="close" class="close" type="button" value="取 消">
+</div>

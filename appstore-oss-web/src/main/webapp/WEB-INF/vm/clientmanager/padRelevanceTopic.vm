@@ -1,0 +1,103 @@
+#set($title = "专题管理-关联渠道")
+#set($layout="content.vm")
+<script type="text/javascript">
+    $(document).ready(function () {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+    function img_chk(sb) {
+        if (eval("img[" + sb + "]") == false) {
+            document.getElementById(sb).src = "$assetModule.getTarget("/appstore-man/images/checkbox_hover.png")";
+            $("#" + sb).attr("aid", 1)
+            eval("img[" + sb + "]=true");
+        } else {
+            document.getElementById(sb).src = "$assetModule.getTarget("/appstore-man/images/checkbox.png")";
+            eval("img[" + sb + "]=false");
+            $("#" + sb).attr("aid", 0)
+        }
+    }
+    function saveRelenvanceTopic(topicId, topicSeq) {
+        var cids = new Array();
+        var checkName = document.getElementsByName("chkUpdatePrompt");
+        /*  $("#channelIds tr td img").each(function() {
+                    if ($(this).attr("aid") == 1) {
+                        cids += $(this).attr("id") + ",";
+                    }
+                });
+        */
+        for (var i = 0; i < checkName.length; i++) {
+            if (checkName[i].checked == true) {
+                cids += checkName[i].value + ",";
+            }
+        }
+        jQuery.ajax({
+            type: "POST",
+            url: "/topicManager/saveRelenvanceTopic.action",
+            data: "channelTopic.cids=" + cids + "&channelTopic.topicId=" + topicId + "&channelTopic.topicSeq=" + topicSeq,
+            dataType: "html",
+            success: function (data) {
+                getTopicListByPub();
+                $('#closeDiv').click();
+            }
+        });
+    }
+
+</script>
+<style type="text/css">
+    .tb-pacChannel {
+        margin: 5px auto;
+        overflow: scroll;
+        width: 417px;
+        height: 270px;
+    }
+
+    .tb-pacChannel .tb {
+        border: 1px solid #B5D8E9;
+        color: #010101;
+        text-align: center;
+    }
+
+    .tb-pacChannel .tb td {
+        border-color: #B5D8E9;
+        border-style: solid;
+        border-width: 1px;
+        height: 30px;
+    }
+
+    .tb-pacChannel .tit-bg {
+        background-color: #E2E2E2;
+    }
+</style>
+<div class="pop-top">
+    <div class="ac">
+        <h2>关联渠道</h2>
+    </div>
+</div>
+<div class="tb-pacChannel" id="padList">
+    <table class="tb" cellspacing="0" cellpadding="0" id="channelIds">
+        <tr class="tit-bg">
+            <td width="40">选择</td>
+            <td width="40">渠道ID</td>
+            <td width="150">渠道名称</td>
+            <td width="200">渠道说明</td>
+        </tr>
+        #foreach($pChannels in $padChannels)
+            <tr>
+                <td>
+                    <input type="checkbox"
+                           name="chkUpdatePrompt"  #foreach($ChannelToic in $ChannelTopics) #if($pChannels.id ==$ChannelToic.cId )
+                           checked="checked"#end #end value="$pChannels.id">
+                </td>
+                <td>$pChannels.id</td>
+                <td>$pChannels.cname</td>
+                <td>$pChannels.intro</td>
+            </tr>
+        #end
+    </table>
+</div>
+<div class="btn-box">
+    <input id="add" class="btn" type="button" value="确 定"
+           onclick="saveRelenvanceTopic($topic.topicId,$topic.orderSeq);">
+    <input id="closeDiv" class="close" type="button" value="取 消">
+</div>
+

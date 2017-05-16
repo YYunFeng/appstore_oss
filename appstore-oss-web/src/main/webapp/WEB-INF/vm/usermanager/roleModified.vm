@@ -1,0 +1,120 @@
+#set($title = "用户管理-修改角色")
+#set($layout="content.vm")
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.2 });
+
+    });
+</script>
+<div class="pop-top">
+    <div class="ac">
+        <h2>修改角色</h2>
+    </div>
+</div>
+<div class="pop-box">
+    <div class="con">
+        <table class="tb" cellspacing="0" cellpadding="0">
+            <tr>
+                <td width="880"><label>角 色 名：
+                    <input type="hidden" name="supportRole.roleId" value="$!supportRole.roleId"/>
+                    <input type="hidden" name="roleName" value="$!supportRole.roleName"/>
+                    <input class="input" type="text" name="supportRole.roleName" onblur="modifiedCheckedRole()"
+                           value="$!supportRole.roleName" maxlength="20"/>
+                    </br><span id="msg" style="color: #FF0000;"></span>
+                </label></td>
+            </tr>
+            <tr>
+                <td>
+                    <table border="0" cellspacing="0" cellpadding="0">
+                        <tr valign="top">
+                            #set( $foo = "error" )
+                            #foreach($firstModule in $modules)
+                                #if($firstModule)
+                                <td style="width:140px;border-bottom:0;border-right:1px dashed #3381A6;">
+                                    #foreach($roleModule in $roleModules)
+                                        #if($!firstModule.moduleId==$!roleModule.moduleId)
+                                            #set( $foo = "success" )
+                                        #end
+                                    #end
+                                <label style="color:#065277;font-weight:bold;">
+                                        <input type="checkbox" name="moduleList.SupportModule.moduleId"
+                                               value="$!firstModule.moduleId" id="$!firstModule.moduleId"
+                                               pid="$!firstModule.parentId"
+                                               onclick="getClick('$!firstModule.moduleId','$!firstModule.parentId')" #if($foo=="success")
+                                               checked="checked" #end
+                                #end />$!firstModule.moduleName
+                            </label>
+                                #set( $foo = "error" )
+                                #foreach($secondModule in $firstModule.chileModules)
+                                    #if($secondModule)
+                                        #foreach($roleModule in $roleModules)
+                                            #if($!secondModule.moduleId==$!roleModule.moduleId)
+                                                #set( $foo = "success" )
+                                            #end
+                                        #end
+                                        <label style="color:#065277;"> &#12288;
+                                            <input type="checkbox" name="moduleList.SupportModule.moduleId"
+                                                   value="$!secondModule.moduleId" id="$!secondModule.moduleId"
+                                                   pid="$!secondModule.parentId"
+                                                   onclick="getClick('$!secondModule.moduleId','$!secondModule.parentId')" #if($foo=="success")
+                                                   checked="checked" #end/>$!secondModule.moduleName
+                                        </label>
+                                        #set( $foo = "error" )
+                                        #foreach($thirdModule in $secondModule.chileModules)
+                                            #if($thirdModule)
+                                                #foreach($roleModule in $roleModules)
+                                                    #if($!thirdModule.moduleId==$!roleModule.moduleId)
+                                                        #set( $foo = "success" )
+                                                    #end
+                                                #end
+                                                <div   #if($!thirdModule.moduleStatus==1) class="hide" #end>
+                                                    <label style="color:#43768f;"> &#12288;&#12288;
+                                                        <input type="checkbox"
+                                                               name="moduleList.SupportModule.moduleId"
+                                                               value="$!thirdModule.moduleId"
+                                                               id="$!thirdModule.moduleId"
+                                                               pid="$!thirdModule.parentId"
+                                                               onclick="getClick('$!thirdModule.moduleId','$!thirdModule.parentId')" #if($foo=="success")
+                                                               checked="checked" #end/>$!thirdModule.moduleName
+                                                    </label>
+                                                </div>
+                                                #set( $foo = "error" )
+                                                #foreach($fourthModule in $thirdModule.chileModules)
+                                                    #if($fourthModule)
+                                                        #foreach($roleModule in $roleModules)
+                                                            #if($!thirdModule.moduleId==$!roleModule.moduleId)
+                                                                #set( $foo = "success" )
+                                                            #end
+                                                        #end
+                                                        <div #if($!fourthModule.moduleStatus==1) class="hide" #end>
+                                                            <label style="color:#43768f;"> &#12288;&#12288;&#12288;
+                                                                <input type="checkbox"
+                                                                       name="moduleList.SupportModule.moduleId"
+                                                                       value="$!fourthModule.moduleId"
+                                                                       id="$!fourthModule.moduleId"
+                                                                       pid="$!fourthModule.parentId"
+                                                                       onclick="getClick('$!fourthModule.moduleId','$!fourthModule.parentId')" #if($foo=="success")
+                                                                       checked="checked" #end/>$!fourthModule.moduleName
+                                                            </label>
+                                                        </div>
+                                                        #set( $foo = "error" )
+                                                    #end
+                                                #end
+                                            #end
+                                        #end
+                                    #end
+                                #end
+                            </td>
+                            #end
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="btn-box">
+    <input id="add" class="btn" type="button" value="确 定" onclick="doModifiedRole();">
+    <input id="closeDiv" class="close" type="button" value="取 消">
+</div>

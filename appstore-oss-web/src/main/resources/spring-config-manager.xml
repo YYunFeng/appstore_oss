@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       default-autowire="byName">
+
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"/>
+
+    <bean id="cacheUtils" class="com.jd.digital.common.util.cache.CacheUtils">
+        <property name="cacheServerAddress">
+            <list>
+                <value>${appstore.oss.memcached1.address}</value>
+                <!--      <value>${appstore.oss.memcached2.address}</value>-->
+            </list>
+        </property>
+    </bean>
+
+    <bean id="categoryIdUtil" class="com.jd.cms.util.CategoryIdUtil">
+        <property name="mobileSoftId" value="${appstore.oss.category.mobileSoftId}"></property>
+        <property name="mobileGameId" value="${appstore.oss.category.mobileGameId}"></property>
+        <property name="webAppId" value="${appstore.oss.category.webAppId}"></property>
+    </bean>
+
+    <bean id="zhuoWangAppsGetAccountIdUtil" class="com.jd.cms.util.ZhuoWangAppsGetAccountIdUtil">
+        <property name="accountId" value="${appstore.oss.zhuoWangApp.accountId}"></property>
+    </bean>
+    <!--LiangYu begin-->
+    <bean id="loginManager" class="com.jd.cms.manager.login.impl.LoginManagerImpl"/>
+    <bean id="accountManager" class="com.jd.cms.manager.usermanager.impl.AccountManagerImpl"/>
+    <bean id="accountManagerCached" class="com.jd.cms.manager.usermanager.impl.AccountManagerCachedImpl"/>
+    <bean id="roleManager" class="com.jd.cms.manager.usermanager.impl.RoleManagerImpl"/>
+    <bean id="roleManagerCached" class="com.jd.cms.manager.usermanager.impl.RoleManagerCachedImpl"/>
+    <bean id="categoryMaintenanceManager"
+          class="com.jd.cms.manager.systemmaintenance.impl.CategoryMaintenanceManagerImpl"/>
+    <bean id="categoryMaintenanceManagerCached"
+          class="com.jd.cms.manager.systemmaintenance.impl.CategoryMaintenanceManagerCachedImpl"/>
+    <bean id="taskManager" class="com.jd.cms.manager.systemmaintenance.impl.TaskManagerImpl"/>
+    <bean id="taskManagerCached" class="com.jd.cms.manager.systemmaintenance.impl.TaskManagerCachedImpl"/>
+    <!--quartz-->
+    <bean id="syncScheduleManager" class="com.jd.cms.manager.schedule.impl.SyncScheduleManagerImpl">
+        <property name="filePath" value="${appstore.oss.filepath.fanyueArriveData}"></property>
+    </bean>
+    <bean id="erpScheduleManager" class="com.jd.cms.manager.schedule.impl.ErpScheduleManagerImpl"/>
+    <!--AdminLog-->
+    <bean id="adminLogManager" class="com.jd.cms.manager.adminlog.impl.AdminLogManagerImpl"/>
+    <!--LiangYu end-->
+    <!--zhounan-begin-->
+    <bean id="cpQualityManagementManager"
+          class="com.jd.cms.manager.cpQualityManagement.impl.CpQualityManagementManagerImpl"/>
+    <bean id="cpQualityManagementManagerCached"
+          class="com.jd.cms.manager.cpQualityManagement.impl.CpQualityManagementManagerCachedImpl"/>
+    <bean id="cpChargeQualificationManager"
+          class="com.jd.cms.manager.cpQualityManagement.impl.CpChargeQualificationManagerImpl"/>
+    <bean id="cpChargeQualificationManagerCached"
+          class="com.jd.cms.manager.cpQualityManagement.impl.CpChargeQualificationManagerCachedImpl"/>
+    <bean id="appManagementManager" class="com.jd.cms.manager.appManagement.impl.AppManagementManagerImpl"/>
+    <bean id="appManagementManagerCached" class="com.jd.cms.manager.appManagement.impl.AppManagementManagerCachedImpl"/>
+    <bean id="appBrowseManager" class="com.jd.cms.manager.appManagement.impl.AppBrowseManagerImpl"/>
+    <bean id="appBrowseManagerCached" class="com.jd.cms.manager.appManagement.impl.AppBrowseManagerCachedImpl"/>
+    <bean id="osManager" class="com.jd.cms.manager.terminalManagement.impl.OsManagerImpl"/>
+    <bean id="osManagerCached" class="com.jd.cms.manager.terminalManagement.impl.OsManagerCachedImpl"/>
+    <bean id="screenManager" class="com.jd.cms.manager.terminalManagement.impl.ScreenManagerImpl"/>
+    <bean id="screenManagerCached" class="com.jd.cms.manager.terminalManagement.impl.ScreenManagerCachedImpl"/>
+    <bean id="feedBackManager" class="com.jd.cms.manager.systemmaintenance.impl.FeedBackManagerImpl"/>
+    <bean id="feedBackManagerCached" class="com.jd.cms.manager.systemmaintenance.impl.FeedBackManagerCachedImpl"/>
+    <!--zhounan-end-->
+    <!--hqj_start-->
+    <bean id="recommendResultManager" class="com.jd.cms.manager.clientmanager.impl.RecommendManagerImpl"/>
+    <bean id="appManager" class="com.jd.cms.manager.clientmanager.impl.AppManagerImpl"/>
+    <bean id="topicManager" class="com.jd.cms.manager.clientmanager.impl.TopicManagerImpl"/>
+    <bean id="categoryResultManager" class="com.jd.cms.manager.clientmanager.impl.CategoryManagerImpl"/>
+    <bean id="recommendResultManagerCached" class="com.jd.cms.manager.clientmanager.impl.RecommendManagerCachedImpl"/>
+    <bean id="topicManagerCached" class="com.jd.cms.manager.clientmanager.impl.TopicManagerCachedImpl"/>
+    <bean id="rankingAppManager" class="com.jd.cms.manager.clientmanager.impl.RankingAppManagerImpl"/>
+    <bean id="rankingAppManagerCached" class="com.jd.cms.manager.clientmanager.impl.RankingAppManagerCachedImpl"/>
+    <bean id="noticeManager" class="com.jd.cms.manager.clientmanager.impl.NoticeManagerImpl"/>
+    <bean id="noticeManagerCached" class="com.jd.cms.manager.clientmanager.impl.NoticeManagerCachedImpl"/>
+    <bean id="hotWordManager" class="com.jd.cms.manager.clientmanager.impl.HotWordManagerImpl"/>
+    <bean id="hotWordManagerCached" class="com.jd.cms.manager.clientmanager.impl.HotWordManagerCachedImpl"/>
+    <bean id="activityManager" class="com.jd.cms.manager.clientmanager.impl.ActivityManagerImpl"/>
+    <bean id="activityManagerCached" class="com.jd.cms.manager.clientmanager.impl.ActivityManagerCachedImpl"/>
+    <bean id="padImeiNumberManager" class="com.jd.cms.manager.systemmaintenance.impl.PadImeiNumberManagerImpl"/>
+    <!--hqj_end-->
+
+
+    <bean id="bulkUploadManager" class="com.jd.cms.manager.systemmaintenance.impl.BulkUploadManagerImpl"/>
+    <bean id="clientVersionManager" class="com.jd.cms.manager.systemmaintenance.impl.ClientVersionManagerImpl"/>
+    <bean id="clientVersionManagerCached"
+          class="com.jd.cms.manager.systemmaintenance.impl.ClientVersionManagerCahedImpl"/>
+    <bean id="androidDriverManager" class="com.jd.cms.manager.systemmaintenance.impl.AndroidDriverManagerImpl"/>
+    <bean id="androidDriverManagerCached"
+          class="com.jd.cms.manager.systemmaintenance.impl.AndroidDriverManagerCachedImpl"/>
+
+    <!--统计 -->
+    <bean id="statisticsManager" class="com.jd.cms.manager.statistics.impl.StatisticsManagerImpl"/>
+    <bean id="zhuoWangInfoImportManager" class="com.jd.cms.manager.schedule.impl.ZhuoWangInfoImportManagerImpl"/>
+    <bean id="salerDetailsManager" class="com.jd.cms.manager.usermanager.impl.SalerDetailsManagerImpl"/>
+    <bean id="salesStatisticsManager" class="com.jd.cms.manager.appManagement.impl.SalesStatisticsManagerImpl">
+        <property name="installLogExcelPath" value="${appstore.oss.installlog.excel.path}"></property>
+    </bean>
+
+    <bean id="marketStatisticsManager" class="com.jd.cms.manager.appManagement.impl.MarketStatisticsManagerImpl">
+        <property name="installLogExcelPath" value="${appstore.oss.installlog.excel.path}"></property>
+    </bean>
+
+
+    <bean id="validMachineStatisticsManager"
+          class="com.jd.cms.manager.appManagement.impl.ValidMachineStatisticsManagerImpl"/>
+    <bean id="compulsoryManager" class="com.jd.cms.manager.clientmanager.impl.CompulsoryManagerImpl"/>
+    <bean id="suningManager" class="com.jd.cms.manager.clientmanager.impl.SuningManagerImpl"/>
+    <bean id="cpDateImportManager" class="com.jd.cms.manager.clientmanager.impl.CpDateImportManagerImpl"/>
+    <bean id="appCountsManager" class="com.jd.cms.manager.appManagement.impl.AppCountsManagerImpl"/>
+    <bean id="appPriceManager" class="com.jd.cms.manager.systemmaintenance.impl.AppPriceManagerImpl"/>
+    <bean id="exceptionLogManager" class="com.jd.cms.manager.systemmaintenance.impl.ExceptionLogManagerImpl"/>
+    <bean id="salerActiveManager" class="com.jd.cms.manager.appManagement.impl.SalerActiveManagerImpl"/>
+    <bean id="provinceArrStatisManager" class="com.jd.cms.manager.appManagement.impl.ProvinceArrStatisManagerImpl"/>
+    <bean id="logsManager" class="com.jd.cms.manager.systemmaintenance.impl.LogsManagerImpl"/>
+    <bean id="newStatisticManager" class="com.jd.cms.manager.appManagement.impl.NewStatisticManagerImpl"/>
+    <bean id="incomeStatisticManager" class="com.jd.cms.manager.appManagement.impl.IncomeStatisticManagerImpl"/>
+</beans>

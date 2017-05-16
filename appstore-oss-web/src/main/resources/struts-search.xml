@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+    <package name="search" namespace="/search" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.clientmanager.SearchAction">
+            <result name="appList">/WEB-INF/vm/clientmanager/appResult.vm</result>
+            <result name="appListForRecommend">/WEB-INF/vm/clientmanager/appResultForRec.vm</result>
+            <result name="TopicForRecommend">/WEB-INF/vm/clientmanager/topicResultForRec.vm</result>
+        </action>
+    </package>
+</struts>

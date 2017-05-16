@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       default-autowire="byName">
+
+    <!-- 短信 -->
+    <bean id="sendUmMsg" class="com.jd.msg.sender.client.proxyClient.SendUmMsg">
+        <property name="loginHandler">
+            <ref bean="loginHandler"/>
+        </property>
+    </bean>
+    <bean id="loginHandler" class="com.jd.msg.sender.client.proxyClient.LoginHandler">
+        <property name="seed">
+            <value>${appstore.oss.sms.seed}</value>
+        </property>
+        <property name="content">
+            <value>${appstore.oss.sms.content}</value>
+        </property>
+        <property name="qName">
+            <value>${appstore.oss.sms.qname}</value>
+        </property>
+    </bean>
+
+
+</beans>

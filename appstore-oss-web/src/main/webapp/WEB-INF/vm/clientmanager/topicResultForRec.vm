@@ -1,0 +1,42 @@
+#set($layout="content.vm")
+<script type="text/javascript">
+    function macroAjaxSubmit(url) {
+        var topicName = jQuery.trim(document.getElementById('topicName').value);
+        if (topicName != '') {
+            jQuery.ajax({
+                        type:'POST',
+                        url:url,
+                        data:'topicName='+topicName,
+                        success:function(data) {
+                            jQuery('#result').html(data);
+                        }
+                    });
+        } else {
+            alert('请输入搜索关键字');
+        }
+    }
+    ;
+
+</script>
+
+<table class="tb" cellpadding="0" cellspacing="0" style="margin-left: 8px;">
+    <tr>
+        <td><p class="ac">选择</p></td>
+        <td width="158"><p class="ac">名称</p></td>
+        <td><p class="ac">图标</p></td>
+    </tr>
+    #foreach($topic in $topics)
+        <tr>
+            <td><label><input type="radio" name="topicResult" value="$topic.topicName,$topic.topicId,$topic.logoUrl"/></label></td>
+            <td><p class="ac">$topic.topicName</p></td>
+            <td><label><div class="app-ico"><img src="$topicimageserver.getTarget($topic.logoUrl)"/></div></label></td>
+            <div class="hide"><input type="text" id="topicId" value="$topic.topicId"/></div>
+        </tr>
+#end
+</table>
+
+<div class="paging fr">
+    <div class="paging-box_2">
+        #set($pageModule=$domain.getTarget("/search/SearchTopicForRecommend.action").addQueryData("pageSize",$!pageSize))
+        #showPage($pageModule $topics) </div>
+</div>

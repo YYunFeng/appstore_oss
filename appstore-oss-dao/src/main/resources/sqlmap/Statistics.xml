@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Statistics">
+    <typeAlias alias="statisticsInput" type="com.jd.cms.domain.statistics.StatisticsInput"/>
+    <typeAlias alias="statisticsOutput" type="com.jd.cms.domain.statistics.StatisticsOutput"/>
+
+
+    <!--全站总下载量查询-->
+    <select id="findAllStatistics" resultClass="Integer">
+        SELECT
+        sum(download_times)
+        FROM
+        tb_download_totalstat AS totalstat,
+        tb_apps AS apps
+        WHERE
+        totalstat.appid = apps.appid
+    </select>
+
+    <!--全站过去7天总下载量查询-->
+    <select id="findNever7DaysStatistics" resultClass="Integer">
+        SELECT
+        sum(download_times)
+        FROM
+        tb_app_download_stat AS downloadStat,
+        tb_apps AS apps
+        WHERE
+        downloadStat.appid = apps.appid
+        AND
+        STR_TO_DATE(
+        CONCAT(YEAR, '-', MONTH, '-', DAY),
+        '%Y-%c-%e'
+        ) BETWEEN DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+        AND CURDATE()
+    </select>
+
+
+    <!--全站下载总量按时间段查询-->
+    <select id="findAllStatisticsByDate" resultClass="statisticsOutput" parameterClass="statisticsInput">
+        SELECT
+        CONCAT(
+        downloadStat. YEAR,
+        '-',
+        downloadStat. MONTH,
+        '-',
+        downloadStat. DAY
+        ) AS dateTime,
+        sum(
+        downloadStat.download_times
+        ) AS downloadTimes
+        FROM
+        tb_app_download_stat AS downloadStat,
+        tb_apps AS apps
+        WHERE
+        apps.appid = downloadStat.appid
+        <dynamic prepend="AND">
+            <isEqual property="appType" compareValue="1">
+                (apps.app_type = 0 or apps.app_type =1 or apps.app_type=2)
+            </isEqual>
+        </dynamic>
+        <dynamic prepend="AND">
+            <isEqual property="appType" compareValue="2">
+                (apps.app_type = 3 OR apps.app_type = 4)
+            </isEqual>
+        </dynamic>
+        <isNotEmpty prepend="AND" property="startDate">
+            STR_TO_DATE(
+            CONCAT(
+            downloadStat. YEAR,
+            '-',
+            downloadStat. MONTH,
+            '-',
+            downloadStat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startDate#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endDate#, '%Y-%c-%e')
+        </isNotEmpty>
+        GROUP BY
+        dateTime
+        ORDER BY
+        STR_TO_DATE(dateTime, '%Y-%c-%e') DESC
+        LIMIT #limit#
+        OFFSET #offset#
+    </select>
+
+    <!--全站下载总量总记录数-->
+    <select id="findAllStatisticsByDateCount" resultClass="int" parameterClass="statisticsInput">
+        SELECT
+        count(
+        DISTINCT (
+        CONCAT(
+        downloadStat. YEAR,'-',downloadStat. MONTH, '-', downloadStat. DAY
+        )
+        )
+        )
+        FROM
+        tb_app_download_stat AS downloadStat,
+        tb_apps AS apps
+        WHERE
+        apps.appid = downloadStat.appid
+        <dynamic prepend="AND">
+            <isEqual property="appType" compareValue="1">
+                (apps.app_type = 0 or apps.app_type =1 or apps.app_type=2)
+            </isEqual>
+        </dynamic>
+        <dynamic prepend="AND">
+            <isEqual property="appType" compareValue="2">
+                (apps.app_type = 3 OR apps.app_type = 4)
+            </isEqual>
+        </dynamic>
+        <isNotEmpty prepend="AND" property="startDate">
+            STR_TO_DATE(
+            CONCAT(
+            downloadStat. YEAR,
+            '-',
+            downloadStat. MONTH,
+            '-',
+            downloadStat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startDate#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endDate#, '%Y-%c-%e')
+        </isNotEmpty>
+    </select>
+
+
+    <!--应用下载总量按时间段查询-->
+    <select id="findAppStatisticsByDate" resultClass="statisticsOutput" parameterClass="statisticsInput">
+        SELECT
+        CONCAT(
+        downloadStat. YEAR,
+        '-',
+        downloadStat. MONTH,
+        '-',
+        downloadStat. DAY
+        ) AS dateTime,
+        apps.appid AS appId,
+        apps.app_name AS appName,
+        sum(
+        downloadStat.download_times
+        ) AS downloadTimes
+        FROM
+        tb_app_download_stat AS downloadStat,
+        tb_apps AS apps
+        WHERE
+        apps.appid = downloadStat.appid
+        <isNotEmpty prepend="AND" property="startDate">
+            STR_TO_DATE(
+            CONCAT(
+            downloadStat. YEAR,
+            '-',
+            downloadStat. MONTH,
+            '-',
+            downloadStat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startDate#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endDate#, '%Y-%c-%e')
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="appId">
+            apps.appid = #appId#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="appName">
+            apps.app_name = #appName#
+        </isNotEmpty>
+        GROUP BY
+        dateTime
+        ORDER BY
+        STR_TO_DATE(dateTime, '%Y-%c-%e') DESC
+        LIMIT #limit#
+        OFFSET #offset#
+    </select>
+
+    <!--应用下载总量总记录数-->
+    <select id="findAppStatisticsByDateCount" resultClass="int" parameterClass="statisticsInput">
+        SELECT
+        count(apps.appid)
+        FROM
+        tb_app_download_stat AS downloadStat,
+        tb_apps AS apps
+        WHERE
+        apps.appid = downloadStat.appid
+        <isNotEmpty prepend="AND" property="startDate">
+            STR_TO_DATE(
+            CONCAT(
+            downloadStat. YEAR,
+            '-',
+            downloadStat. MONTH,
+            '-',
+            downloadStat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startDate#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endDate#, '%Y-%c-%e')
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="appId">
+            apps.appid = #appId#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="appName">
+            apps.app_name = #appName#
+        </isNotEmpty>
+    </select>
+
+    <!--TOP应用下载总量按时间段查询-->
+    <select id="findTopAppStatisticsByDate" resultClass="statisticsOutput" parameterClass="statisticsInput">
+        SELECT
+        apps.appid AS appId,
+        apps.app_name AS appName,
+        sum(
+        downloadStat.download_times
+        ) AS downloadTimes
+        FROM
+        tb_app_download_stat AS downloadStat,
+        tb_apps AS apps
+        WHERE
+        apps.appid = downloadStat.appid
+        <dynamic prepend="AND">
+            <isEqual property="appType" compareValue="1">
+                (apps.app_type = 0 or apps.app_type =1 or apps.app_type=2)
+            </isEqual>
+        </dynamic>
+        <dynamic prepend="AND">
+            <isEqual property="appType" compareValue="2">
+                (apps.app_type = 3 OR apps.app_type = 4)
+            </isEqual>
+        </dynamic>
+        <isNotEmpty prepend="AND" property="startDate">
+            STR_TO_DATE(
+            CONCAT(
+            downloadStat. YEAR,
+            '-',
+            downloadStat. MONTH,
+            '-',
+            downloadStat. DAY
+            ),
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startDate#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endDate#, '%Y-%c-%e')
+        </isNotEmpty>
+        GROUP BY
+        apps.appid
+        ORDER BY
+        downloadTimes DESC
+        LIMIT #topCount#
+    </select>
+
+
+</sqlMap>

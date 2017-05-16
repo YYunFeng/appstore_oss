@@ -1,0 +1,44 @@
+#set($title = "用户管理-增加新账号")
+#set($layout="content.vm")
+<script type="text/javascript">
+    $(document).ready(function() {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.2 });
+
+    });
+</script>
+  <div class="pop-top" >
+    <div class="ac">
+      <h2>增加新账号</h2>
+    </div>
+  </div>
+    <div class="pop-box" >
+      <div class="con">
+        <table class="tb" cellspacing="0" cellpadding="0" >
+        <tr>
+          <td width="100"><label>用 户 名：</label></td>
+          <td width="250"><p><input class="input" type="text" name="supportUsers.account" onblur="checkedAccount()" maxlength="20"/></br><span id="msg" style="color: #FF0000;"></span></p></td>
+        </tr>
+        <tr>
+          <td><label>密&#12288;&#12288;码：</label></td>
+          <td><p><input class="input" type="password" name="supportUsers.password" maxlength="16" /></br><span id="msg2" style="color: #FF0000;"></span></p></td>
+        </tr>
+        <tr>
+          <td><label>确认密码：</label></td>
+          <td><p><input class="input" type="password" name="pwd" maxlength="16" onblur="checkedPassword()"/></p></td>
+        </tr>
+        <tr>
+          <td colspan="2"><p>角色设置：</p>
+            <p>
+                #foreach($role in $roles)
+                   <label>
+                <input type="radio" name="supportUsers.roleId" value="$!role.roleId"   id="$!role.roleId"/>$!role.roleName</label>
+                #end
+            </p></td>
+        </tr>
+      </table>
+      </div>
+    </div>
+  <div class="btn-box" >
+    <input id="add" class="btn" type="button" value="确 定" onclick="doAdd();">
+    <input id="closeDiv" class="close" type="button" value="取 消" >
+  </div>

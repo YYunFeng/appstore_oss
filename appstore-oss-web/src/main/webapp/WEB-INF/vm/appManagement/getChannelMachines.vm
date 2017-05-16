@@ -1,0 +1,37 @@
+<!--应用的安装总量-->
+#set($layout="content.vm")
+<div>
+    --><a href="javascript:void(0)" onclick="validMachinesContent();">公司总收入统计</a>
+    --><span style="font-weight: bolder">按渠道查询</span>
+</div>
+<table class="tb" cellspacing="0" cellpadding="0">
+    <tr class="tit-bg">
+        <td>渠道名称</td>
+        <td>装机数</br>(单位：台)</td>
+        <td width="100">自有应用</br>安装数</br>(单位：个)</td>
+        <td width="100">华盛应用</br>安装数</br>(单位：个)</td>
+        <td width="100">自有</br>应用收入</br>(单位：元)</td>
+        <td width="100">华盛</br>应用收入</br>(单位：元)</td>
+        <td width="70">应用</br>总收入</br>(单位：元)</td>
+        <td>操作</td>
+    </tr>
+    #foreach($!validMachine in $!validMachines)
+        <tr>
+            <td>$!validMachine.cname</td>
+            <td>$!validMachine.vaildMachineCounts</td>
+            <td>$!validMachine.mineAppCounts</td>
+            <td>$!validMachine.huashengAppCounts</td>
+            <td>$!validMachine.recommendAppIncomeForCompany</td>
+            <td>$!validMachine.needAppIncomeForCompany</td>
+            <td>$!validMachine.totalIncome</td>
+            <td>
+                <a href="javascript:void(0);" onclick="validMachinesByTime($!validMachine.cid);">
+                    按日期查看
+                </a>|
+                <a href="javascript:void(0);" onclick="validMachinesBySaler($!validMachine.cid);">
+                    按促销员查看
+                </a>
+            </td>
+        </tr>
+    #end
+</table>

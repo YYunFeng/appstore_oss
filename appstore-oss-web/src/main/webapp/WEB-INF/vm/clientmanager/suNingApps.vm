@@ -1,0 +1,46 @@
+#set($layout="content.vm")
+<script type="text/javascript">
+    $(document).ready(function () {
+        var b = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "add", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+</script>
+<div class="fr">
+    <div class="right-box rounded">
+        <div class="form-row">
+            <input class="to-del add fr" type="button" value="添加安装包" onclick="createSuning()"/>
+        </div>
+        <div class="tb-box">
+            <table class="tb" cellspacing="0" cellpadding="0">
+                <tr class="tit-bg">
+                    <td width="120">门店编号</td>
+                    <td width="92">门店名称</td>
+                    <td width="40">门店安装包</td>
+                    <td width="92">操作</td>
+                </tr>
+                #foreach($suning in $suningList)
+                    <tr>
+                        <td>
+                            $!suning.shopId
+                        </td>
+                        <td>
+                            $!suning.shopName
+                        </td>
+                        <td>#if($!suning.fileUrl!="")
+                            已上传
+                        #else
+                            未上传
+                        #end</td>
+                        <td>
+                            <a href="javascript:void(0)" class="add" onclick="modifySuning($suning.id)">编辑</a>|
+                            <a href="javascript:void(0)" onclick="deleteSuning($suning.id)">移除</a>|
+                            <a href="$imgserver.getTarget('')suning/$suning.fileUrl">下载</a>
+                        </td>
+                    </tr>
+                #end
+            </table>
+        </div>
+    </div>
+</div>
+<div class="classPop" style="width:800px;height:500px;" id="confirmPop">
+
+</div>

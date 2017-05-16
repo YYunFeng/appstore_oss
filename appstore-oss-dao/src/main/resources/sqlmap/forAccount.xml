@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="forAccountQuery">
+    <typeAlias alias="productInforAccount" type="com.jd.cms.domain.foraccount.ProductInfoAccount"/>
+    <!--定义一个sqlmap和一个sql-->
+    <resultMap id="productInforAccountResult" class="productInforAccount">
+        <result column="appid" property="id"/>
+        <result column="app_name" property="productName"/>
+        <result column="supplier_no" property="venderCode"/>
+        <result column="supplier_name" property="venderName"/>
+        <result column="categoryid1" property="firstCatid"/>
+        <result column="categoryid2" property="sndCatid"/>
+        <result column="valid_period_begin" property="authBeginTime"/>
+        <result column="valid_period_end" property="authEndTime"/>
+        <result column="buyout" property="buyoutPrice" nullValue="0"/>
+        <result column="fee_mode" property="divideType" nullValue="0"/>
+        <result column="prepay" property="prepayments" nullValue="0"/>
+        <result column="percent" property="percent" />
+    </resultMap>
+
+    <select id="getproductInfoById" resultClass="productInforAccount" parameterClass="java.lang.Integer"
+            resultMap="productInforAccountResult">
+        select
+            apps.appid,
+            apps.app_name,
+            cp.supplier_no,
+            cp.supplier_name,
+            apps.categoryid1,
+            apps.categoryid2,
+            cp.valid_period_begin,
+            cp.valid_period_end,
+            details.buyout,
+            details.prepay,
+            details.fee_mode,
+            details.percent
+        from tb_apps apps, tb_app_details details, tb_cp_baseinfo cp
+        where apps.appid = #id#
+            and apps.appid=details.appid
+            and details.accountid=cp.id
+        order by details.created asc
+    </select>
+
+
+    <select id="queryByVenderCount" resultClass="java.lang.Integer" parameterClass="java.util.Map">
+        select
+            count(apps.appid)
+        from tb_apps apps, tb_app_details details, tb_cp_baseinfo cp
+        where  cp.supplier_no = #venderCode#
+            and apps.appid=details.appid
+            and details.accountid=cp.id
+    </select>
+
+    <select id="queryByVenderId" resultClass="productInforAccount" parameterClass="java.util.Map"
+            resultMap="productInforAccountResult">
+        select
+            apps.appid,
+            apps.app_name,
+            cp.supplier_no,
+            cp.supplier_name,
+            apps.categoryid1,
+            apps.categoryid2,
+            cp.valid_period_begin,
+            cp.valid_period_end,
+            details.buyout,
+            details.prepay,
+            details.fee_mode,
+            details.percent
+        from tb_apps apps, tb_app_details details, tb_cp_baseinfo cp
+        where  cp.supplier_no = #venderCode#
+            and apps.appid=details.appid
+            and details.accountid=cp.id
+            order by apps.created asc
+            limit #start#, #end#
+    </select>
+
+
+    <!--增量接口必须是参加预付款的，所以多了一个条件is_involve = 1-->
+    <select id="queryIncreamentInfo" resultClass="productInforAccount" parameterClass="java.util.Map"
+            resultMap="productInforAccountResult">
+        select
+            apps.appid,
+            apps.app_name,
+            cp.supplier_no,
+            cp.supplier_name,
+            apps.categoryid1,
+            apps.categoryid2,
+            cp.valid_period_begin,
+            cp.valid_period_end,
+            details.buyout,
+            details.prepay,
+            details.fee_mode,
+            details.percent
+        from tb_apps apps, tb_app_details details, tb_cp_baseinfo cp
+        where  cp.supplier_no = #venderCode#
+            and apps.appid=details.appid
+            and details.accountid=cp.id
+            and details.pub_time >= #beginTime#
+            order by apps.created asc
+            limit #start#, #end#
+
+    </select>
+
+    <select id="getIncrementCount" resultClass="java.lang.Integer" parameterClass="java.util.Map">
+        select
+            count(apps.appid)
+        from tb_apps apps, tb_app_details details, tb_cp_baseinfo cp
+        where  cp.supplier_no = #venderCode#
+            and apps.appid=details.appid
+            and details.accountid=cp.id
+            and details.pub_time >= #beginTime#
+    </select>
+</sqlMap>

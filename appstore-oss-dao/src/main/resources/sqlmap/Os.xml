@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Os">
+    <typeAlias alias="TerminalpageOutput" type="com.jd.cms.domain.terminalManagement.TerminalpageOutput"/>
+    <typeAlias alias="TerminalpageInput" type="com.jd.cms.domain.terminalManagement.TerminalpageInput"/>
+    <typeAlias alias="TerminalInsertOutput" type="com.jd.cms.domain.terminalManagement.TerminalInsertOutput"/>
+    <typeAlias alias="TerminalInsertInput" type="com.jd.cms.domain.terminalManagement.TerminalInsertInput"/>
+
+    <!--取得平台信息总记录数-->
+    <select id="getOsCount" resultClass="int">
+        select
+	        count(*) as value
+        from
+	        tb_android_app_osversion
+    </select>
+
+    <!--取得平台信息集合-->
+    <select id="findOsPage" parameterClass="com.jd.common.util.Query" resultClass="TerminalpageOutput">
+        select
+	        os_version_id as osVersionId,
+	        os_version_name as osVersionName,
+            os_version_code as osVersionCode,
+            online as online
+        from
+	        tb_android_app_osversion
+        order by created desc
+        limit #endRow# offset #startRow#
+    </select>
+
+    <!--创建平台信息-->
+    <insert id="createOs" parameterClass="TerminalInsertInput" >
+        insert into
+	        tb_android_app_osversion
+            (os_version_id,os_version_name,os_version_code,intro,online,created,modified)
+        values
+	        (#osVersionId#,#osVersionName#,#osVersionCode#,#intro#,#online#,now(),now())
+    </insert>
+
+    <!--更新平台上下架状态-->
+    <update id="upOsOnline" parameterClass="TerminalpageInput" >
+		UPDATE
+		    tb_android_app_osversion
+		SET
+            online = #online#,
+            modified = now()
+	    WHERE
+		    os_version_id = #osVersionId#
+	</update>
+
+    <!--删除平台信息-->
+    <delete id="delOs" parameterClass="TerminalpageInput">
+        delete from
+            tb_android_app_osversion
+        where
+            os_version_id = #osVersionId#
+    </delete>
+
+    <!--更新平台信息-->
+    <update id="upOs" parameterClass="TerminalpageInput" >
+		UPDATE
+		    tb_android_app_osversion
+		SET
+            os_version_name = #osVersionName#,
+            os_version_code = #osVersionCode#,
+            intro = #intro#,
+            modified = now()
+	    WHERE
+		    os_version_id = #osVersionId#
+	</update>
+
+    <!--根据ID删除单条平台信息-->
+    <select id="findOsById" parameterClass="int" resultClass="TerminalpageOutput">
+        select
+	        os_version_id as osVersionId,
+	        os_version_name as osVersionName,
+            os_version_code as osVersionCode,
+            intro as intro,
+            online as online
+        from
+	        tb_android_app_osversion
+        where
+            os_version_id = #osVersionId#
+    </select>
+
+    <!--检查平台版本名-->
+    <select id="checkOsName" parameterClass="String" resultClass="String">
+        select
+	        os_version_name as osVersionName
+        from
+	        tb_android_app_osversion
+        where
+            os_version_name = #osVersionName#
+    </select>
+
+    <!--检查平台版本码-->
+    <select id="checkOsCode" parameterClass="int" resultClass="int">
+        select
+	        os_version_code as osVersionCode
+        from
+	        tb_android_app_osversion
+        where
+            os_version_code = #osVersionCode#
+    </select>
+
+</sqlMap>

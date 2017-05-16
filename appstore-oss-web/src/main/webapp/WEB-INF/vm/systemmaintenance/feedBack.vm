@@ -1,0 +1,48 @@
+#set($layout="content.vm")
+<div class="fr">
+<div class="right-box rounded">
+                <div class="form-row">
+                       <!--paging_start-->
+                    <div class="paging fr">
+                      <div class="paging-box_1">
+                        #set($pageModule = $domain.getTarget("/feedBack/findfeedBackList.action").addQueryData("pageSize",$!pageSize))
+                            #showPage($pageModule $FeedBacks)
+                      </div>
+                    </div>
+            <!--paging_end-->
+          </div>
+                <div class="tb-box" id="userList">
+                    <table class="tb" cellspacing="0" cellpadding="0">
+                        <tr class="tit-bg">
+                            <td width="100"><label>反馈类型</label></td>
+                            <td width="300"><label>反馈内容</label></td>
+                            <td width="100"><label>反馈人</label></td>
+                            <td width="100"><label>创建时间</label></td>
+                            <td width="100"><label>操作</label></td>
+                        </tr>
+                            #foreach($FeedBack in $FeedBacks)
+                        <tr>
+                            <td width="100"><label>$!stringEscapeUtils.escapeHtml($!FeedBack.ftype)</label></td>
+                            <td width="300"><p style="width:300px; overflow: hidden;">$!stringEscapeUtils.escapeHtml($!FeedBack.content)</p></td>
+                            <td width="100"><label>$!stringEscapeUtils.escapeHtml($!FeedBack.fuser)</label></td>
+                            <td width="100"><label>
+                                $!dateFormatUtils.format($!FeedBack.created,"yyyy-MM-dd")<br>
+                                $!dateFormatUtils.format($!FeedBack.created,"HH:mm")<br>
+                            </label></td>
+                            <td width="100"><label><a class="open" href="javascript:void(0)" onclick="delFeedBack($!FeedBack.id);">删除</a></label></td>
+                        </tr>
+                            #end
+
+                    </table>
+                </div>
+                  <!--paging_start-->
+                 <div class="paging fr">
+                     <div class="paging-box_2">
+                        #set($pageModule = $domain.getTarget("/feedBack/findfeedBackList.action").addQueryData("pageSize",$!pageSize))
+                        #showPage($pageModule $FeedBacks)
+                    </div>
+                </div>
+            <!--paging_end-->
+            </div>
+            <!--right_end-->
+      </div>

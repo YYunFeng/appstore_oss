@@ -1,0 +1,34 @@
+<div id="header">
+  <div class="w">
+    <div class="logo fl"><p style="font-size: 25px; color:#327ea3;margin-top: 35px; font-weight:bolder; ">全网营销体验平台支撑系统</p></div>
+    <div class="pattern fr">
+      <p class="userinfo fr"><img src="$assetModule.getTarget("/appstore-man/images/user_ico.png")" /><label id="getAccount"></label><a href="/login/exit.action"><img src="$assetModule.getTarget("/appstore-man/images/exit.png")" /></a></p>
+    </div>
+  </div>
+</div>
+<div id="nav">
+  <div class="nav-wrapper">
+    <ul class="tabs">
+      <li id="nav-home" class="tabs-item"><a href="/login/init.action" class="tabs-btn" target="_parent">欢&#12288;迎</a></li>
+      <li id="nav-cp" class="tabs-item "><a href="/cpQualityManagement/init.action" class="tabs-btn" target="_parent">ＣＰ资质管理</a></li>
+    #*  <li id="nav-terminal" class="tabs-item "><a href="/os/init.action" class="tabs-btn" target="_parent">终端信息管理</a></li>*#
+      <li id="nav-app" class="tabs-item "><a href="/appManagement/init.action" class="tabs-btn" target="_parent">应用管理</a></li>
+      <li id="nav-client" class="tabs-item "><a href="/recommendManager/init.action" class="tabs-btn" target="_parent">客户端管理</a></li>
+      <li id="nav-user" class="tabs-item "><a href="/accountManager/init.action" class="tabs-btn" target="_parent">用户管理</a></li>
+      <li id="nav-system" class="tabs-item "><a href="/categoryMaintenance/init.action" class="tabs-btn" target="_parent">系统维护</a></li>
+    </ul>
+  </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function(){
+        jQuery.ajax({
+                        type:"post",
+                        url:"/login/getAccount.action",
+                        dataType:"json",
+                        success:function(data) {
+                            jQuery('#getAccount').html(data);
+                        }
+                    });
+    });
+</script>

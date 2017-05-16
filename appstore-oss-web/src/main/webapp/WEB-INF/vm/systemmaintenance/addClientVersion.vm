@@ -1,0 +1,144 @@
+#set($layout="content.vm")
+<link rel="stylesheet" href="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/uploadify.css")" type="text/css"
+      media="screen"/>
+<script type="text/javascript" src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/swfobject.js")"></script>
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/jquery.uploadify.v2.1.4.min.js")"></script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        uploadClient();
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+
+    });
+    function uploadClient() {
+        $("#file_upload").uploadify({
+            'uploader': '/appstore-man/js/uploadify-v2.1.4/uploadify.swf',    //组件自带的flash，路径根据情况自行调整
+            'script': '/upload/uploadClientVersion.action',
+            'cancelImg': '/appstore-man/js/uploadify-v2.1.4/cancel.png',
+            'fileDataName': 'uploadFile',
+            'queueID': 'fileQueue',     //放置上传文件及上传进度的Html元素Id
+            'queueSizeLimit': 1,        //-次最多选择多少个文件上传，这里限定为一个
+            'fileDesc': '*.exe;*.apk;*.zip;*.rar',
+            'fileExt': '*.exe;*.apk;*.zip;*.rar',
+            'buttonImg': '/appstore-man/images/uploadVersion.png',
+            'auto': true,            //是否选取文件后自动上传
+            'multi': false,           //多文件上传时必须打开
+            'simUploadLimit': 1,
+            'onError': function (event, queueID, fileObj, errorObj) {
+                alert(" 上传失败" + errorObj.info + " 错误类型" + errorObj.type);
+            },
+            'onComplete': function (event, queueID, fileObj, response, data) {
+                alert("上传成功");
+                $('#packageUrl').val(response);
+                $('#tip').empty().append("上传成功");
+            }
+        });
+    }
+
+
+    /**
+     * 备注提示
+     */
+    function num() {
+        var maxLength = 2000;
+        var textLength = jQuery('#intro').val().length;
+        if (textLength <= maxLength) {
+            jQuery('#msg').html(maxLength - textLength);
+        } else {
+            jQuery('#intro').val(jQuery('#intro').val().substr(0, maxLength));
+            jQuery('#msg').html(0);
+        }
+    }
+
+    function doAddClientVersion() {
+        var version = jQuery.trim(document.getElementById('version').value);
+        var versionCode = jQuery.trim(document.getElementById('versionCode').value);
+        var clientType = document.getElementById('clientType').value;
+        var intro = jQuery.trim(document.getElementById('intro').value);
+        var packageUrl = document.getElementById('packageUrl').value;
+        if (version == '') {
+            alert("版本号不能为空！");
+        } else {
+            if (intro == '') {
+                alert("版本描述不能为空！");
+            } else {
+                if (packageUrl != '') {
+                    jQuery.ajax({
+                        type: 'POST',
+                        url: '/versionManager/doAddClientVersion.action',
+                        data: 'clientPackage.version=' + version + '&clientPackage.intro=' + intro + '&clientPackage.clientType=' + clientType + '&clientPackage.packageUrl=' + packageUrl + '&clientPackage.valid=0' + '&clientPackage.versionCode=' + versionCode,
+                        dataType: 'html',
+                        success: function (data) {
+                            $('#close').click();
+                            getClientVersion(tType);
+                        }
+                    });
+                } else {
+                    alert('请上传版本包');
+                }
+            }
+        }
+
+    }
+</script>
+<div class="pop-top">
+    <div class="ac">
+        <h2>增加客户端</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+        <div class="con">
+            <table class="tb" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td width="90"><label>版本号：</label></td>
+                    <td width="595" colspan="2"><p>
+                        <input class="input" id="version" style="width:300px;" type="text" maxlength="20"/>
+                    </p></td>
+                </tr>
+                <tr>
+                    <td width="90"><label>versionCode：</label></td>
+                    <td width="595" colspan="2"><p>
+                        <input class="input" id="versionCode" style="width:300px;" type="text" maxlength="20"/>
+                    </p></td>
+                </tr>
+                <tr>
+                    <td><label>客户端类型：</label></td>
+                    <td>
+                        <p>
+                            <select style=" margin-left:2px;" id="clientType">#*
+                                <option value="1">android手机</option>
+                              *#
+                                <option value="1"> Android pad</option>
+                                <option value="2">应用商店</option>
+                                <option value="3">PC 客户端</option>
+                            </select>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label>版本描述：</label></td>
+                    <td colspan="2"><label>
+                        <textarea style="width:458px;" rows="6" id="intro" maxlength="2000" onkeyup="num();"></textarea>
+                        <span style="color: #FF0000;">剩余字数：<span id="msg">2000</span> 字</span>
+                    </label></td>
+                </tr>
+                <tr>
+                    <td><label>上传文件：</label></td>
+                    <td colspan="2">
+                        <input id="file_upload" name="photo" type="file"/>
+
+                        <div id="fileQueue" style="width: 400px;"></div>
+                        <div id="tip" style="color: #FF0000;"></div>
+                    </td>
+                </tr>
+                <input type="hidden" id="packageUrl"/>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="btn-box">
+    <input class="btn" type="button" value="保 存" onclick="doAddClientVersion();">
+    <input id="close" class="close" type="button" value="取 消">
+</div>

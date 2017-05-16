@@ -1,0 +1,78 @@
+#set($layout="content.vm")
+<script language="javascript">
+    function macroAjaxSubmit(url) {
+    jQuery.ajax({
+                type:'post',
+                url:url,
+                success:function(data) {
+                    jQuery('#cpTable').html(data);
+                }
+            });
+    };
+
+    $(document).ready(function(){
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+        var b = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "to-del", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+</script>
+      <div class="right-box rounded">
+           <div class="form-row" align="right">
+               <input id="enabled" class="to-del" type="button" value="增加平台" onclick="addOsButton()">
+      </div>
+      <div class="form-row" align="right">
+           <div class="paging fr">
+                <div class="paging-box_2">
+                #set($pageModule = $domain.getTarget("/os/findOsPage.action").addQueryData("pageSize",$!pageSize))
+                #showPage($pageModule $TerminalpageOutputs)
+                </div>
+           </div>
+      </div>
+           <div class="tb-box">
+               <table class="tb" cellspacing="0" cellpadding="0">
+                   <tr class="tit-bg">
+                       <td width="250">平台名称</td>
+                       <td width="180">版本码</td>
+                       <td width="180">状态</td>
+                       <td width="180">操作</td>
+                   </tr>
+                   #foreach($TerminalpageOutput in $TerminalpageOutputs)
+                   <tr>
+                       <td>$!stringEscapeUtils.escapeHtml($!TerminalpageOutput.osVersionName)</td>
+                       <td>$!TerminalpageOutput.osVersionCode</td>
+                       <td>
+                           <a href="javascript:void(0);" onclick="upOsOnline($!TerminalpageOutput.osVersionId,$!TerminalpageOutput.online)">
+                           #if($!TerminalpageOutput.online == 1)
+                                上线
+                           #elseif($!TerminalpageOutput.online == 2)
+                                下线
+                           #end
+                           </a>
+                       </td>
+                       <td>
+                           <a href="javascript:void(0);" onclick="upOsOnline($!TerminalpageOutput.osVersionId,$!TerminalpageOutput.online)">
+                               #if($!TerminalpageOutput.online == 2)
+                                上线
+                               #elseif($!TerminalpageOutput.online == 1)
+                                下线
+                               #end
+                           </a>|
+                           <a href="javascript:void(0);" onclick="upSelOsByid($!TerminalpageOutput.osVersionId)"  class="open">
+                                修改
+                           </a>|
+                           <a href="javascript:void(0);" onclick="delOs($!TerminalpageOutput.osVersionId)">
+                                删除
+                           </a>
+                       </td>
+                   </tr>
+                   #end
+               </table>
+           </div>
+      </div>
+<!--paging_start-->
+      <div class="paging fr">
+            <div class="paging-box_2">
+                #set($pageModule = $domain.getTarget("/os/findOsPage.action").addQueryData("pageSize",$!pageSize))
+                #showPage($pageModule $TerminalpageOutputs)
+            </div>
+      <div>
+<!--paging_end-->

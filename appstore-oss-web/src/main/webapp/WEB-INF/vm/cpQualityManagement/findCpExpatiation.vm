@@ -1,0 +1,205 @@
+#set($layout="content.vm")
+<script language="javascript">
+    $(document).ready(function(){
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+</script>
+<div class="pop-top">
+    <div class="ac">
+      <h2>CP详情</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+      <div class="con">
+        <table class="tb" cellspacing="0" cellpadding="0">
+          <tr>
+            <td width="105"><label>CP账号：</label></td>
+            <td width="255"><label>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.account)</label></td>
+          </tr>
+          <tr>
+            <td><label>CP用户名：</label></td>
+            <td><label>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.cpName)</label></td>
+          </tr>
+          <tr>
+            <td><label>CP英文名：</label></td>
+            <td><label>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.ename)</label></td>
+          </tr>
+          <tr>
+            <td><label>注册时间：</label></td>
+            <td><label>$!dateFormatUtils.format($!SelCpPageOutPut.created,"yyyy-MM-dd HH:mm")</label></td>
+          </tr>
+          <tr>
+            <td><label>CP性质：</label></td>
+            <td>
+                <label>
+                  #if($!SelCpPageOutPut.cpProperty == 1)
+                        个人
+                  #elseif($!SelCpPageOutPut.cpProperty == 2)
+                        公司
+                  #end
+                </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>证件类型：</label></td>
+            <td>
+                <label>
+                  #if($!SelCpPageOutPut.certificateType == 0)
+                        身份证
+                  #elseif($!SelCpPageOutPut.certificateType == 1)
+                        护照
+                  #elseif($!SelCpPageOutPut.certificateType == 2)
+                        营业执照
+                  #end
+                </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>证件号码：</label></td>
+            <td><label>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.certificateNo)</label></td>
+          </tr>
+          <tr>
+            <td><label>网址：</label></td>
+            <td><label>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.webadd)</label></td>
+          </tr>
+          <tr>
+            <td><label>通讯地址：</label></td>
+            <td><label>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.address)</label></td>
+          </tr>
+          <tr>
+            <td><label>联系人：</label></td>
+            <td><label>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.contacter)</label></td>
+          </tr>
+          <tr>
+            <td><label>固定电话：</label></td>
+            <td><label>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.phone)</label></td>
+          </tr>
+          <tr>
+            <td><label>手机：</label></td>
+            <td>
+              <label>
+                  $!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.mobile)
+              </label>
+              <label>
+                  #if($!SelCpPageOutPut.mobileBinded == 0)
+                        <span class="red">未绑定</span>
+                  #elseif($!SelCpPageOutPut.mobileBinded == 1)
+                        <span class="green">以绑定</span>
+                  #end
+              </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>传真：</label></td>
+            <td><label>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.fax)</label></td>
+          </tr>
+          <tr>
+            <td><label>EMAIL：</label></td>
+            <td>
+              <label>
+                $!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.email)
+              </label>
+              <label>
+                  #if($!SelCpPageOutPut.emailChecked == 0)
+                        <span class="red">未验证</span>
+                  #elseif($!SelCpPageOutPut.emailChecked == 1)
+                        <span class="green">以验证</span>
+                  #end
+              </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>其他联系方式：</label></td>
+            <td><label>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.otherContact)</label></td>
+          </tr>
+          <tr>
+            <td><label>CP简介：</label></td>
+            <td><label><p>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.intro)</p></label></td>
+          </tr>
+        </table>
+       #* <div class="ac">
+          <p><h2>收费资质信息</h2></p>
+        </div>
+        <table class="tb" cellspacing="0" cellpadding="0">
+          <tr>
+            <td width="105"><label> 开通状态：</label></td>
+            <td width="255">
+                <label>
+                  #if($!SelCpPageOutPut.feeStatus == 1)
+                        <span class="green">未申请</span>
+                  #elseif($!SelCpPageOutPut.feeStatus == 2)
+                        <span class="green">审核中</span>
+                  #elseif($!SelCpPageOutPut.feeStatus == 3)
+                        <span class="green">审核通过</span>
+                  #elseif($!SelCpPageOutPut.feeStatus == 4)
+                        <span class="red">审核不通过</span>
+                  #end
+                </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>供应商简码：</label></td>
+            <td><label>
+                #if($!SelCpPageOutPut.feeStatus == 3)
+                    $!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.supplierNo)
+                #end
+            </label></td>
+          </tr>
+          <tr>
+            <td><label> 合同号：</label></td>
+            <td><label>
+                #if($!SelCpPageOutPut.feeStatus == 3)
+                    $!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.contractNumber)
+                #end
+            </label></td>
+          </tr>
+          <tr>
+            <td><label> 合同生效日期：</label></td>
+            <td><label>
+                #if($!SelCpPageOutPut.feeStatus == 3)
+                    $!dateFormatUtils.format($!SelCpPageOutPut.validPeriodBegin,"yyyy-MM-dd HH:mm")
+                #end
+            </label></td>
+          </tr>
+          <tr>
+            <td><label> 合同截止日期：</label></td>
+            <td><label>
+                #if($!SelCpPageOutPut.feeStatus == 3)
+                    $!dateFormatUtils.format($!SelCpPageOutPut.validPeriodEnd,"yyyy-MM-dd HH:mm")
+                #end
+                </label></td>
+          </tr>
+          <tr>
+            <td><label> 默认计费模式：</label></td>
+            <td>
+                <label>
+                #if($!SelCpPageOutPut.feeStatus == 3)
+                  #if($!SelCpPageOutPut.defaultFeeMode == 0)
+                        免费
+                  #elseif($!SelCpPageOutPut.defaultFeeMode == 1)
+                        分成,无预付模式
+                  #elseif($!SelCpPageOutPut.defaultFeeMode == 2)
+                        分成,有预付款模式
+                  #elseif($!SelCpPageOutPut.defaultFeeMode == 3)
+                        买断模式
+                  #end
+                #end
+                </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>默认分成比例：</label></td>
+            <td><label>
+                #if($!SelCpPageOutPut.feeStatus == 3)
+                    $!SelCpPageOutPut.defaultPercent%
+                #end
+                </label></td>
+          </tr>
+        </table>*#
+      </div>
+    </div>
+  </div>
+  <div class="btn-box">
+    <input id="closeDiv" class="close" type="button" value="关 闭">
+  </div>

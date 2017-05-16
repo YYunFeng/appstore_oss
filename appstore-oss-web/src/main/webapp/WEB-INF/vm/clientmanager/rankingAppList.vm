@@ -1,0 +1,91 @@
+#set($layout="content.vm")
+
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/clientmanager/util.js")"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var b = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "add", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+    /*分页*/
+    function macroAjaxSubmit(url) {
+        var ranking_style = document.getElementById('rankingStyle').value;
+        var ranking_type = document.getElementById('rankingType').value;
+        jQuery.ajax({
+            type: 'POST',
+            url: url,
+            data: 'rankingStyle=' + ranking_style + '&rankingType=' + ranking_type,
+            success: function (data) {
+                jQuery('#right_start').html(data);
+            }
+        });
+    }
+</script>
+<div class="right-box rounded">
+    <div class="form-row">
+    </div>
+    <div class="tb-box">
+        <div class="hide"><input id="rankingStyle" type="text" value="$rankingStyle"><input id="rankingType" type="text"
+                                                                                            value="$rankingType"/></div>
+        <div class="hide"><input type="text" id="rankingId"/></div>
+        <table class="tb" cellspacing="0" cellpadding="0">
+            <tr class="tit-bg">
+                <td width="50">序号</td>
+                <td width="400">应用名称</td>
+                <td width="80">应用图标</td>
+                <td width="80">锁定排名</td>
+                <td width="100">排序</td>
+                <td width="80">操作</td>
+            </tr>
+            #set($i=1)
+            #foreach($rankingApp in $rankingApps)
+                <tr>
+                    <td>
+                        <div><label>$i</label></div>
+                    </td>
+                    #set($i=$i+1)
+                    <td>
+                        <div><label>$!stringEscapeUtils.escapeHtml($!rankingApp.appName)</label></div>
+                    </td>
+                    #if($!rankingApp.appUrl)
+                        <td>
+                            <img style="width: 64px;height: 64px;"
+                                 src="$imgserver.getTarget('')cover/$!rankingApp.appUrl"/>
+                        </td>
+                    #else
+                        <td><img style="width: 64px;height: 64px;" src="/appstore-man/images/appimg.png"/></td>
+                    #end
+
+                    #if($!rankingApp.locked==0)
+                        <td><a href="javascript:void(0)"
+                               onclick="updateRankingLocked(1,$!rankingApp.id,$!rankingApp.rankingStyle,$!rankingApp.rankingType);">锁定</a>
+                        </td>
+                    #else
+                        <td><a href="javascript:void(0)"
+                               onclick="updateRankingLocked(0,$!rankingApp.id,$!rankingApp.rankingStyle,$!rankingApp.rankingType);">解锁</a>
+                        </td>
+                    #end
+                    #if($rankingApp.locked==0)
+                        <td><input style="width: 50px;" type="text" value="$rankingApp.orderSeq"
+                                   onblur="updateRankingSeq($rankingApp.rankingStyle,$rankingApp.rankingType,$rankingApp.id,$rankingApp.orderSeq,this.value);"/>
+                        </td>
+                    #else
+                        <td>
+                            <div><label>$rankingApp.orderSeq</label></div>
+                        </td>
+                    #end
+                    <td>
+                        <a href="javascript:void(0);" class="add" onclick="editRanking($rankingApp.id);">编辑</a>
+                    </td>
+                </tr>
+            #end
+        </table>
+    </div>
+</div>
+<div class="paging fr">
+    <div class="paging-box_2">#set($pageModule=$domain.getTarget("/rankingManager/getRankingList.action").addQueryData("pageSize",$!pageSize))
+        #showPage($pageModule $rankingApps) </div>
+</div>
+<div class="classPop" style="width:800px;height:500px;" id="confirmPop">
+
+</div>

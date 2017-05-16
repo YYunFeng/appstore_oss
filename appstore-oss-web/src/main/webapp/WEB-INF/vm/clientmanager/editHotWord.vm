@@ -1,0 +1,66 @@
+#set($layout="content.vm")
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+    function updateHotWord(id){
+        var word = document.getElementById('word').value;
+        var published = document.getElementById('publishedStatus').value;
+        var orderSeq = document.getElementById('orderSeq').value;
+        if(word!=''){
+            jQuery.ajax({
+                        type:'POST',
+                        url:'/hotWordManager/updateHotWord.action',
+                        data:'hotWord.id='+id+'&hotWord.word='+word+'&hotWord.published='+published+'&hotWord.orderSeq='+orderSeq,
+                        dataType:'html',
+                        success:function(data){
+                            getHotWordsByPub();
+                            $('#close').click();
+                        }
+                    });
+        }else{
+            alert('请输入搜索词');
+        }
+    };
+
+</script>
+
+<div class="pop-top">
+    <div class="ac">
+        <h2>编辑搜索词</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+        <div class="con">
+            <table class="tb" cellspacing="0" cellpadding="0">
+
+                <tr>
+                    <td width="90"><label>搜索词：</label></td>
+                    <td width="585" colspan="2"><p>
+                        <input id="word" class="input" style="width:300px;" type="text" value="$hotWordResult.word"/>
+                    </p></td>
+                </tr>
+                <tr>
+                    <td><label>在线状态：</label></td>
+                    <td><p>
+                         #if($hotWordResult.pubedStatus==0){
+                          下线<input type='hidden' id="publishedStatus" value="0"/>
+                        #else
+                          上线<input type='hidden' id="publishedStatus" value="1"/>
+                        #end
+                        </p></td>
+                </tr>
+                <tr>
+                    <td><label>排序：</label></td><td><p><input type="text" id="orderSeq" value="$hotWordResult.orderSeq"/></p></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="btn-box">
+    <input class="btn" type="button" value=" 确 认 完 成 " onclick="updateHotWord($hotWordResult.id);">
+    <input id="close" class="close" type="button" value="取 消">
+</div>

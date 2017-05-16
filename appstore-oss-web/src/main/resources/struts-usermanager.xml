@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+    <package name="accountManager" namespace="/accountManager" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.usermanager.AccountAction">
+            <result>/WEB-INF/vm/usermanager/{1}.vm</result>
+            <result name="init">/WEB-INF/vm/usermanager/userManagerLeft.vm</result>
+            <result name="list">/WEB-INF/vm/usermanager/accountManagerList.vm</result>
+            <result name="add">/WEB-INF/vm/usermanager/accountAdd.vm</result>
+            <result name="password">/WEB-INF/vm/usermanager/accountModifiedPwd.vm</result>
+            <result name="role">/WEB-INF/vm/usermanager/accountModifiedRole.vm</result>
+        </action>
+    </package>
+    <package name="roleManager" namespace="/roleManager" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.usermanager.RoleAction">
+            <result name="list">/WEB-INF/vm/usermanager/roleManagerList.vm</result>
+            <result name="add">/WEB-INF/vm/usermanager/roleAdd.vm</result>
+            <result name="modified">/WEB-INF/vm/usermanager/roleModified.vm</result>
+        </action>
+    </package>
+
+    <package name="salerDetailsManager" namespace="/salerDetailsManager" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.usermanager.SalerDetailsAction">
+            <result>/WEB-INF/vm/usermanager/{1}.vm</result>
+        </action>
+    </package>
+</struts>

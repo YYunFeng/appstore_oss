@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       default-autowire="byName">
+
+    <!--LiangYu begin-->
+    <bean id="loginService" class="com.jd.cms.service.login.impl.LoginServiceImpl">
+        <property name="userName" value="${appstore.oss.cookie.name}"></property>
+        <property name="userId" value="${appstore.oss.cookie.id}"></property>
+        <property name="rememberName" value="${appstore.oss.cookie.remembername}"></property>
+        <property name="rememberPwd" value="${appstore.oss.cookie.rememberpwd}"></property>
+    </bean>
+    <bean id="accountService" class="com.jd.cms.service.usermanager.impl.AccountServiceImpl"/>
+    <bean id="roleService" class="com.jd.cms.service.usermanager.impl.RoleServiceImpl"/>
+    <bean id="categoryMaintenanceService"
+          class="com.jd.cms.service.systemmaintenance.impl.CategoryMaintenanceServiceImpl">
+        <property name="mobileSoftId" value="${appstore.oss.category.mobileSoftId}"></property>
+        <property name="mobileGameId" value="${appstore.oss.category.mobileGameId}"></property>
+        <property name="webAppId" value="${appstore.oss.category.webAppId}"></property>
+        <property name="imgserver" value="${appstore.oss.imgserver.domain.name}"></property>
+        <property name="uploadImagePath" value="${appstore.oss.upload.categoryImage}"></property>
+    </bean>
+    <bean id="taskService" class="com.jd.cms.service.systemmaintenance.impl.TaskServiceImpl">
+        <property name="mobileSoftId" value="${appstore.oss.category.mobileSoftId}"></property>
+        <property name="mobileGameId" value="${appstore.oss.category.mobileGameId}"></property>
+        <property name="webAppId" value="${appstore.oss.category.webAppId}"></property>
+        <property name="imgserver" value="${appstore.oss.imgserver.domain.name}"></property>
+    </bean>
+    <!--quartz-->
+    <bean id="syncScheduleService" class="com.jd.cms.service.schedule.impl.SyncScheduleServiceImpl"/>
+    <bean id="erpScheduleService" class="com.jd.cms.service.schedule.impl.ErpScheduleServiceImpl">
+        <property name="imageserver" value="${appstore.oss.imgserver.domain.name}"></property>
+    </bean>
+    <!--adminlog-->
+    <bean id="adminLogService" class="com.jd.cms.service.adminlog.impl.AdminLogServiceImpl"/>
+    <!--LiangYu end-->
+    <!--zhounan-begin-->
+    <bean id="cpQualityManagementService"
+          class="com.jd.cms.service.cpQualityManagement.impl.CpQualityManagementServiceImpl"/>
+    <bean id="cpChargeQualificationService"
+          class="com.jd.cms.service.cpQualityManagement.impl.CpChargeQualificationServiceImpl"/>
+    <bean id="appManagementService" class="com.jd.cms.service.appManagement.impl.AppManagementServiceImpl">
+        <property name="mobileSoftId" value="${appstore.oss.category.mobileSoftId}"></property>
+        <property name="mobileGameId" value="${appstore.oss.category.mobileGameId}"></property>
+        <property name="webAppId" value="${appstore.oss.category.webAppId}"></property>
+    </bean>
+    <bean id="appBrowseService" class="com.jd.cms.service.appManagement.impl.AppBrowseServiceImpl">
+        <property name="mobileSoftId" value="${appstore.oss.category.mobileSoftId}"></property>
+        <property name="mobileGameId" value="${appstore.oss.category.mobileGameId}"></property>
+        <property name="webAppId" value="${appstore.oss.category.webAppId}"></property>
+    </bean>
+    <bean id="osService" class="com.jd.cms.service.terminalManagement.impl.OsServiceImpl"/>
+    <bean id="screenService" class="com.jd.cms.service.terminalManagement.impl.ScreenServiceImpl"/>
+    <bean id="feedBackService" class="com.jd.cms.service.systemmaintenance.impl.FeedBackServiceImpl"/>
+    <!--zhounan-end-->
+    <!--hqj_start-->
+    <bean id="recommendService" class="com.jd.cms.service.clientmanager.impl.RecommendServiceImpl">
+        <property name="reMobileSoftId" value="${appstore.oss.category.mobileSoftId}"></property>
+        <property name="reMobileGameId" value="${appstore.oss.category.mobileGameId}"></property>
+        <property name="reWebAppId" value="${appstore.oss.category.webAppId}"></property>
+    </bean>
+    <bean id="appService" class="com.jd.cms.service.clientmanager.impl.AppServiceImpl">
+        <property name="mobileSoftId" value="${appstore.oss.category.mobileSoftId}"></property>
+        <property name="mobileGameId" value="${appstore.oss.category.mobileGameId}"></property>
+        <property name="webAppId" value="${appstore.oss.category.webAppId}"></property>
+    </bean>
+    <bean id="topicService" class="com.jd.cms.service.clientmanager.impl.TopicServiceImpl"/>
+    <bean id="categoryService" class="com.jd.cms.service.clientmanager.impl.CategoryServiceImpl"/>
+    <bean id="rankingAppService" class="com.jd.cms.service.clientmanager.impl.RankingAppServiceImpl"/>
+    <bean id="noticeService" class="com.jd.cms.service.clientmanager.impl.NoticeServiceImpl"/>
+    <bean id="hotWordService" class="com.jd.cms.service.clientmanager.impl.HotWordServiceImpl"/>
+    <bean id="activityService" class="com.jd.cms.service.clientmanager.impl.ActivityServiceImpl"/>
+    <!--hqj_end-->
+
+
+    <bean id="bulkUploadService" class="com.jd.cms.service.systemmaintenance.impl.BulkUploadServiceImpl">
+        <property name="uploadExcelPath" value="${appstore.oss.filepath.upload.excel}"></property>
+        <property name="uploadReAPKPath" value="${appstore.oss.filepath.android.apk}"></property>
+        <property name="uploadCoverPicPath" value="${appstore.oss.filepath.cover.pic}"></property>
+        <property name="uploadImgPicPath" value="${appstore.oss.filepath.img.pic}"></property>
+    </bean>
+    <bean id="bulkImportService" class="com.jd.cms.service.systemmaintenance.impl.BulkImportServiceImpl">
+        <property name="blMobileSoftId" value="${appstore.oss.category.mobileSoftId}"></property>
+        <property name="blMobileGameId" value="${appstore.oss.category.mobileGameId}"></property>
+        <property name="blWebAppId" value="${appstore.oss.category.webAppId}"></property>
+    </bean>
+    <bean id="clientVersionService" class="com.jd.cms.service.systemmaintenance.impl.ClientVersionServiceImpl"/>
+    <bean id="androidDriverService" class="com.jd.cms.service.systemmaintenance.impl.AndroidDriverServiceImpl"/>
+    <bean id="softImport" class="com.jd.cms.job.SoftImport"/>
+    <bean id="createInstallLogExcel" class="com.jd.cms.util.CreateInstallLogExcel">
+        <property name="downloadPath" value="${appstore.oss.filepath.picPath}"></property>
+    </bean>
+    <bean id="zhuoWangFullAppJob" class="com.jd.cms.job.ZhuoWangFullAppJob"/>
+    <bean id="uploadService" class="com.jd.cms.service.clientmanager.impl.UploadServiceImpl">
+        <property name="uploadReImagePath" value="${appstore.oss.upload.recImage}"></property>
+        <property name="uploadTopicImagePath" value="${appstore.oss.upload.topicImage}"></property>
+        <property name="uploadReAPKPath" value="${appstore.oss.filepath.android.apk}"></property>
+        <property name="androidDriverPath" value="${appstore.oss.upload.androidDriver}"></property>
+        <property name="androidCilentPath" value="${appstore.oss.upload.androidCilent}"></property>
+        <property name="uploadActivityPath" value="${appstore.oss.upload.activityImage}"></property>
+        <property name="suningPackAge" value="${appstore.oss.upload.suningPackAge}"></property>
+        <property name="cpDateFile" value="${appstore.oss.upload.cpDateFile}"></property>
+    </bean>
+
+    <!--统计-->
+    <bean id="statisticsService" class="com.jd.cms.service.statistics.impl.StatisticsServiceImpl"/>
+
+    <bean id="padImeiNumberService" class="com.jd.cms.service.systemmaintenance.impl.PadImeiNumberServiceImpl"/>
+
+
+    <!--卓望数据导入-->
+    <bean id="zhuoWangInfoImportService" class="com.jd.cms.service.schedule.impl.ZhuoWangInfoImportServiceImpl"/>
+
+    <bean id="marketStatisticsService" class="com.jd.cms.service.appManagement.impl.MarketStatisticsServiceImpl"/>
+    <bean id="salerActiveService" class="com.jd.cms.service.appManagement.impl.SalerActiveServiceImpl"/>
+
+    <bean id="salerDetailsService" class="com.jd.cms.service.usermanager.impl.SalerDetailsServiceImpl"/>
+    <bean id="salesStatisticsService" class="com.jd.cms.service.appManagement.impl.SalesStatisticsServiceImpl"/>
+    <bean id="compulsoryService" class="com.jd.cms.service.clientmanager.impl.CompulsoryServiceImpl"/>
+    <bean id="suningService" class="com.jd.cms.service.clientmanager.impl.SuningServiceImpl"/>
+    <bean id="cpDateImportService" class="com.jd.cms.service.clientmanager.impl.CpDateImportServiceImpl"/>
+    <bean id="appCountsService" class="com.jd.cms.service.appManagement.impl.AppCountsServiceImpl">
+        <property name="appCountPath" value="${appstore.oss.companyIncomeExcel.excel.path}"></property>
+        <property name="downloadPath" value="${appstore.oss.filepath.picPath}"></property>
+    </bean>
+
+    <bean id="statisticsExcel" class="com.jd.cms.util.StatisticsExcel">
+        <property name="downloadPath" value="${appstore.oss.filepath.picPath}"></property>
+    </bean>
+    <bean id="validMachineStatisticsService"
+          class="com.jd.cms.service.appManagement.impl.ValidMachineStatisticsServiceImpl">
+        <property name="validMachinePath" value="${appstore.oss.companyIncomeExcel.excel.path}"></property>
+        <property name="downloadPath" value="${appstore.oss.filepath.picPath}"></property>
+    </bean>
+    <bean id="dailyReportService" class="com.jd.cms.service.schedule.impl.DailyReportServiceImpl">
+        <property name="dayReportPath" value="${appstore.oss.installlog.dayreport.path}"></property>
+    </bean>
+    <bean id="appPriceService" class="com.jd.cms.service.systemmaintenance.impl.AppPriceServiceImpl"/>
+    <bean id="exceptionLogService" class="com.jd.cms.service.systemmaintenance.impl.ExceptionLogServiceImpl"/>
+    <bean id="importCpDate" class="com.jd.cms.job.ImportCpDate">
+        <property name="filePath" value="${appstore.oss.upload.cpDateFile}"></property>
+    </bean>
+    <bean id="aliyunService" class="com.jd.cms.aliyun.impl.AliyunServiceImpl">
+        <property name="bucketName" value="${appstore-oss.aliyun.bucketName}"/>
+        <property name="accessKeyId" value="${appstore-oss.aliyun.accessKeyId}"/>
+        <property name="accessKeySecret" value="${appstore-oss.aliyun.accessKeySecret}"/>
+        <property name="tempBucketName" value="${appstore-oss.aliyun.tempbucketName}"/>
+        <property name="endpoint" value="${appstore-oss.aliyun.endpoint}"/>
+    </bean>
+
+
+    <bean id="provinceArrStatisService" class="com.jd.cms.service.appManagement.impl.ProvinceArrStatisServiceImpl">
+        <property name="appCountPath" value="${appstore.oss.companyIncomeExcel.excel.path}"></property>
+        <property name="downloadPath" value="${appstore.oss.filepath.picPath}"></property>
+    </bean>
+    <bean id="newStatisticService" class="com.jd.cms.service.appManagement.impl.NewStatisticServiceImpl"/>
+    <bean id="incomeStatisticService" class="com.jd.cms.service.appManagement.impl.IncomeStatisticServiceImpl">
+        <property name="validMachinePath" value="${appstore.oss.companyIncomeExcel.excel.path}"></property>
+        <property name="downloadPath" value="${appstore.oss.filepath.picPath}"></property>
+    </bean>
+
+</beans>

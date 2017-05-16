@@ -1,0 +1,196 @@
+#set($layout="content.vm")
+<link rel="stylesheet" href="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/uploadify.css")" type="text/css"
+      media="screen"/>
+<script type="text/javascript" src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/swfobject.js")"></script>
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/jquery.uploadify.v2.1.4.min.js")"></script>
+<script type="text/javascript">
+
+    $(document).ready(function() {
+
+        $("#file_upload").uploadify({
+                    'uploader':'/appstore-man/js/uploadify-v2.1.4/uploadify.swf',    //组件自带的flash，路径根据情况自行调整
+                    'script':'$assetModule.getTarget("/upload/uploadImg.action")',
+                    'cancelImg':'/appstore-man/js/uploadify-v2.1.4/cancel.png',
+                    'fileDataName':'uploadFile',
+                    'queueID':'fileQueue',     //放置上传文件及上传进度的Html元素Id
+                    'queueSizeLimit':1,        //-次最多选择多少个文件上传，这里限定为一个
+                    'fileDesc':'*.jpg;*.jpeg;*.png',
+                    'fileExt':'*.jpg;*.jpeg;*.png',
+                    'buttonImg' : '/appstore-man/images/vot/upload.png',
+                    'auto':true,            //是否选取文件后自动上传
+                    'multi':false,           //多文件上传时必须打开
+                    'onError':function(event, queueID, fileObj, errorObj) {
+                        alert(" 上传失败" + errorObj.info + " 错误类型" + errorObj.type);
+                    },
+                    'onComplete':function(event, queueID, fileObj, response, data) {
+                        $('#logoUrl').val(response);
+                        document.getElementById('tempImg').src = "/uploads/"+response;
+                    }
+                });
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+
+     //   loadLinkType();
+    });
+
+    function uploadFile() {
+        jQuery('#file_upload').uploadifyupload();
+    }
+
+    function doAddWebRecommend() {
+        var photoType = document.getElementsByName('photoType');
+        var selectPhotoType;
+        for (var i = 0; i < photoType.length; i++) {
+            if (photoType[i].checked) {
+                selectPhotoType = photoType[i].value.toString();
+                break;
+            }
+        }
+        var url = '';
+        var logoUrl = document.getElementById("logoUrl").value;
+        var clientType = 3;
+        var moduleId = document.getElementById('moduleId').value;
+        var areaId = document.getElementById('areaId').value;
+        var seq = document.getElementById('orderSeq').value;
+        var linkType = document.getElementById('linkType').value;
+        var result = '';
+        var linkedAppid = '';
+        var linkedUrl = '';
+        var resultUrl = '';
+        if (linkType == 0) {
+            var appLink = document.getElementsByName('appResult');
+            for (var i = 0; i < appLink.length; i++) {
+                if (appLink[i].checked) {
+                    result = appLink[i].value.toString();
+                    break;
+                }
+            }
+            if (result != '') {
+                linkedAppid = result.split(',')[1];
+                resultUrl = result.split(',')[2];
+            }
+        } else if (linkType == 1) {
+            var topicLink = document.getElementsByName('topicResult');
+            for (var i = 0; i < topicLink.length; i++) {
+                if (topicLink[i].checked) {
+                    result = topicLink[i].value.toString();
+                    break;
+                }
+            }
+            if (result != '') {
+                linkedAppid = result.split(',')[1];
+                resultUrl = result.split(',')[2];
+            }
+        } else if (linkType == 2) {
+            //linkedAppid = document.getElementById('childId').value;
+            var linkedCate = document.getElementById('childId').value;
+            linkedAppid = linkedCate.split(",")[0];
+            resultUrl = linkedCate.split(",")[1];
+        } else if (linkType == 3) {
+            linkedUrl = document.getElementById('linkedUrl').value;
+        }
+        var intro = document.getElementById('intro').value;
+        var pubedStatus = document.getElementById('pubedStatus').value;
+
+        if (selectPhotoType == 1) {
+            if (logoUrl == '') {
+                alert("请选择图片");
+            } else {
+                url = logoUrl;
+            }
+        } else {
+            url = resultUrl
+        }
+        if (url != '') {
+            //alert("clientType=" + clientType + " moduleId=" + moduleId + " areaId=" + areaId + " seq=" + seq + " url=" + url + " linkType=" + linkType + " linkedAppId=" + linkedAppid + " linkedUrl=" + linkedUrl + " pubedStatus=" + pubedStatus);
+            jQuery.ajax({
+                        type:'POST',
+                        url:'/recommendManager/doAddRecommend.action',
+                        data:'recommendManagerResult.clientType=' + clientType + '&recommendManagerResult.moduleId=' + moduleId + '&recommendManagerResult.areaId=' + areaId + '&recommendManagerResult.seq=' + seq + '&recommendManagerResult.url=' + url + '&recommendManagerResult.linkType=' + linkType
+                                + '&recommendManagerResult.linkedAppId=' + linkedAppid + '&recommendManagerResult.linkedUrl=' + linkedUrl + '&recommendManagerResult.intro=' + intro + '&recommendManagerResult.pubedStatus=' + pubedStatus,
+                        dataType:'html',
+                        success:function(data) {
+                            WebRecommendSearch();
+                            $('#close').click();
+                        }
+                    });
+        } else {
+            alert('请上传图片');
+        }
+
+    }
+    ;
+
+</script>
+<div class="pop-top">
+    <div class="ac">
+        <h2>增加推荐内容</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+        <div class="con">
+            <table class="tb" cellpadding="0" cellspacing="0">
+                <tr>
+                    <td colspan="2"><label>
+                        <div class="ac" style=" width: 200px;"> 排序：<input type="text" id="orderSeq" value="1"/></div>
+                    </label><label>
+                        <div class="ac" style="width: 150px;">发布状态：<select id="pubedStatus">
+                            <option value="0">下线</option>
+                            <option value="1">上线</option>
+                        </select></div>
+                    </label></td>
+                </tr>
+                <tr>
+                    <td><label>链接类型：</label></td>
+                    <td>
+                        <p>
+                            <select id="linkType" onchange="selectLinkType();">
+
+                            </select>
+                        </p>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top"><label>图&#12288;&#12288;片：</label></td>
+                    <td>
+                        <label><input type="radio" name="photoType" checked="true" value="0"
+                                      onclick="selectLogoStyle(this);"/>使用默认主图</label>
+                        <label><input type="radio" name="photoType" value="1"
+                                      onclick="selectLogoStyle(this);"/>上传图片</label>
+
+                        <div style=" width:360px;overflow: hidden;" class="hide" id="uploadLogo">
+                            <label>
+                                <input id="file_upload" name="photo" type="file"/>
+
+                                <div id="fileQueue" style="width: 300px;"></div>
+                            </label>
+                            <label style="padding: 0 5px;">建议图片尺寸：540x345像素</label>
+                                <label><img id="tempImg" style="max-width: 300px; max-height: 150px;"
+                                            src="/appstore-man/images/vot/vot_1.png"/></label>
+
+                            <div class="hide"><input id="logoUrl"/></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr id="linkTypeModel">
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div id="selectApp"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td valign="top"><label>推广文字：</label></td>
+                    <td><p><textarea id="intro" style="width: 430px"></textarea></p></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="btn-box">
+    <input class="btn" type="button" value=" 确 认 完 成 " onclick="doAddWebRecommend();">
+    <input id="close" class="close" type="button" value="取 消">
+</div>
+
+

@@ -1,0 +1,451 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+<!--统计-->
+<sqlMap namespace="SalesStatistics">
+    <typeAlias alias="salerRankingRes" type="com.jd.cms.domain.appManagement.SalerRankingRes"/>
+    <typeAlias alias="salerRankingParameter" type="com.jd.cms.domain.appManagement.SalerRankingParameter"/>
+    <typeAlias alias="phoneIntallMess" type="com.jd.cms.domain.appManagement.PhoneIntallMess"/>
+    <typeAlias alias="phoneIntallMessParameter" type="com.jd.cms.domain.appManagement.PhoneIntallMessParameter"/>
+    <typeAlias alias="dayIntallLog" type="com.jd.cms.domain.appManagement.DayIntallLog"/>
+    <typeAlias alias="statisticsParameter" type="com.jd.cms.domain.appManagement.StatisticsParameter"/>
+    <typeAlias alias="baseQuery" type="com.jd.common.util.base.BaseQuery"/>
+    <typeAlias alias="provinceStatisParameter" type="com.jd.cms.domain.appManagement.ProvinceStatisParameter"/>
+    <typeAlias alias="provinceStatisRes" type="com.jd.cms.domain.appManagement.ProvinceStatisRes"/>
+    <typeAlias alias="instaisticNorm" type="com.jd.cms.domain.appManagement.InstaisticNorm"/>
+    <typeAlias alias="padChannel" type="com.jd.cms.domain.cpQualityManagement.PadChannel"/>
+    <!--促销员排名-->
+    <select id="getSalerRanking" resultClass="SalerRankingRes" parameterClass="salerRankingParameter">
+        SELECT
+        count(DISTINCT phone_imei) as phoneTimes,
+        sum(times) as installTimes,
+        saler as saler
+        FROM
+        (SELECT
+        offlineAppSaleLog.phone_imei as phone_imei,
+        count(offlineAppSaleLog.appid) as times,
+        offlineAppSaleLog.saler_no AS saler
+        FROM
+        tb_offlineapp_sale_log AS offlineAppSaleLog
+        WHERE
+        1=1
+        <isNotEmpty prepend="and" property="startTime">
+            STR_TO_DATE(offlineAppSaleLog.install_time,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+        GROUP BY
+        saler,
+        phone_imei
+        UNION
+        SELECT
+        onlineAppSaleLog.phone_imei as phone_imei,
+        count(onlineAppSaleLog.appid) as times,
+        onlineAppSaleLog.saler_no AS saler
+        FROM
+        tb_onlineapp_sale_log AS onlineAppSaleLog
+        WHERE
+        1=1
+        <isNotEmpty prepend="and" property="startTime">
+            STR_TO_DATE(onlineAppSaleLog.install_time,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+        GROUP BY
+        saler,
+        phone_imei) as a
+        GROUP BY
+        saler
+        ORDER BY
+        phoneTimes DESC
+    </select>
+    <!--手机安装应用详细信息-->
+    <select id="getPhoneImeiInstallMess" resultClass="phoneIntallMess" parameterClass="phoneIntallMessParameter">
+        SELECT
+        saleLog.phone_imei as phoneImei,
+        saleLog.saler_name as salerName,
+        saleLog.cid as cid,
+        date_format(saleLog.install_time, '%Y-%m-%d')  as installTime,
+        saleLog.appid as appid,
+        saleLog.phone_model_name as phoneModelName
+        from
+        tb_offlineapp_sale_log as saleLog
+        WHERE
+        1=1
+        <isNotEmpty prepend="AND" property="cid">
+            saleLog.cid =#cid#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="phoneImei">
+            saleLog.phone_imei like '%$phoneImei$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="phoneModelName">
+            saleLog.phone_model_name like '%$phoneModelName$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="saleName">
+            saleLog.saler_name like  '%$saleName$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="appids">
+            saleLog.appid  in
+            <iterate open="(" close=")" conjunction="," property="appids">
+                #appids[]#
+            </iterate>
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="startTime">
+            STR_TO_DATE(saleLog.install_time,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+        <isEqual  property="flag" compareValue = "0">
+            limit
+            #endRow#
+            offset
+            #startRow#
+        </isEqual>
+    </select>
+
+    <select id="getPhoneImeiInstallMessCounts" parameterClass="phoneIntallMessParameter" resultClass="Integer">
+        select
+        count(appid)
+        from
+        tb_offlineapp_sale_log as saleLog
+        where
+        1=1
+        <isNotEmpty prepend="AND" property="cid">
+            saleLog.cid =#cid#
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="phoneImei">
+            saleLog.phone_imei like '%$phoneImei$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="phoneModelName">
+            saleLog.phone_model_name like '%$phoneModelName$%'
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="saleName">
+            saleLog.saler_name like  '%$saleName$%'
+        </isNotEmpty>
+
+        <isNotEmpty prepend="AND" property="appids">
+            saleLog.appid  in
+            <iterate open="(" close=")" conjunction="," property="appids">
+                #appids[]#
+            </iterate>
+        </isNotEmpty>
+        <isNotEmpty prepend="AND" property="startTime">
+            STR_TO_DATE(saleLog.install_time,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+    </select>
+
+
+    <select id="installMessCount" resultClass="Integer">
+        SElECT
+           count(*)
+        FROM (
+        SELECT
+        count(DISTINCT c.phoneImei) as phoneTimes,
+        count(DISTINCT c.shopName) as shopTimes,
+        sum(c.installTimes) as appsTimes,
+        date_format(c.time, '%Y-%m-%d') as dateTime
+        FROM
+        (SELECT
+        phone_imei as phoneImei,
+        shop_name as shopName,
+        count(appid) as installTimes,
+        date_format(install_time,'%Y-%m-%d') as time
+        FROM
+        tb_offlineapp_sale_log
+        GROUP BY
+        time,
+        phone_imei,
+        shop_name
+        UNION
+        SELECT
+        phone_imei as phoneImei,
+        shop_name as shopName,
+        count(appid) as installTimes,
+        date_format(install_time,'%Y-%m-%d') as time
+        FROM
+        tb_onlineapp_sale_log
+        GROUP BY
+        time,
+        phone_imei,
+        shop_name) as c
+        GROUP BY
+        dateTime
+        ORDER BY
+        dateTime DESC) as d
+    </select>
+
+    <select id="channelName" resultClass="java.util.HashMap">
+        select id as cId,cname as cname from tb_pad_channel
+    </select>
+    <select id="appName" resultClass="java.util.HashMap">
+        select app_name as appName,appid as appid from tb_apps
+    </select>
+
+    <select id="byDayCheckInstall" resultClass="dayIntallLog" parameterClass="baseQuery">
+        SELECT
+            count(DISTINCT c.phoneImei) as phoneTimes,
+            count(DISTINCT c.shopName) as shopTimes,
+            sum(c.installTimes) as appsTimes,
+            date_format(c.time, '%Y-%m-%d') as dateTime
+        FROM
+            (SELECT
+            phone_imei as phoneImei,
+            shop_name as shopName,
+            count(DISTINCT appid) as installTimes,
+            date_format(install_time,'%Y-%m-%d') as time
+            FROM
+            tb_offlineapp_sale_log
+            GROUP BY
+            time,
+            phone_imei,
+            shop_name
+            UNION
+            SELECT
+            phone_imei as phoneImei,
+            shop_name as shopName,
+            count(DISTINCT appid) as installTimes,
+            date_format(install_time,'%Y-%m-%d') as time
+            FROM
+            tb_onlineapp_sale_log
+            GROUP BY
+            time,
+            phone_imei,
+            shop_name) as c
+        GROUP BY
+        dateTime
+        ORDER BY
+        dateTime   desc
+        limit #endRow# offset #startRow#
+    </select>
+
+    <select id="byDayCheckInstallExcel" resultClass="dayIntallLog" >
+        SELECT
+        count(DISTINCT c.phoneImei) AS phoneTimes,
+        count(DISTINCT c.shopName) AS shopTimes,
+        sum(c.installTimes) AS appsTimes,
+        date_format(c.time, '%Y-%m-%d') AS dateTime
+        FROM
+        (
+        SELECT
+        phone_imei AS phoneImei,
+        shop_name AS shopName,
+        count(DISTINCT appid) AS installTimes,
+        date_format(install_time, '%Y-%c-%e') AS time
+        FROM
+        tb_offlineapp_sale_log
+        GROUP BY
+        time,
+        phone_imei,
+        shop_name
+        UNION
+        SELECT
+        phone_imei AS phoneImei,
+        shop_name AS shopName,
+        count(DISTINCT appid) AS installTimes,
+        date_format(install_time, '%Y-%m-%d') AS time
+        FROM
+        tb_onlineapp_sale_log
+        GROUP BY
+        time,
+        phone_imei,
+        shop_name
+        ) AS c
+        WHERE
+        c.time BETWEEN '2013-08-01'
+        AND date_sub(now(), INTERVAL 1 DAY)
+        GROUP BY
+        dateTime
+        ORDER BY
+        dateTime ASC
+    </select>
+
+
+    <select id="installByChannel" parameterClass="provinceStatisParameter" resultClass="provinceStatisRes">
+        SELECT
+            stats.cid as cid,
+            padChannel.cname as province,
+            count(stats.appid) AS intallTimes,
+            count(DISTINCT phone_imei) AS phoneTimes
+        FROM
+            tb_offlineapp_install_stat AS stats,
+            tb_pad_channel as padChannel
+        WHERE
+            stats.cid = padChannel.id
+        AND
+            stats.`year`=#startYear#
+        AND
+            stats.`month` BETWEEN #startMonth#
+               AND
+            #endMonth#
+        AND
+            stats.`day`  BETWEEN #startDay#
+               AND
+            #endDay#
+        AND
+
+           <![CDATA[ stats.created >= #startTime#]]>
+        AND
+           <![CDATA[ stats.created <= #endTime# ]]>
+        <!-- STR_TO_DATE(
+         CONCAT(
+         stats. YEAR,
+         '-',
+         stats. MONTH,
+         '-',
+         stats. DAY
+         ),
+         '%Y-%c-%e'
+         ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+         AND STR_TO_DATE(#endTime#, '%Y-%c-%e')-->
+        GROUP BY
+         stats.cid
+    </select>
+
+    <select id="intallSalerTime" parameterClass="provinceStatisParameter" resultClass="provinceStatisRes">
+        SELECT
+        count(c.saler) as intallSalerTimes,
+        cid as cid
+        FROM
+        (SELECT
+            cid,
+            saler,
+            STR_TO_DATE(
+            CONCAT(
+            saleLog. YEAR,
+            '-',
+            saleLog. MONTH,
+            '-',
+            saleLog. DAY
+            ),
+            '%Y-%c-%e'
+            ) AS time
+        FROM
+             tb_offlineapp_install_stat AS saleLog
+        WHERE
+               saleLog.`year`=#startYear#
+            AND
+               saleLog.`month` BETWEEN #startMonth#
+            AND
+               #endMonth#
+            AND
+                saleLog.`day`  BETWEEN #startDay#
+            AND
+              #endDay#
+        AND
+            <![CDATA[ saleLog.created >= #startTime#]]>
+            AND
+            <![CDATA[ saleLog.created <= #endTime# ]]>
+        GROUP BY
+            cid,
+            time,
+            saler) AS c
+        GROUP BY
+        c.cid
+    </select>
+
+    <select id="getIncome" parameterClass="provinceStatisParameter" resultClass="provinceStatisRes">
+        select
+          cid,
+          sum(rec_app_income_province) as recIncome,
+          sum(need_app_income_province) as  needIncome
+        FROM
+           tb_income_statistic
+        WHERE
+            STR_TO_DATE(
+              install_time,
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        GROUP BY
+          cid
+    </select>
+
+    <select id="getArrTimes" parameterClass="provinceStatisParameter" resultClass="provinceStatisRes">
+        SELECT
+            statis.cid as cid,
+            count(DISTINCT countApp.appid,countApp.phone_imei) as arrTimes
+        FROM
+            tb_count_app as countApp,
+            tb_offlineapp_install_stat as statis
+        where
+           countApp.phone_imei = statis.phone_imei
+        AND
+            STR_TO_DATE(
+            countApp.created,
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        GROUP BY
+           cid
+    </select>
+
+
+    <select id="getInstaisticNorm" resultClass="Integer" parameterClass="instaisticNorm">
+        select
+            id
+        from
+           tb_instatistic_norm
+        where
+           cid=#cid#
+         and
+            date_format(
+            created,
+            '%Y-%m'
+            )=#time#
+    </select>
+
+    <select id="getInstaisticNormList" resultClass="instaisticNorm" parameterClass="String">
+         select
+             cid as cid,
+             income_target as incomeTarget,
+             deploy_people as deployPeople,
+             every_perphones_target  as everyPerPhonesTarget
+         from
+              tb_instatistic_norm
+          where
+            date_format(
+               created,
+              '%Y-%m'
+             )=#time#
+    </select>
+
+    <insert id="createInstaisticNorm" parameterClass="instaisticNorm">
+         insert into tb_instatistic_norm
+            (cid,income_target,deploy_people,every_perphones_target,created)
+         values
+            (#cid#,#incomeTarget#,#deployPeople#,#everyPerphonesTarget#,now())
+    </insert>
+
+    <update id="updateInstaisticNorm" parameterClass="instaisticNorm">
+          update tb_instatistic_norm
+            set
+            <isNotNull prepend="" property="incomeTarget">
+               income_target=#incomeTarget#,
+            </isNotNull>
+            <isNotNull prepend="" property="deployPeople">
+                deploy_people=#deployPeople#,
+            </isNotNull>
+            <isNotNull prepend="" property="incomeTarget">
+                every_perphones_target=#everyPerphonesTarget#,
+            </isNotNull>
+              cid=#cid#
+          where
+              cid=#cid#
+            and
+               id = #id#
+    </update>
+
+
+    <select id="getPadName" resultClass="instaisticNorm">
+        select
+            norm.deploy_people as deployPeople,
+            norm.income_target as incomeTarget,
+            norm.every_perphones_target as everyPerphonesTarget,
+            padChannel.cname as cname,
+            cid as cid
+        from
+            tb_pad_channel as padChannel,
+            tb_instatistic_norm  as norm
+        WHERE
+            norm.cid=padChannel.id
+    </select>
+
+</sqlMap>

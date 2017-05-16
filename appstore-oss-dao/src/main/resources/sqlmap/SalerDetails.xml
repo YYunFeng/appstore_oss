@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="SalerDetails">
+    <typeAlias alias="saler" type="com.jd.appstore.domain.Saler"/>
+    <typeAlias alias="SalerDetailsParameter" type="com.jd.cms.domain.usermanager.SalerDetailsParameter"/>
+    <typeAlias alias="padChannel" type="com.jd.cms.domain.cpQualityManagement.PadChannel"/>
+
+    <select id="getSalerDetails" resultClass="saler" parameterClass="SalerDetailsParameter">
+        select
+            saler_no as salerNo,
+            saler_name as salerName,
+            padChannel.cname as cname,
+            channel_type as channelType,
+            saler_type as salerType,
+            shop_name as shopName,
+            parent_id as parentId
+        from
+           tb_saler as saler,
+           tb_pad_channel as padChannel
+        where
+            saler.cid=padChannel.id
+        <isNotEmpty property="cid" prepend="and">
+            saler.cid=#cid#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="salerType">
+            saler.saler_type=#salerType#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="channelType">
+            saler.channel_type=#channelType#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="salerNo">
+            saler.saler_no=#salerNo#
+        </isNotEmpty>
+        limit
+            #endRow#
+            offset
+            #startRow#
+    </select>
+
+    <select id="getSalerDetailsCount" resultClass="Integer" parameterClass="SalerDetailsParameter">
+        select
+          count(*)
+        from
+          tb_saler as saler
+        where
+            1=1
+        <isNotEmpty property="cid" prepend="and">
+            saler.cid=#cid#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="salerType">
+            saler.saler_type=#salerType#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="channelType">
+            saler.channel_type=#channelType#
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="salerNo">
+            saler.saler_no=#salerNo#
+        </isNotEmpty>
+    </select>
+
+    <select id="salerList" resultClass="saler" parameterClass="salerDetailsParameter">
+        select
+          saler_no as salerNo,
+          saler_name as salerName
+        FROM
+          tb_saler
+        WHERE
+          cid=#cid#
+        AND
+          saler_type=#salerType#
+        AND
+          channel_type=#channelType#
+    </select>
+
+    <delete id="deleteSalerDetails" parameterClass="String">
+        delete from tb_saler where saler_no = #salerNo#
+    </delete>
+
+
+    <select id="getSalerDetailsById" parameterClass="String" resultClass="saler">
+        select
+            saler.cid as cid,
+            saler_no as salerNo,
+            saler_name as salerName,
+            padChannel.cname as cname,
+            channel_type as channelType,
+            saler_type as salerType,
+            parent_id as parentId,
+            shop_name as shopName
+        from
+            tb_saler as saler,
+            tb_pad_channel as padChannel
+        where
+           saler_no = #salerNo#
+        AND
+           saler.cid = padChannel.id
+    </select>
+
+    <select id="channelList" resultClass="padChannel">
+          select
+             id as id,
+             cname as cname
+          from
+            tb_pad_channel
+    </select>
+
+    <update id="updateSalerDetails" parameterClass="saler">
+        update tb_saler
+        set
+            saler_no=#salerNo#,
+            saler_name=#salerName#,
+            channel_type=#channelType#,
+            saler_type=#salerType#,
+            shop_name=#shopName#,
+            <isNotEmpty property="cid">
+                cid=#cid#,
+            </isNotEmpty>
+            parent_id=#parentId#
+        where
+            saler_no = #salerNo#
+    </update>
+</sqlMap>

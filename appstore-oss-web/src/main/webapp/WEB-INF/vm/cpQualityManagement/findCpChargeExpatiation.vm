@@ -1,0 +1,194 @@
+#set($layout="content.vm")
+<script language="javascript">
+    $(document).ready(function(){
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+</script>
+
+<div class="pop-top">
+    <div class="ac">
+      <h2>收费资质审核</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <input type="hidden" name="selCpPageInPut.upId" value="$!SelCpPageOutPut.id"/>
+    <input type="hidden" id="supplierNoMark" value="$!SelCpPageOutPut.supplierNo"/>
+    <div class="pop-box">
+      <div class="con">
+        <table class="tb" cellspacing="0" cellpadding="0">
+          <tr>
+            <td width="105"><label>CP账号：</label></td>
+            <td width="255">
+                <label>
+                    $!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.account)
+                </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>CP用户名：</label></td>
+            <td>
+                <label>
+                    $!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.cpName)
+                </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>供应商简码：</label></td>
+            <td>
+                    <p style="position: relative;">
+                        <select id="sel2" class="input" style="width:192px">
+                            #foreach($Vendor in $Vendors)
+                                #if($velocityCount == 1)
+                                    <option value="$!Vendor.vendorCode" onclick="modifySupplierNoBug(this.value,'$!{Vendor.vendorName}')">$!{Vendor.vendorCode}($!{Vendor.vendorName})</option>
+                                #elseif($velocityCount != 1)
+                                    <option value="$!Vendor.vendorCode" >$!{Vendor.vendorCode}($!{Vendor.vendorName})</option>
+                                #end
+                            #end
+                        </select>
+                    </p>
+            </td>
+          </tr>
+          <tr>
+            <td><label>供应商名称：</label></td>
+            <td>
+                <label>
+                    <input type="text" class="input" style="width:190px" id="selCpPageInPut.upSupplierName" name="selCpPageInPut.upSupplierName" value="$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.supplierName)"/>
+                </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>合同号：</label></td>
+            <td>
+                <label>
+                    <input type="text" class="input" style="width:190px" name="selCpPageInPut.upContractNumber" value="$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.contractNumber)"/>
+                </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>默认计费模式：</label></td>
+            <td>
+                <label>
+                    <select name="selCpPageInPut.upDefaultFeeMode"  class="input" style="width:193px">
+                        <option value="0" #if($!SelCpPageOutPut.defaultFeeMode == 0) selected  #end>免费</option>
+                        <option value="1" #if($!SelCpPageOutPut.defaultFeeMode == 1) selected  #end>分成，无预付模式</option>
+                        <option value="2" #if($!SelCpPageOutPut.defaultFeeMode == 2) selected  #end>分成，有预付款模式</option>
+                        <option value="3" #if($!SelCpPageOutPut.defaultFeeMode == 3) selected  #end>买断模式</option>
+                    </select>
+                </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>默认分成比例：</label></td>
+            <td>
+                <label><input type="text" class="input" style="width:50px" id="upDefaultPercent" name="selCpPageInPut.upDefaultPercent" value="$!SelCpPageOutPut.defaultPercent" onblur="checkDefaultPercent(this.value)"/> % </label>
+                <p style="float: left; padding-top: 12px;"><span id="defaultPercentInt" class="red hide">请输入0-100的整数</span><span id="defaultPercentNull" class="red hide">不能为空</span><input type="hidden" name="defaultPercentMark"></p>
+
+            </td>
+          </tr>
+          <tr>
+            <td><label>合同生效日期：</label></td>
+            <td>
+                <label>
+                    <input id="d5221" style="width:190px" class="Wdate input" type="text" readonly="readonly" onFocus="var d5222=$dp.$('d5222');WdatePicker({maxDate:'#F{$dp.$D(\'d5222\')}'})" name="selCpPageInPut.upValidPeriodBegin" value="$!dateFormatUtils.format($!SelCpPageOutPut.validPeriodBegin,"yyyy-MM-dd")" />
+                </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>合同截止日期：</label></td>
+            <td>
+                <label>
+                    <input id="d5222" style="width:190px" class="Wdate input" type="text" readonly="readonly" onFocus="WdatePicker({minDate:'#F{$dp.$D(\'d5221\')}'})" name="selCpPageInPut.upValidPeriodEnd" value="$!dateFormatUtils.format($!SelCpPageOutPut.validPeriodEnd,"yyyy-MM-dd")"/>
+                </label>
+            </td>
+          </tr>
+          <tr>
+            <td><label>审核备注：</label></td>
+            <td>
+                <label>
+                    <textarea style="width:182px" name="selCpPageInPut.comment" rows="5" id="textfield">$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.comment)</textarea>
+                </label>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+<div class="btn-box">
+    <label>
+        <input  type="button" class="btn" value="通过" onclick="upFeeStatusOn()">
+    </label>
+    <label>
+        <input type="button" class="btn" value="不通过" onclick="upFeeStatusOff()">
+    </label>
+    <label>
+        <input id="closeDiv" type="button" class="close" value="关闭" >
+     </label>
+</div>
+<script language="JavaScript">
+function regInputSelect(id, maxLength){
+var obj = document.getElementById(id);
+var input = document.createElement("input");
+input.type = "text";
+if(typeof(maxLength) != "undefined"){
+input.maxLength = maxLength;
+}
+input.id="selCpPageInPut.upSupplierNo";
+//设置输入框的样式
+with(input.style){
+    var ua = navigator.userAgent.toLowerCase();
+    if(ua.indexOf("chrome") > -1){
+        top = "9px";
+    }else if(ua.indexOf("firefox") > 0){
+        top = "10px";
+    }
+
+position = "absolute";
+/*top = "138px";*/ /*火狐138，谷歌139*/
+left = "10px";
+width = "172px";
+border = "0px";
+}
+obj.parentNode.insertBefore(input, obj);
+/*input.value = obj.value;*/
+input.value = "$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.supplierNo)";
+obj.onchange = function(){
+input.value = this.value;
+}
+var options_map = new Array();
+input.onblur = function(){
+var value = input.value;
+if(value == ""){
+return;
+}
+//判断当前输入的值在下列列表中是否存在，如果不存在，则新增项
+if(typeof(options_map[value]) == "undefined"){
+var option = new Option(value,value);
+option.title = value;
+obj.add(option);
+//选中最后新加的一项
+obj.selectedIndex = obj.options.length -1;
+options_map[value] = value;
+input.style.width = (obj.offsetWidth - 18) + "px";
+}
+}
+//初始化下拉框的项
+initOptions(obj, options_map);
+
+}
+function initOptions(obj,options_map){
+var len = obj.options.length;
+for(var i = 0 ; i < len ; i++){
+var value = obj.options[i].value;
+options_map[value] = value;
+}
+}
+function modifySupplierNoBug(va,vb){
+    document.getElementById("selCpPageInPut.upSupplierNo").value = va;
+    document.getElementById("selCpPageInPut.upSupplierName").value = vb;
+
+
+}
+
+regInputSelect("sel2");
+
+</script>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
+       default-autowire="byName">
+
+    <bean id="defaultSequence" class="com.jd.common.util.Sequence"/>
+
+    <bean id="sequenceUtil" class="com.jd.common.util.SequenceUtil">
+        <property name="defaultSequence" ref="defaultSequence"/>
+    </bean>
+
+    <bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean">
+        <property name="configLocation" value="classpath:sqlmap-config.xml"/>
+    </bean>
+
+    <!--LiangYu begin-->
+    <bean id="loginDao" class="com.jd.cms.dao.login.impl.LoginDaoImpl"/>
+    <bean id="accountDao" class="com.jd.cms.dao.usermanager.impl.AccountDaoImpl"/>
+    <bean id="roleDao" class="com.jd.cms.dao.usermanager.impl.RoleDaoImpl"/>
+    <bean id="categoryMaintenanceDao" class="com.jd.cms.dao.systemmaintenance.impl.CategoryMaintenanceDaoImpl"/>
+    <bean id="taskDao" class="com.jd.cms.dao.systemmaintenance.impl.TaskDaoImpl"/>
+    <!--quartz-->
+    <bean id="syncScheduleDao" class="com.jd.cms.dao.schedule.impl.SyncScheduleDaoImpl"/>
+    <bean id="erpScheduleDao" class="com.jd.cms.dao.schedule.impl.ErpScheduleDaoImpl"/>
+    <!--adminlog-->
+    <bean id="adminLogDao" class="com.jd.cms.dao.adminlog.impl.AdminLogDaoImpl"/>
+    <!--LiangYu end-->
+    <!--zhounan-begin-->
+    <bean id="cpQualityManagementDao" class="com.jd.cms.dao.cpQualityManagement.impl.CpQualityManagementDaoImpl"/>
+    <bean id="cpChargeQualificationDao" class="com.jd.cms.dao.cpQualityManagement.impl.CpChargeQualificationDaoImpl"/>
+    <bean id="appManagementDao" class="com.jd.cms.dao.appManagement.impl.AppManagementDaoImpl"/>
+    <bean id="appBrowseDao" class="com.jd.cms.dao.appManagement.impl.AppBrowseDaoImpl"/>
+    <bean id="osDao" class="com.jd.cms.dao.terminalManagement.impl.OsDaoImpl"/>
+    <bean id="screenDao" class="com.jd.cms.dao.terminalManagement.impl.ScreenDaoImpl"/>
+    <bean id="feedBackDao" class="com.jd.cms.dao.systemmaintenance.impl.FeedBackDaoImpl"/>
+    <!--zhounan-end-->
+    <!--hqj_start-->
+    <bean id="recommendDao" class="com.jd.cms.dao.clientmanager.impl.RecommendDaoImpl"/>
+    <bean id="appsDao" class="com.jd.cms.dao.clientmanager.impl.AppsDaoImpl"/>
+    <bean id="topicDao" class="com.jd.cms.dao.clientmanager.impl.TopicDaoImpl"/>
+    <bean id="categoryDao" class="com.jd.cms.dao.clientmanager.impl.CategoryDaoImpl"/>
+    <bean id="rankingAppDao" class="com.jd.cms.dao.clientmanager.impl.RankingAppDaoImpl"/>
+    <bean id="noticeDao" class="com.jd.cms.dao.clientmanager.impl.NoticeDaoImpl"/>
+    <bean id="hotWordDao" class="com.jd.cms.dao.clientmanager.impl.HotWordDaoImpl"/>
+    <bean id="activityDao" class="com.jd.cms.dao.clientmanager.impl.ActivityDaoImpl"/>
+
+    <bean id="bulkUploadDao" class="com.jd.cms.dao.systemmaintenance.impl.BulkUploadDaoImpl"/>
+    <!--hqj_end-->
+
+    <bean id="clientVersionDao" class="com.jd.cms.dao.systemmaintenance.impl.ClientVersionDaoImpl"/>
+    <bean id="androidDriverDao" class="com.jd.cms.dao.systemmaintenance.impl.AndroidDriverDaoImpl"/>
+
+    <!-- 结算 -->
+    <bean id="forAccountDao" class="com.jd.cms.dao.forAccount.impl.ForAccountDaoImpl"/>
+    <bean id="categoryQueryDao" class="com.jd.cms.dao.category.impl.CategoryQueryDaoImpl"/>
+
+    <!-- 统计 -->
+    <bean id="statisticsDao" class="com.jd.cms.dao.statistics.impl.StatisticsDaoImpl"/>
+    <bean id="zhuoWangInfoImportDao" class="com.jd.cms.dao.schedule.impl.ZhuoWangInfoImportDaoImpl"/>
+
+    <bean id="marketStatisticsDao" class="com.jd.cms.dao.appManagement.impl.MarketStatisticsDaoImpl"/>
+    <bean id="padImeiNumberDao" class="com.jd.cms.dao.systemmaintenance.impl.PadImeiNumberDaoImpl"/>
+    <bean id="salerDetailsDao" class="com.jd.cms.dao.usermanager.impl.SalerDetailsDaoImpl"/>
+    <bean id="salesStatisticsDao" class="com.jd.cms.dao.appManagement.impl.SalesStatisticsDaoImpl"/>
+    <bean id="validMachineStatisticsDao" class="com.jd.cms.dao.appManagement.impl.ValidMachineStatisticsDaoImpl"/>
+    <bean id="compulsoryDao" class="com.jd.cms.dao.clientmanager.impl.CompulsoryDaoImpl"/>
+    <bean id="suningDao" class="com.jd.cms.dao.clientmanager.impl.SuningDaoImpl"/>
+    <bean id="cpDateImportDao" class="com.jd.cms.dao.clientmanager.impl.CpDateImportDaoImpl"/>
+    <bean id="appCountsDao" class="com.jd.cms.dao.appManagement.impl.AppCountsDaoImpl"/>
+    <bean id="appPriceDao" class="com.jd.cms.dao.systemmaintenance.impl.AppPriceDaoImpl"/>
+    <bean id="exceptionLogDao" class="com.jd.cms.dao.systemmaintenance.impl.ExceptionLogDaoImpl"/>
+    <bean id="salerActiveDao" class="com.jd.cms.dao.appManagement.impl.SalerActiveDaoImpl"/>
+    <bean id="provinceArrStatisDao" class="com.jd.cms.dao.appManagement.impl.ProvinceArrStatisDaoImpl"/>
+    <bean id="logsDao" class="com.jd.cms.dao.systemmaintenance.impl.LogDaoImpl"/>
+    <bean id="newStatisticDao" class="com.jd.cms.dao.appManagement.impl.NewStatisticDaoImpl"/>
+    <bean id="incomeStatisticDao" class="com.jd.cms.dao.appManagement.impl.IncomeStatisticDaoImpl"/>
+</beans>

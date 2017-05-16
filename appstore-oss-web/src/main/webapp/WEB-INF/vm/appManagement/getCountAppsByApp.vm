@@ -1,0 +1,49 @@
+<!--应用的安装总量-->
+#set($layout="content.vm")
+<script type="text/javascript">
+    function macroAjaxSubmit(url) {
+        var startTime = $("#d5221").val();
+        var endTime = $("#d5222").val();
+        var accountId =$("#accountId").val();
+        document.getElementById("Loading").style.display = "block";
+        document.getElementById("Loading2").style.display = "block";
+        jQuery.ajax({
+            type: 'post',
+            url: url,
+            data: {"appCountParameter.startTime": startTime,
+                "appCountParameter.endTime": endTime,
+                "appCountParameter.accountId": accountId
+            },
+            dataType: "html",
+            success: function (msg) {
+                jQuery("#content").html(msg);
+                document.getElementById("Loading").style.display = "none";
+                document.getElementById("Loading2").style.display = "none";
+            }
+        });
+    }
+</script>
+<div>
+    --><a href="javascript:void(0)" onclick="getCountAppsByCp();">应用到达量统计</a>
+    --><span style="font-weight: bolder">按应用查看<span>
+</div>
+<table class="tb" cellspacing="0" cellpadding="0">
+    <tr class="tit-bg">
+        <td>应用名称</td>
+        <td>安装量</td>
+        <td>到达量</td>
+    </tr>
+    #foreach($appCount in $appCounts)
+        <tr>
+            <td>$appCount.appName</td>
+            <td>$appCount.installCounts</td>
+            <td>$appCount.countApps</td>
+        </tr>
+    #end
+</table>
+<div class="paging fr">
+    <div class="paging-box_2">
+        #set($pageModule = $domain.getTarget("/appCounts/getCountAppsByApp.action").addQueryData("pageSize",$!pageSize))
+                        #showPage($pageModule $appCounts)
+    </div>
+</div>

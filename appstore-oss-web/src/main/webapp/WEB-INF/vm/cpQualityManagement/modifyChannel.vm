@@ -1,0 +1,39 @@
+#set($title = "PAD渠道管理-编辑渠道")
+#set($layout="content.vm")
+<script type="text/javascript">
+    $(document).ready(function() {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.2 });
+    });
+</script>
+<div class="pop-top">
+    <div class="ac">
+        <h2>编辑渠道</h2>
+    </div>
+</div>
+<div class="pop-box">
+    <div class="con">
+        <table class="tb" cellspacing="0" cellpadding="0" id="content" width="100%" height="100%">
+            <tr>
+                <td width="100"><label>渠道名称：</label></td>
+                <td width="250">
+                    <input id="PadChannelName" value="$!padChannel.cname" name="PadChannelName" class="input" style="margin-left: 8px;"/>
+                </td>
+            </tr>
+              <tr>
+                <td width="100"><label>网关前缀：</label></td>
+                <td width="250">
+                    <input id="PadChannelGw" name="PadChannelGw" value="$!padChannel.gw" class="input" style="margin-left: 8px;"/>
+                </td>
+            </tr>
+            <tr>
+                <td width="100"><label>渠道说明：</label></td>
+                <td width="250"><p><textarea name="PadChannelIntro" cols="45" rows="8" id="PadChannelIntro">$!padChannel.intro</textarea>
+                </p></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="btn-box">
+    <input id="add" class="btn" type="button" value="确 定" onclick="updatePadChannel($!padChannel.id);">
+    <input id="closeDiv" class="close" type="button" value="取 消">
+</div>

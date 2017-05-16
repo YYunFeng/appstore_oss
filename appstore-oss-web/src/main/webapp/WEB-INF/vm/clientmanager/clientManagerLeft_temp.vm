@@ -1,0 +1,335 @@
+#set($title = "客户端管理-Banner推荐")
+
+<link rel="stylesheet" href="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/uploadify.css")" type="text/css"
+      media="screen"/>
+<script type="text/javascript" src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/swfobject.js")"></script>
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/jquery.uploadify.v2.1.4.min.js")"></script>
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/clientmanager/clientmanager.js")"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $("#file_upload").uploadify({
+                    'uploader':'/appstore-man/js/uploadify-v2.1.4/uploadify.swf',    //组件自带的flash，路径根据情况自行调整
+                    'script':'$assetModule.getTarget("/upload/uploadImg.action")',
+                    'cancelImg':'/appstore-man/js/uploadify-v2.1.4/cancel.png',
+                    'fileDataName':'uploadFile',
+                    'queueID':'fileQueue',     //放置上传文件及上传进度的Html元素Id
+                    'queueSizeLimit':1,        //-次最多选择多少个文件上传，这里限定为一个
+                    'fileDesc':'*.jpg;*.jpeg',
+                    'fileExt':'*.jpg;*.jpeg',
+                    'auto':true,            //是否选取文件后自动上传
+                    'multi':false,           //多文件上传时必须打开
+                    'onError':function(event, queueID, fileObj, errorObj) {
+                        alert(" 上传失败" + errorObj.info + " 错误类型" + errorObj.type);
+                    },
+                    'onComplete':function(event, queueID, fileObj, response, data) {
+                        $("#imgUrl").val(response);
+                    }
+                });
+    });
+
+    function uploadFile() {
+        jQuery('#file_upload').uploadifyupload();
+    }
+
+    function insertBanner() {
+
+        var url = document.getElementById('imgUrl').value;
+        var clientType = document.getElementById('clientType').value;
+        var moduleId = document.getElementById('moduleId').selectedIndex;
+        var linkType = document.getElementById('linkType').selectedIndex;
+        var linkedAppid = '';
+        var linkedUrl = '';
+        if (linkType == 0) {
+            linkedAppid = document.getElementById('appSelect').selectedIndex;
+        } else if (linkType == 1) {
+            linkedAppid = document.getElementById('topicSelect').selectedIndex;
+        } else if (linkType == 2) {
+            linkedAppid = document.getElementById('categorySelect').selectedIndex;
+        } else if (linkType == 3) {
+            linkedUrl = document.getElementById('linkedUrl').value;
+        }
+        var seq = document.getElementById('seq').value;
+        var pubedStatus = document.getElementById('pubedStatus').selectedIndex;
+        var intro = document.getElementById('intro').value;
+        if (clientType == 0) {
+            jQuery.ajax({
+                        type:'POST',
+                        url:'/clientManager/addPhoneBanner.action',
+                        data:'recommendManagerResult.clientType=' + clientType + '&recommendManagerResult.moduleId=' + moduleId + '&recommendManagerResult.areaId=0&recommendManagerResult.seq=' + seq + '&recommendManagerResult.url=' + url + '&recommendManagerResult.linkType=' + linkType + '&recommendManagerResult.linkedAppId=' + linkedAppid + '&recommendManagerResult.linkedUrl=' + linkedUrl + '&recommendManagerResult.pubedStatus=' + pubedStatus + '&recommendManagerResult.intro=' + intro,
+                        dataType:'html',
+                        success:function(data){
+                            jQuery('#addWindow').click();
+                            jQuery('#right_start').html(data);
+                        }
+                    });
+        }else if(clientType == 1){
+            jQuery.ajax({
+                        type:'POST',
+                        url:'/clientManager/addPadBanner.action',
+                        data:'recommendManagerResult.clientType=' + clientType + '&recommendManagerResult.moduleId=' + moduleId + '&recommendManagerResult.areaId=0&recommendManagerResult.seq=' + seq + '&recommendManagerResult.url=' + url + '&recommendManagerResult.linkType=' + linkType + '&recommendManagerResult.linkedAppId=' + linkedAppid + '&recommendManagerResult.linkedUrl=' + linkedUrl + '&recommendManagerResult.pubedStatus=' + pubedStatus + '&recommendManagerResult.intro=' + intro,
+                        dataType:'html',
+                        success:function(data){
+                            jQuery('#addWindow').click();
+                            jQuery('#right_start').html(data);
+                        }
+                    });
+        }else if(clientType == 2){
+            jQuery.ajax({
+                        type:'POST',
+                        url:'/clientManager/addPCBanner.action',
+                        data:'recommendManagerResult.clientType=' + clientType + '&recommendManagerResult.moduleId=' + moduleId + '&recommendManagerResult.areaId=0&recommendManagerResult.seq=' + seq + '&recommendManagerResult.url=' + url + '&recommendManagerResult.linkType=' + linkType + '&recommendManagerResult.linkedAppId=' + linkedAppid + '&recommendManagerResult.linkedUrl=' + linkedUrl + '&recommendManagerResult.pubedStatus=' + pubedStatus + '&recommendManagerResult.intro=' + intro,
+                        dataType:'html',
+                        success:function(data){
+                            jQuery('#addWindow').click();
+                            jQuery('#right_start').html(data);
+                        }
+                    });
+        }else if(clientType == 3){
+            jQuery.ajax({
+                        type:'POST',
+                        url:'/clientManager/addWebBanner.action',
+                        data:'recommendManagerResult.clientType=' + clientType + '&recommendManagerResult.moduleId=' + moduleId + '&recommendManagerResult.areaId=0&recommendManagerResult.seq=' + seq + '&recommendManagerResult.url=' + url + '&recommendManagerResult.linkType=' + linkType + '&recommendManagerResult.linkedAppId=' + linkedAppid + '&recommendManagerResult.linkedUrl=' + linkedUrl + '&recommendManagerResult.pubedStatus=' + pubedStatus + '&recommendManagerResult.intro=' + intro,
+                        dataType:'html',
+                        success:function(data){
+                            jQuery('#addWindow').click();
+                            jQuery('#right_start').html(data);
+                        }
+                    });
+        }
+
+    };
+
+</script>
+
+<div class="w">
+    <div id="warp">
+        <div class="content">
+            <!--left_start-->
+            <div class="menu-box rounded fl" id="red">
+                <div id="menu-box">
+                    <div class="box">
+                        <div class="title_1">客户端管理<span class="menu1"></span></div>
+                        <div class="list">
+                            <ul class="treeview-red">
+                                <li><span>Android管理</span>
+                                    <ul>
+                                        <li><span>手机客户端</span>
+                                            <ul>
+                                                <li><span><a href="javascript:void(0)" onclick="getPhoneBannerList();">Banner推荐</a></span>
+                                                </li>
+                                                <li><span>热门应用推荐</span></li>
+                                                <li><span>排行榜</span>
+                                                    <ul>
+                                                        <li><span>新品推荐</span></li>
+                                                        <li><span>上升最快</span></li>
+                                                        <li><span>热门免费</span></li>
+                                                        <li><span>热门付费</span></li>
+                                                    </ul>
+                                                </li>
+                                                <li>
+                                                    <spna>专题管理</spna>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                        <li><span>PAD客户端</span>
+                                            <ul>
+                                                <li><span><a href="javascript:void(0)" onclick="getPadBannerList();">Banner推荐</a></span>
+                                                </li>
+                                                <li><span>热门应用推荐</span></li>
+                                                <li><span>排行榜</span>
+                                                    <ul>
+                                                        <li><span>新品推荐</span></li>
+                                                        <li><span>上升最快</span></li>
+                                                        <li><span>热门免费</span></li>
+                                                        <li><span>热门付费</span></li>
+                                                    </ul>
+                                                </li>
+                                                <li>
+                                                    <spna>专题管理</spna>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><span>WEB网站管理</span>
+                                    <ul>
+                                    #*<li><span>Android应用</span>
+                                        <ul>
+                                            <li><span>Banner推荐</span></li>
+                                            <li><span>热门应用推荐</span></li>
+                                            <li><span>排行榜</span>
+                                                <ul>
+                                                    <li><span>新品推荐</span></li>
+                                                    <li><span>上升最快</span></li>
+                                                    <li><span>热门免费</span></li>
+                                                    <li><span>热门付费</span></li>
+                                                </ul>
+                                            </li>
+                                            <li>
+                                                <spna>专题管理</spna>
+                                            </li>
+                                        </ul>
+                                    </li>*#
+                                        <li><span>Web应用</span>
+                                            <ul>
+                                                <li><span><a href="javascript:void(0)" onclick="getWebBannerList();">Banner推荐</a></span>
+                                                </li>
+                                                <li><span>热门应用推荐</span></li>
+                                                <li><span>排行榜</span>
+                                                    <ul>
+                                                        <li><span>新品推荐</span></li>
+                                                        <li><span>上升最快</span></li>
+                                                        <li><span>热门免费</span></li>
+                                                        <li><span>热门付费</span></li>
+                                                    </ul>
+                                                </li>
+                                                <li>
+                                                    <spna>专题管理</spna>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li><span>PC客户端管理</span>
+                                    <ul>
+                                        <li><span><a href="javascript:void(0)" onclick="getPCBannerList();">Banner推荐</a></span>
+                                        </li>
+                                        <li><span>热门应用推荐</span></li>
+                                        <li><span>排行榜</span>
+                                            <ul>
+                                                <li><span>新品推荐</span></li>
+                                                <li><span>上升最快</span></li>
+                                                <li><span>热门免费</span></li>
+                                                <li><span>热门付费</span></li>
+                                            </ul>
+                                        </li>
+                                        <li>
+                                            <spna>专题管理</spna>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--left_end-->
+            <!--right_start-->
+            <div id="right_start" class="fr">
+
+            </div>
+            <!--right_end-->
+        </div>
+    </div>
+    <div class="classPop">
+        <div class="close" id="addWindow"></div>
+        <div class="pop-box" style="width: 398px;" >
+            <div class="con">
+                <h1 align="center">增加推荐</h1>
+                <table class="tb" cellpadding="0" cellspacing="0">
+                    <tr>
+                        <td width="72"><label><em class="red">*</em>上传图片：</label></td>
+                        <td colspan="3" width="300"><label>
+                            <input id="file_upload" name="photo" type="file"/>
+
+                            <div id="fileQueue" style="width: 300px;"></div>
+                        </label></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="hide"><input class="input" type="text" id="imgUrl" value=""/></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="hide"><input class="input" type="text" id="clientType" value=""/></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>所属模块：</label>
+                        </td>
+                        <td colspan="3"><select size="1" id="moduleId"></select></td>
+                    </tr>
+                    <tr>
+                        <td><label>链接类型：</label></td>
+                        <td colspan="3"><select size="1" id="linkType" onchange="linkTypeChange();">
+                            <option value="0">应用</option>
+                            <option value="1">专题</option>
+                            <option value="2">类目</option>
+                            <option value="3">外链</option>
+                        </select></td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" id="t"></td>
+                    </tr>
+
+                    <tr>
+                        <td><label>推广文字：</label></td>
+                        <td colspan="3"><input class="input" type="text" id="intro"/></td>
+                    </tr>
+                    <tr>
+                        <td><label>排&#12288;&#12288;序：</label></td>
+                        <td colspan="3"><input class="input" type="text" style="width: 40px;" id="seq" value="1"/></td>
+                    </tr>
+                    <tr>
+                        <td><label>发布状态：</label></td>
+                        <td colspan="3"><select size="1" id="pubedStatus">
+                            <option value="0" selected="true">下线</option>
+                            <option value="1">上线</option>
+                        </select></td>
+                    </tr>
+                </table>
+                <div class="btn-box">
+
+                #*<input class="btn" type="button" value="确 认" onclick="$('#file_upload').uploadifyUpload();">*#
+
+                    <input class="btn" type="button" value="确 认" onclick="insertBanner();">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="yingyong" class="hide">
+    <table class="tb" border="0" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="72"><label>应用名称：</label></td>
+            <td><input class="input" type="text" id="appName"/></td>
+            <td><input class="btn" style=" margin-left: 5px; margin-right: 5px;" type="button" value="搜索"
+                       onclick="SearchApp();"/></td>
+            <td><select id="appSelect" style="width: 80px;"/>
+            </td>
+        </tr>
+    </table>
+</div>
+<div id="zhuanti" class="hide">
+    <table border="0" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="72"><label>专题名称：</label></td>
+            <td><input class="input" type="text" id="topicName"/></td>
+            <td><input class="btn" style=" margin-left: 5px; margin-right: 5px;" type="button" value="搜索"
+                       onclick="SearchTopic();"/></td>
+            <td><select id="topicSelect" style="width: 80px"/>
+            </td>
+        </tr>
+    </table>
+</div>
+<div id="leimu" class="hide">
+    <table border="0" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="72"><label>类&#12288;&#12288;目：</label></td>
+            <td><input class="input" type="text" id="categoryName"/></td>
+            <td><input class="btn" style=" margin-left: 5px; margin-right: 5px;" type="button" value="搜索"
+                       onclick="SearchCategory();"/></td>
+            <td><select id="categorySelect" style="width: 80px"/>
+            </td>
+        </tr>
+    </table>
+</div>
+<div id="wailian" class="hide">
+    <table border="0" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="72"><label>外链地址：</label></td>
+            <td colspan="3"><input class="input" type="text" id="linkedUrl"/></td>
+        </tr>
+    </table>
+</div>

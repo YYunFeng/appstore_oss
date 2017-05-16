@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap namespace="ValidMachineStatistics">
+
+
+    <typeAlias alias="incomeStatistic" type="com.jd.cms.domain.systemmaintenance.IncomeStatistic"/>
+    <typeAlias alias="incomeParameter" type="com.jd.cms.domain.systemmaintenance.IncomeParameter"/>
+
+    <!--公司总收入-->
+    <select id="totalIncome" parameterClass="incomeParameter" resultClass="incomeStatistic">
+        SELECT
+            sum(incomeStats.vaild_counts) AS vaildMachineCounts,
+            sum(incomeStats.huasheng_app_counts) AS huashengAppCounts,
+            sum(incomeStats.mine_app_counts) AS mineAppCounts,
+            sum(incomeStats.rec_app_income_company) AS recommendAppIncomeForCompany,
+            sum(incomeStats.need_app_income_company) AS needAppIncomeForCompany
+        FROM
+            tb_income_statistic as incomeStats
+        where
+           1=1
+        <isNotEmpty prepend="and" property="startTime">
+            STR_TO_DATE(
+            incomeStats.install_time,
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+    </select>
+
+    <select id="incomeByChannel" parameterClass="incomeParameter" resultClass="incomeStatistic">
+        SELECT
+            sum(incomeStats.vaild_counts) AS vaildMachineCounts,
+            sum(incomeStats.rec_app_counts) AS recommendAppCounts,
+            sum(incomeStats.need_app_counts) AS needAppCounts,
+            sum(incomeStats.huasheng_app_counts) AS huashengAppCounts,
+            sum(incomeStats.mine_app_counts) AS mineAppCounts,
+            sum(incomeStats.rec_app_income_company) AS recommendAppIncomeForCompany,
+            sum(incomeStats.need_app_income_company) AS needAppIncomeForCompany,
+            sum(incomeStats.rec_app_income_province) as recommendAppIncomeForProvince,
+            sum(incomeStats.need_app_income_province) as needAppIncomeForProvince,
+            incomeStats.cid as cid,
+            padChannel.cname as cname
+        FROM
+            tb_income_statistic AS incomeStats,
+            tb_pad_channel AS padChannel
+        WHERE
+           padChannel.id = incomeStats.cid
+        <isNotEmpty prepend="and" property="startTime">
+            STR_TO_DATE(
+            incomeStats.install_time,
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+        <isNotEmpty prepend="and" property="cid">
+            cid=#cid#
+        </isNotEmpty>
+        GROUP BY
+          cid
+    </select>
+
+    <select id="incomeByTime" resultClass="incomeStatistic" parameterClass="incomeParameter">
+        SELECT
+             sum(incomeStats.vaild_counts) AS vaildMachineCounts,
+             sum(incomeStats.rec_app_counts) AS recommendAppCounts,
+             sum(incomeStats.need_app_counts) AS needAppCounts,
+             sum(incomeStats.huasheng_app_counts) AS huashengAppCounts,
+             sum(incomeStats.mine_app_counts) AS mineAppCounts,
+             sum(incomeStats.rec_app_income_company) AS recommendAppIncomeForCompany,
+             sum(incomeStats.need_app_income_company) AS needAppIncomeForCompany,
+             sum(incomeStats.rec_app_income_province) as recommendAppIncomeForProvince,
+             sum(incomeStats.need_app_income_province) as needAppIncomeForProvince,
+             STR_TO_DATE(incomeStats.install_time,'%Y-%c-%e') as installTime
+        FROM
+            tb_income_statistic AS incomeStats,
+            tb_pad_channel AS padChannel
+        WHERE
+            padChannel.id = incomeStats.cid
+        AND
+           incomeStats.cid=#cid#
+        <isNotEmpty prepend="and" property="startTime">
+            STR_TO_DATE(
+            incomeStats.install_time,
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+        GROUP BY
+           installTime DESC
+    </select>
+
+    <select id="incomeBySaler" parameterClass="incomeParameter" resultClass="incomeStatistic">
+        SELECT
+            sum(incomeStats.vaild_counts) AS vaildMachineCounts,
+            sum(incomeStats.rec_app_counts) AS recommendAppCounts,
+            sum(incomeStats.need_app_counts) AS needAppCounts,
+            sum(incomeStats.huasheng_app_counts) AS huashengAppCounts,
+            sum(incomeStats.mine_app_counts) AS mineAppCounts,
+            sum(incomeStats.rec_app_income_company) AS recommendAppIncomeForCompany,
+            sum(incomeStats.need_app_income_company) AS needAppIncomeForCompany,
+            sum(incomeStats.rec_app_income_province) as recommendAppIncomeForProvince,
+            sum(incomeStats.need_app_income_province) as needAppIncomeForProvince,
+            incomeStats.saler as salerNo,
+            incomeStats.saler_name as salerName
+        FROM
+            tb_income_statistic AS incomeStats,
+            tb_pad_channel AS padChannel
+        WHERE
+            padChannel.id = incomeStats.cid
+        AND
+            incomeStats.cid=#cid#
+        <isNotEmpty prepend="and" property="startTime">
+            STR_TO_DATE(
+            incomeStats.install_time,
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+        GROUP BY
+          saler
+    </select>
+
+
+    <select id="getAllSaler" parameterClass="incomeParameter" resultClass="incomeStatistic">
+        SELECT
+        sum(incomeStats.vaild_counts) AS vaildMachineCounts,
+        sum(incomeStats.rec_app_counts) AS recommendAppCounts,
+        sum(incomeStats.need_app_counts) AS needAppCounts,
+        sum(incomeStats.huasheng_app_counts) AS huashengAppCounts,
+        sum(incomeStats.mine_app_counts) AS mineAppCounts,
+        sum(incomeStats.rec_app_income_company) AS recommendAppIncomeForCompany,
+        sum(incomeStats.need_app_income_company) AS needAppIncomeForCompany,
+        sum(incomeStats.rec_app_income_province) as recommendAppIncomeForProvince,
+        sum(incomeStats.need_app_income_province) as needAppIncomeForProvince,
+        incomeStats.saler as salerNo,
+        incomeStats.saler_name as salerName,
+        padChannel.cname as cname
+        FROM
+        tb_income_statistic AS incomeStats,
+        tb_pad_channel AS padChannel
+        WHERE
+        padChannel.id = incomeStats.cid
+        <isNotEmpty prepend="and" property="startTime">
+            STR_TO_DATE(
+            incomeStats.install_time,
+            '%Y-%c-%e'
+            ) BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+            AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        </isNotEmpty>
+        GROUP BY
+         cid,
+          saler
+    </select>
+
+    <select id="channelId" parameterClass="Integer" resultClass="Integer">
+        select cid from tb_channel_user where user_id=#userId#
+    </select>
+
+</sqlMap>

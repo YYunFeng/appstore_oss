@@ -1,0 +1,54 @@
+#set($title = "用户管理-角色管理")
+#set($layout="content.vm")
+
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.2 });
+        var b = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "to-del", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.2 });
+    });
+</script>
+                <div class="fr">
+<div class="right-box rounded">
+                    <div class="form-row">
+                        <div align="right">
+                            <input id="open" class="to-del" type="button" value="添加新角色" onclick="openCreateRole();"/>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="paging fr">
+                            <div class="paging-box_2">
+                                #set($pageModule = $domain.getTarget("/roleManager/list.action").addQueryData("pageSize",$!pageSize))
+                                #showPage($pageModule $roles)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tb-box">
+                        <table class="tb" cellspacing="0" cellpadding="0">
+                      <tr class="tit-bg">
+                                <td width="118">角色名</td>
+                              <td width="537">权限</td>
+                        <td width="212">修改时间</td>
+                        <td width="130">操作</td>
+                          </tr>
+                            #foreach($role in $roles)
+                                <tr>
+                                    <td><div><label>$!role.roleName</label></div></td>
+                                    <td align="left"><div><label>$!role.moduleName</label></div></td>
+                                    <td><div><label>$dateFormatUtils.format($!role.modified)</label></div></td>
+                                    <td><a class="open" href="javascript:void(0)" onclick="openModifiedModule('$!role.roleName',$!role.roleId);">修改</a> | <a href="javascript:void(0)" onclick="deleteRole('$!role.roleId');">删除</a></td>
+                                </tr>
+                            #end
+                        </table>
+                    </div>
+                      <!--paging_start-->
+                    <div class="paging fr">
+                        <div class="paging-box_2">
+                            #set($pageModule = $domain.getTarget("/roleManager/list.action").addQueryData("pageSize",$!pageSize))
+                            #showPage($pageModule $roles)
+                        </div>
+                    </div>
+                </div>
+                <!--right_end-->
+
+                </div>

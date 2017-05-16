@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+   <package name="os" namespace="/os" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.terminalManagement.OsAction">
+            <result>/WEB-INF/vm/terminalManagement/{1}.vm</result>
+            <result name="OSEXPATIATION">/WEB-INF/vm/terminalManagement/upOs.vm</result>
+            <result name="ADDOS">/WEB-INF/vm/terminalManagement/addOs.vm</result>
+            <result name="INIT">/WEB-INF/vm/terminalManagement/terminalManage.vm</result>
+        </action>
+   </package>
+   <package name="screen" namespace="/screen" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.terminalManagement.ScreenAction">
+            <result>/WEB-INF/vm/terminalManagement/{1}.vm</result>
+            <result name="SCREENEXPATIATION">/WEB-INF/vm/terminalManagement/upScreen.vm</result>
+            <result name="ADDSCREEN">/WEB-INF/vm/terminalManagement/addScreen.vm</result>
+        </action>
+   </package>
+</struts>

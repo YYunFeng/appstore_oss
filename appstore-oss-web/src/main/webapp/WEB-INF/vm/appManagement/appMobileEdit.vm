@@ -1,0 +1,301 @@
+#set($layout="content.vm")
+<script language="javascript">
+    $(document).ready(function () {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+</script>
+<div class="pop-top">
+    <div class="ac">
+        <h2>应用编辑</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+<div class="pop-box">
+<div class="con">
+<table class="tb" cellspacing="0" cellpadding="0">
+<input type="hidden" name="AppPageInput.did" value="AppPageOutput.did"/>
+<input type="hidden" name="AppPageInput.baseCheckStatus" value="$!AppPageOutput.baseCheckStatus"/>
+<input type="hidden" name="AppPageInput.price" value="$!AppPageOutput.price"/>
+<input type="hidden" name="AppPageInput.appid" value="$!AppPageOutput.appid"/>
+<input type="hidden" name="AppPageInput.accountid" value="$!AppPageOutput.accountid"/>
+<input type="hidden" name="originalAppName" value="$!AppPageOutput.appName"/>
+<input type="hidden" name="originalCategoryidl2" value="$!AppPageOutput.categoryidl2"/>
+<input type="hidden" name="originalCategoryid1" value="$!AppPageOutput.categoryid1"/>
+<input type="hidden" name="originalCategoryid2" value="$!AppPageOutput.categoryid2"/>
+<input type="hidden" name="originalAdText" value="$!AppPageOutput.adText"/>
+<input type="hidden" name="originalAppType" value="$!AppPageOutput.appType"/>
+<input type="hidden" name="originalAppTag" value="$!AppPageOutput.appTag"/>
+<input type="hidden" name="originalAppIntroduce" value="$!AppPageOutput.appIntroduce"/>
+<tr>
+    <td width="95"><label>应用图标：</label></td>
+    <td width="550">
+        <div class="app-ico">
+            <img #if($AppPageOutput.zhuoWangMark ==1) src="$AppPageOutput.logoUrl" #else
+                                                      src="$imgserver.getTarget('')cover/${AppPageOutput.logoUrl}"#end />
+        </div>
+    </td>
+</tr>
+<tr>
+    <td><label>应用名称：</label></td>
+    <td>
+        <p>
+            <input type="text" name="AppPageInput.appName" class="input" style="width:300px;"
+                   value="$!stringEscapeUtils.escapeHtml($!AppPageOutput.appName)"/>
+        </p>
+    </td>
+</tr>
+<tr>
+    <td><label>广告语：</label></td>
+    <td><p>
+        <input type="text" name="AppPageInput.adText" class="input" style="width:300px;"
+               value="$!stringEscapeUtils.escapeHtml($!AppPageOutput.adText)"/>
+    </p></td>
+</tr>
+<tr>
+    <td><label>版本：</label></td>
+    <td><p>
+        <input type="text" name="AppPageInput.versionName" class="input" style="width:300px;"
+               value="$!stringEscapeUtils.escapeHtml($!AppPageOutput.appVersion)"/>
+    </p>
+    </td>
+</tr>
+<tr>
+    <td><label>应用包名：</label></td>
+    <td><p>
+        <input type="text" id="packageName" name="packageName" class="input" style="width:300px;"
+               value="$!stringEscapeUtils.escapeHtml($!AppPageOutput.packageName)"/>
+    </p>
+    </td>
+#* <td><label>$!stringEscapeUtils.escapeHtml($!AppPageOutput.packageName)</label></td>*#
+</tr>
+<tr>
+    <td><label>应用包大小：</label></td>
+    <td><label>$!stringEscapeUtils.escapeHtml($!AppPageOutput.pkgSizeB)</label></td>
+</tr>
+<tr>
+    <td><label>CP用户名：</label></td>
+    <td>
+        <label>
+            #if(1 == $CpNames.size())
+                #foreach($cp in $CpNames)
+                    $!stringEscapeUtils.escapeHtml($!cp.cpName)
+                #end
+            #elseif(1 < $CpNames.size())
+                <select name="AppPageInput.cpNameSel" class="input" style="width:200px;"
+                        onchange="checkCpNameSel($!AppPageOutput.appid,$!AppPageOutput.did,this.value)">
+                    #foreach($cp in $CpNames)
+                        <option value="$!cp.accountid" #if($!AppPageOutput.accountid == $!cp.accountid) selected  #end >
+                            $!stringEscapeUtils.escapeHtml($!cp.cpName)
+                        </option>
+                    #end
+                </select>
+            #end
+        </label>
+        <label><a href="javascript:void(0);" onclick="showCpList(0);"><span style="color:red">修改CP</span></a> </label>
+
+        <div id="cpList" style="margin-top: 2px;display: none">
+            <select name="cp" class="input" style="width:100px;" id="newCpId">
+                #foreach($cp in $cpList)
+                    #if( $!AppPageOutput.accountid != $!cp.id)
+                        <option value="$!cp.id">
+                            $!stringEscapeUtils.escapeHtml($!cp.accout)
+                        </option>
+                    #end
+                #end
+            </select>
+            <button onclick="changeCp($!AppPageOutput.accountid,$!AppPageOutput.appid);">确定</button>
+            <button onclick="showCpList(1)">取消</button>
+        </div>
+    </td>
+</tr>
+<tr>
+    <td><label>系统要求：</label></td>
+    <td><label>$!{AndroidAppOsversion.osVersionName}或更高版本</label></td>
+</tr>
+<tr>
+    <td><label>适配类型：</label></td>
+    <td>
+        <p>
+            <select name="AppPageInput.appType" class="input">
+                <option value="0" #if($!AppPageOutput.appType == 0) selected  #end >仅适配手机</option>
+                <option value="1" #if($!AppPageOutput.appType == 1) selected  #end>仅适配PAD</option>
+                <option value="2" #if($!AppPageOutput.appType == 2) selected  #end>即适配手机又适配PAD</option>
+            </select>
+        </p>
+    </td>
+</tr>
+<tr>
+    <td><label>标签：</label></td>
+    <td><p>
+        <input class="input" style="width:300px;" type="text" name="AppPageInput.appTag"
+               value="$!stringEscapeUtils.escapeHtml($!AppPageOutput.appTag)"/>
+    </p>
+
+        <p>多个标签请用英文逗号分隔</p></td>
+</tr>
+<tr>
+    <td><label>分类：$!AppPageOutput.baseCheckStatus</label></td>
+    <td>
+        <label>二级分类：&nbsp&nbsp
+            <select name="AppPageInput.categoryidl2" style="width:170px" class="input" onchange="category3()">
+                <option value="$mobileGameId" #if($!AppPageOutput.categoryidl2 == $mobileGameId) selected  #end>移动游戏
+                </option>
+                <option value="$mobileSoftId" #if($!AppPageOutput.categoryidl2 == $mobileSoftId) selected  #end>移动软件
+                </option>
+            </select>
+        </label>
+        <label>三级分类1：
+            <select id="categoryid31" name="AppPageInput.categoryid1" style="width:170px" class="input">
+                #foreach($c3 in $Category3)
+                    <option value="$!c3.categoryId" #if($!AppPageOutput.categoryid1 == $!c3.categoryId) selected  #end>
+                        $!stringEscapeUtils.escapeHtml($!c3.categoryName)
+                    </option>
+                #end
+            </select>
+        </label>
+        <label>三级分类2：
+            <select id="categoryid32" name="AppPageInput.categoryid2" style="width:170px" class="input">
+                <option value="">请选择</option>
+                #foreach($c3 in $Category3)
+                    <option value="$!c3.categoryId" #if($!AppPageOutput.categoryid2 == $!c3.categoryId) selected  #end>
+                        $!stringEscapeUtils.escapeHtml($!c3.categoryName)
+                    </option>
+                #end
+            </select>
+        </label>
+    </td>
+</tr>
+<tr>
+    <td><label>计费类型：</label></td>
+    <td><label>
+        #if($!AppPageOutput.price == 0)
+            <input type="hidden" name="AppPageInput.feeMode" value="0">
+            免费
+        #elseif($!AppPageOutput.price != 0)
+            <select name="AppPageInput.feeMode" class="input">
+                <option value="1" #if($!AppPageOutput.feeMode == 1) selected  #end>分成，无预付模式</option>
+                <option value="2" #if($!AppPageOutput.feeMode == 2) selected  #end>分成，有预付款模式</option>
+                <option value="3" #if($!AppPageOutput.feeMode == 3) selected  #end>买断模式</option>
+            </select
+        #end
+    </label></td>
+</tr>
+<tr>
+    <td><label>价格：</label></td>
+    <td>
+        <label>
+            #if($!AppPageOutput.price == 0)
+                免费
+            #elseif($!AppPageOutput.price != 0)
+                #set( $inter = $!AppPageOutput.price / 100 )
+                #set( $deci = $!AppPageOutput.price % 100 )
+                ${inter}.#if($deci < 10)0#end${deci}元
+            #end
+        </label>
+    </td>
+</tr>
+    #if($!AppPageOutput.price != 0)
+    <tr>
+        <td><label>分成比例：</label></td>
+        <td><p>比例1：
+            <input class="input" style="width:50px;" type="text" name="AppPageInput.percent"
+                   value="$!AppPageOutput.percent"/>
+            %&#12288;开始日期：
+            <input id="d5225" class="Wdate input" style="width:105px" type="text" readonly="readonly"
+                   onFocus="var d5226=$dp.$('d5226');WdatePicker({maxDate:'#F{$dp.$D(\'d5226\')}'})"
+                   name="AppPageInput.period1Begin"
+                   value="$!dateFormatUtils.format($!AppPageOutput.period1Begin,"yyyy-MM-dd")"/>
+            &#12288;截止日期：
+            <input id="d5226" class="Wdate input" style="width:105px" type="text" readonly="readonly"
+                   onFocus="WdatePicker({minDate:'#F{$dp.$D(\'d5225\')}'})" name="AppPageInput.period1End"
+                   value="$!dateFormatUtils.format($!AppPageOutput.period1End,"yyyy-MM-dd")"/>
+        </p>
+
+            <p>比例2：
+                <input class="input" style="width:50px;" type="text" name="AppPageInput.percent2"
+                       value="$!AppPageOutput.percent2"/>
+                %&#12288;开始日期：
+                <input id="d5227" class="Wdate input" style="width:105px" type="text" readonly="readonly"
+                       onFocus="var d5228=$dp.$('d5228');WdatePicker({maxDate:'#F{$dp.$D(\'d5228\')}'})"
+                       name="AppPageInput.period2Begin"
+                       value="$!dateFormatUtils.format($!AppPageOutput.period2Begin,"yyyy-MM-dd")"/>
+                &#12288;截止日期：
+                <input id="d5228" class="Wdate input" style="width:105px" type="text" readonly="readonly"
+                       onFocus="WdatePicker({minDate:'#F{$dp.$D(\'d5227\')}'})" name="AppPageInput.period2End"
+                       value="$!dateFormatUtils.format($!AppPageOutput.period2End,"yyyy-MM-dd")"/>
+            </p>
+
+            <p>比例3：
+                <input class="input" style="width:50px;" type="text" name="AppPageInput.percent3"
+                       value="$!AppPageOutput.percent3"/>
+                %&#12288;开始日期：
+                <input id="d5229" class="Wdate input" style="width:105px" type="text" readonly="readonly"
+                       onFocus="var d5230=$dp.$('d5230');WdatePicker({maxDate:'#F{$dp.$D(\'d5230\')}'})"
+                       name="AppPageInput.period3Begin"
+                       value="$!dateFormatUtils.format($!AppPageOutput.period3Begin,"yyyy-MM-dd")"/>
+                &#12288;截止日期：
+                <input id="d5230" class="Wdate input" style="width:105px" type="text" readonly="readonly"
+                       onFocus="WdatePicker({minDate:'#F{$dp.$D(\'d5229\')}'})" name="AppPageInput.period3End"
+                       value="$!dateFormatUtils.format($!AppPageOutput.period3End,"yyyy-MM-dd")"/>
+            </p></td>
+    </tr>
+    <tr>
+        <td><label>预付金额：</label></td>
+        <td><p>人民币：
+            <input class="input" type="text" name="AppPageInput.prepay" value="$!AppPageOutput.prepay"/>
+            元</p></td>
+    </tr>
+    <tr>
+        <td><label>买断信息：</label></td>
+        <td><p>人民币：
+            <input class="input" type="text" style="width:50px" name="AppPageInput.buyout"
+                   value="$!AppPageOutput.buyout"/>
+            元&#12288;开始日期：
+            <input id="d5231" class="Wdate input" style="width:105px" type="text" readonly="readonly"
+                   onFocus="var d5232=$dp.$('d5232');WdatePicker({maxDate:'#F{$dp.$D(\'d5232\')}'})"
+                   name="AppPageInput.buyoutBegin"
+                   value="$!dateFormatUtils.format($!AppPageOutput.buyoutBegin,"yyyy-MM-dd")"/>
+            &#12288;截止日期：
+            <input id="d5232" class="Wdate input" style="width:105px" type="text" readonly="readonly"
+                   onFocus="WdatePicker({minDate:'#F{$dp.$D(\'d5231\')}'})" name="AppPageInput.buyoutEnd"
+                   value="$!dateFormatUtils.format($!AppPageOutput.buyoutEnd,"yyyy-MM-dd")"/>
+        </p></td>
+    </tr>
+    #end
+<tr>
+    <td><label>应用描述：</label></td>
+    <td>
+        <p>
+            <textarea name="AppPageInput.appIntroduce" style="width:510px"
+                      rows="5">$!AppPageOutput.appIntroduce</textarea>
+        </p>
+    </td>
+</tr>
+<tr>
+    <td><label>应用截图：</label></td>
+    <td><p>
+        <ul class="app-screen">
+            #foreach($picture in $Pictures)
+                <li><img #if($AppPageOutput.zhuoWangMark ==1) src="$picture.resUrl" #else
+                                                              src="$imgserver.getTarget('')img_pic/${picture.resUrl}" #end/>
+                </li>
+            #end
+        </ul>
+        </p></td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="btn-box">
+    <label>
+        <input class="btn" type="button" value="保存"
+               onclick="saveStatusMobile($!AppPageOutput.appid,$!AppPageOutput.did)">
+    </label>
+    <label>
+        <input id="closeDiv" class="close" type="button" value="取消">
+    </label>
+</div>
+<div id="big">
+    <div></div>
+</div>

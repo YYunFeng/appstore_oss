@@ -1,0 +1,48 @@
+#set($layout="content.vm")
+<div class="newStat">
+    <ul>
+        #if($userCid==138)
+            <li style="cursor: pointer" onclick="appInstallTotal()">应用的安装总量</li>
+            <li style="cursor: pointer" onclick="totalByChannel()">按渠道查看</li>
+        #end
+        <li class="current">按渠道类型查看</li>
+    </ul>
+</div>
+<div class="tb-box">
+    <table class="tb" cellspacing="0" cellpadding="0">
+        <tr class="tit-bg">
+            <td width="150">渠道名称</td>
+            <td width="150">渠道类型</td>
+            <td width="150">安装手机台数</td>
+            <td width="150">安装应用个数</td>
+            <td width="150">操作</td>
+        </tr>
+        #if($channelType.size()==0)
+            <td colspan="5"><span style="color:#F65D00">无安装数据，请选择别的日期！</span></td>
+        #else
+            #foreach($newStat in $channelType)
+                <tr>
+                    <td>$!newStat.cname</td>
+                    <td>#if($!newStat.channelType==0)
+                        分销
+                    #elseif($!newStat.channelType==1)
+                        零售
+                    #end</td>
+                    <td>$!newStat.phoneCounts</td>
+                    <td>$!newStat.appCounts</td>
+                    <td>
+                        #if($!newStat.channelType==0)
+                            <a href="javascript:void(0);" onclick="channelBySaler($newStat.cid,$newStat.channelType)">
+                                按督导查看
+                            </a>
+                        #elseif($!newStat.channelType==1)
+                            <a href="javascript:void(0);" onclick="channelBySaler($newStat.cid,$newStat.channelType)">
+                                按店长查看
+                            </a>
+                        #end
+                    </td>
+                </tr>
+            #end
+        #end
+    </table>
+</div>

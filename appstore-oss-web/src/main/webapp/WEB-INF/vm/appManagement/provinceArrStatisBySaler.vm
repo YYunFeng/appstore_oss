@@ -1,0 +1,42 @@
+<!--应用的安装总量-->
+#set($layout="content.vm")
+<div>
+    --><a href="javascript:void(0)" onclick="provinceArrStatisTotal()">省办到达统计</a>
+    #if($userId==1)
+        --><a href="javascript:void(0)" onclick="provinceArrStatisByCid();">按渠道查看查看</a>
+    #end
+    -->按促销员查看
+</div>
+<table class="tb" cellspacing="0" cellpadding="0">
+    #if($provinceArrStatisList.size()>0)
+        <tr class="tit-bg">
+            <td>渠道名称</td>
+            <td>促销员名称</td>
+            <td>安装应用数</td>
+            <td>到达应用数</td>
+            <td>到达率</td>
+        </tr>
+        #foreach($provinceArrStatis in $provinceArrStatisList)
+            <tr>
+                <td>$!provinceArrStatis.channelName</td>
+                <td>$!provinceArrStatis.salerName</td>
+                <td>$!provinceArrStatis.installCounts</td>
+                <td>$!provinceArrStatis.arrCounts</td>
+                <td>$!provinceArrStatis.arrPercentage</td>
+            </tr>
+        #end
+    #else
+        <tr class="tit-bg">
+            <td>渠道名称</td>
+            <td>安装应用数</td>
+            <td>到达应用数</td>
+            <td>到达率</td>
+            <td>操作</td>
+        </tr>
+        <tr>
+            <td colspan="4">
+                <span style="color:#f65d00 "> 暂无省办到达数据</span>
+            </td>
+        </tr>
+    #end
+</table>

@@ -1,0 +1,69 @@
+#set($layout="content.vm")
+<div class="fr">
+    <div class="right-box rounded" id="slidingBlock">
+        <div class="form-row">
+            <div class="tabs">
+                <span class="menuOn" id="mod2">华盛电子市场</span>
+            </div>
+            <input class="to-select fr open " type="button" value="添加" onclick=""/>
+        </div>
+        <div class="tb-box">
+            <table class="tb" cellspacing="0" cellpadding="0">
+                <tr class="tit-bg">
+                    <td width="120">版本</td>
+                    <td width="92">versionCode</td>
+                    <td width="92">状态</td>
+                    <td width="92">操作</td>
+                </tr>
+                <tr>
+                    <td>
+                        3.0
+                    </td>
+                    <td>
+                        10
+                    </td>
+                    <td><span style="color:#F65D00"> 已上线</span></td>
+                    <td>
+                        <a class="pa" href="javascript:void(0);">编辑</a>|
+                        <a class="pa" href="javascript:void(0);">下载</a>|
+                        <a class="pa" href="javascript:void(0);">删除</a>|
+                        <a class="pa" href="javascript:void(0);">下线</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        2.0
+                    </td>
+                    <td>
+                        9
+                    </td>
+                    <td>未上线</td>
+                    <td>
+                        <a class="pa" href="javascript:void(0);">编辑</a>|
+                        <a class="pa" href="javascript:void(0);">下载</a>|
+                        <a class="pa" href="javascript:void(0);">删除</a>|
+                        <a class="pa" href="javascript:void(0);">下线</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        1.0
+                    </td>
+                    <td>
+                        8
+                    </td>
+                    <td>未上线</td>
+                    <td>
+                        <a class="pa" href="javascript:void(0);">编辑</a>|
+                        <a class="pa" href="javascript:void(0);">下载</a>|
+                        <a class="pa" href="javascript:void(0);">删除</a>|
+                        <a class="pa" href="javascript:void(0);">下线</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="classPop" style="width:800px;height:500px;" id="confirmPop">
+
+</div>

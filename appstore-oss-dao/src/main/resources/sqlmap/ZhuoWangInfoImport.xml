@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="ZhuoWangInfoImport">
+    <typeAlias alias="Apps" type="com.jd.appstore.domain.Apps"/>
+    <typeAlias alias="AppLog" type="com.jd.appstore.domain.AppLog"/>
+    <typeAlias alias="AppDetailsLog" type="com.jd.appstore.domain.AppDetailsLog"/>
+    <typeAlias alias="AppResource" type="com.jd.appstore.domain.AppResource"/>
+
+    <insert id="createApps" parameterClass="Apps">
+        insert into tb_apps(
+            appid, app_name, package, app_type, categoryid_l2, categoryid1, categoryid2, online, created, modified
+        ) values(
+            #appId#, #appName#, #appPackage#, #appType#, #categoryIdl2#, #categoryId1#, #categoryId2#,1,now(), now()
+        )
+    </insert>
+    <insert id="insertAppLog" parameterClass="AppLog">
+        insert into tb_app_log(
+            id, appid, app_name, package, app_type, categoryid_l2, categoryid1, categoryid2, base_check_status,
+            base_sync_flag, online_sync_flag, online_opt_type, created, modified, newst_flag
+        ) values (
+            #id#,#appId#,#appName#,#appPackage#,#appType#,#categoryIdl2#, #categoryId1#, #categoryId2#, 3, 1, 1, 1,now(), now(), 1
+        )
+    </insert>
+    <insert id="insertAppDetailsLog" parameterClass="AppDetailsLog">
+        insert into tb_app_detail_log(
+            id, appid, accountid, logo_url, app_version,os_version_id, pkg_size, pub_time, app_tag, app_introduce, created,
+            fee_mode, price, modified, update_status, online, valid, app_version_code, is_app_logo, price_sync_flag
+        ) values (
+            #id#, #appId#, #accountId#, #logoUrl#, #appVersion#, #osVersionId#, #pkgSize#, now(), #appTag#, #appIntroduce#, now(),
+            0, 0, now(), 3, 0, 0, #appVersioCode#, 0, 1
+        )
+    </insert>
+    <insert id="insertAppResource"  parameterClass="AppResource">
+        insert into tb_app_resource(
+            res_id, appid, accountid, res_type, cap_seq, res_url, is_copy, created
+        ) values (
+            #resId#, #appId#, #accountId#, #resType#, 0, #resUrl#, 1, now()
+        )
+    </insert>
+</sqlMap>

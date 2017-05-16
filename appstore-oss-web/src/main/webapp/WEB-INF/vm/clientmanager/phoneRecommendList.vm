@@ -1,0 +1,290 @@
+#set($layout="content.vm")
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/clientmanager/util.js")"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+        var b = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "add", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+    /*分页*/
+    function macroAjaxSubmit(url) {
+        jQuery.ajax({
+                    type:'POST',
+                    url:url,
+                    data:'clientType=0&moduleId=0&areaId=10',
+                    success:function(data) {
+                        jQuery('#right_start').html(data);
+                    }
+                });
+    }
+
+    function editPhoneRecommend(id, linkType, homeAreaType, homeAreaPos) {
+        document.getElementById("Loading").style.display = "block";
+        document.getElementById("Loading2").style.display = "block";
+        var tip_html = '';
+        if (homeAreaType == 1) {
+            tip_html = '<label style="display:block">建议图片尺寸：460*220</label>';
+        } else if (homeAreaType == 2) {
+            if (homeAreaPos == 1) {
+                tip_html = '<label style="display:block">建议图片尺寸：226*108</label>';
+            }
+            if (homeAreaPos == 3) {
+                tip_html = '<label style="display:block">建议图片尺寸：226*226</label>';
+            }
+            if (homeAreaPos == 2) {
+                tip_html = '<label style="display:block">建议图片尺寸：226*108</label>';
+            }
+        } else if (homeAreaType == 3) {
+            tip_html = '<label style="display:block">建议图片尺寸：148*148</label>';
+        }
+        jQuery.ajax({
+                    type:'POST',
+                    url:'/recommendManager/editPhoneRecommend.action',
+                    data:'recommendManagerResult.id=' + id + '&recommendManagerResult.linkType=' + linkType,
+                    dataType:'html',
+                    success:function(data) {
+                        document.getElementById("Loading").style.display = "none";
+                        document.getElementById("Loading2").style.display = "none";
+                        jQuery('#confirmPop').html(data);
+                        jQuery('#recommendId').val(id);
+                        loadHomeArea(homeAreaType, homeAreaPos);
+                        jQuery('#tip').empty().html(tip_html);
+                    }
+                });
+    }
+    ;
+</script>
+
+<div class="right-box rounded">
+<div class="form-row">
+    <div align="right">
+        <input class="to-del add" type="button" value="增加" onclick="addHomeAreaType();"/>
+    </div>
+</div>
+<div class="tb-box">
+    <table class="tb" cellspacing="0" cellpadding="0">
+        <tr class="tit-bg">
+            <td width="400">版型</td>
+            <td>状态</td>
+            <td>排序</td>
+            <td>操作</td>
+        </tr>
+        #foreach($recommend in $recommends)
+            <tr>
+                <td>
+                    #if($recommend.homeAreaType==1)
+                        <table align="center" border="0" cellspacing="3" cellpadding="0">
+                            <tr>
+                                #if($!recommend.linkedUrlList.get(0).url)
+                                    <td class="add"
+                                        onclick="editPhoneRecommend($recommend.linkedUrlList.get(0).id,$recommend.linkedUrlList.get(0).linkType,$recommend.homeAreaType,1);">
+                                        #if($recommend.linkedUrlList.get(0).linkType==0&&$recommend.linkedUrlList.get(0).isAppLogo == 0)
+                                            <img class="voth_img" style="width:338px; height:168px;"
+                                                 src="$imgserver.getTarget('')cover/$recommend.linkedUrlList.get(0).url"/>
+                                        #elseif($recommend.linkedUrlList.get(0).linkType==1&&$recommend.linkedUrlList.get(0).isAppLogo == 0)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$topicimageserver.getTarget('')$recommend.linkedUrlList.get(0).url"/>
+                                        #elseif($recommend.linkedUrlList.get(0).linkType==2&&$recommend.linkedUrlList.get(0).isAppLogo == 0)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$categoryserver.getTarget('')$recommend.linkedUrlList.get(0).url"/>
+                                        #elseif($recommend.linkedUrlList.get(0).isAppLogo == 1)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$recimageserver.getTarget('')$recommend.linkedUrlList.get(0).url"/>
+                                        #end
+                                    </td>
+                                #else
+                                    <td class="add"
+                                        onclick="selectHomeAreaTypeById($recommend.linkedUrlList.get(0).id,$recommend.homeAreaType,1);">
+                                        <img class="voth_img" src="/appstore-man/images/vot/vot_1.png"/></td>
+                                #end
+                            </tr>
+                        </table>
+                    #elseif($recommend.homeAreaType==2)
+                        <table align="center" border="0" cellspacing="3" cellpadding="0">
+                            <tr>
+                                #if($!recommend.linkedUrlList.get(0).url)
+                                    <td class="add"
+                                        onclick="editPhoneRecommend($recommend.linkedUrlList.get(0).id,$recommend.linkedUrlList.get(0).linkType,$recommend.homeAreaType,1);">
+                                        #if($recommend.linkedUrlList.get(0).linkType==0&&$recommend.linkedUrlList.get(0).isAppLogo == 0)
+                                            <img class="voth_img" style="width:338px; height:168px;"
+                                                 src="$imgserver.getTarget('')cover/$recommend.linkedUrlList.get(0).url"/>
+                                        #elseif($recommend.linkedUrlList.get(0).linkType==1&&$recommend.linkedUrlList.get(0).isAppLogo == 0)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$topicimageserver.getTarget('')$recommend.linkedUrlList.get(0).url"/>
+                                        #elseif($recommend.linkedUrlList.get(0).linkType==2&&$recommend.linkedUrlList.get(0).isAppLogo == 0)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$categoryserver.getTarget('')$recommend.linkedUrlList.get(0).url"/>
+                                        #elseif($recommend.linkedUrlList.get(0).isAppLogo == 1)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$recimageserver.getTarget('')$recommend.linkedUrlList.get(0).url"/>
+                                        #end
+                                    </td>
+                                #else
+                                    <td class="add"
+                                        onclick="selectHomeAreaTypeById($recommend.linkedUrlList.get(0).id,$recommend.homeAreaType,1);">
+                                        <img class="vot_img" src="/appstore-man/images/vot/vot_2.png"/></td>
+                                #end
+                                #if($!recommend.linkedUrlList.get(2).url)
+                                    <td class="add"
+                                        onclick="editPhoneRecommend($recommend.linkedUrlList.get(2).id,$recommend.linkedUrlList.get(2).linkType,$recommend.homeAreaType,3);"
+                                        rowspan="2">
+                                        #if($recommend.linkedUrlList.get(2).linkType==0&&$recommend.linkedUrlList.get(2).isAppLogo == 0)
+                                            <img class="voth_img" style="width:338px; height:168px;"
+                                                 src="$imgserver.getTarget('')cover/$recommend.linkedUrlList.get(2).url"/>
+                                        #elseif($recommend.linkedUrlList.get(2).linkType==1&&$recommend.linkedUrlList.get(2).isAppLogo == 0)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$topicimageserver.getTarget('')$recommend.linkedUrlList.get(2).url"/>
+                                        #elseif($recommend.linkedUrlList.get(2).linkType==2&&$recommend.linkedUrlList.get(2).isAppLogo == 0)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$categoryserver.getTarget('')$recommend.linkedUrlList.get(2).url"/>
+                                        #elseif($recommend.linkedUrlList.get(2).isAppLogo == 1)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$recimageserver.getTarget('')$recommend.linkedUrlList.get(2).url"/>
+                                        #end
+                                    </td>
+                                #else
+                                    <td class="add" rowspan="2"
+                                        onclick="selectHomeAreaTypeById($recommend.linkedUrlList.get(2).id,$recommend.homeAreaType,3);">
+                                        <img class="voth_img" src="/appstore-man/images/vot/vot_4.png"/></td>
+                                #end
+                            </tr>
+                            <tr>
+                                #if($!recommend.linkedUrlList.get(1).url)
+                                    <td class="add"
+                                        onclick="editPhoneRecommend($recommend.linkedUrlList.get(1).id,$recommend.linkedUrlList.get(1).linkType,$recommend.homeAreaType,2);">
+                                        #if($recommend.linkedUrlList.get(1).linkType==0&&$recommend.linkedUrlList.get(1).isAppLogo == 0)
+                                            <img class="voth_img" style="width:338px; height:168px;"
+                                                 src="$imgserver.getTarget('')cover/$recommend.linkedUrlList.get(1).url"/>
+                                        #elseif($recommend.linkedUrlList.get(1).linkType==1&&$recommend.linkedUrlList.get(1).isAppLogo == 0)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$topicimageserver.getTarget('')$recommend.linkedUrlList.get(1).url"/>
+                                        #elseif($recommend.linkedUrlList.get(1).linkType==2&&$recommend.linkedUrlList.get(1).isAppLogo == 0)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$categoryserver.getTarget('')$recommend.linkedUrlList.get(1).url"/>
+                                        #elseif($recommend.linkedUrlList.get(1).isAppLogo == 1)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$recimageserver.getTarget('')$recommend.linkedUrlList.get(1).url"/>
+                                        #end
+                                    </td>
+                                #else
+                                    <td class="add"
+                                        onclick="selectHomeAreaTypeById($recommend.linkedUrlList.get(1).id,$recommend.homeAreaType,2);">
+                                        <img class="vot_img" src="/appstore-man/images/vot/vot_3.png"/></td>
+                                #end
+                            </tr>
+                        </table>
+                    #elseif($recommend.homeAreaType==3)
+                        <table align="center" border="0" cellspacing="3" cellpadding="0">
+                            <tr>
+                                #if($!recommend.linkedUrlList.get(0).url)
+                                    <td class="add"
+                                        onclick="editPhoneRecommend($recommend.linkedUrlList.get(0).id,$recommend.linkedUrlList.get(0).linkType,$recommend.homeAreaType,1);">
+                                       #if($recommend.linkedUrlList.get(0).linkType==0&&$recommend.linkedUrlList.get(0).isAppLogo == 0)
+                                            <img class="voth_img" style="width:338px; height:168px;"
+                                                 src="$imgserver.getTarget('')cover/$recommend.linkedUrlList.get(1).url"/>
+                                        #elseif($recommend.linkedUrlList.get(0).linkType==1&&$recommend.linkedUrlList.get(0).isAppLogo == 0)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$topicimageserver.getTarget('')$recommend.linkedUrlList.get(0).url"/>
+                                        #elseif($recommend.linkedUrlList.get(0).linkType==2&&$recommend.linkedUrlList.get(0).isAppLogo == 0)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$categoryserver.getTarget('')$recommend.linkedUrlList.get(0).url"/>
+                                        #elseif($recommend.linkedUrlList.get(0).isAppLogo == 1)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$recimageserver.getTarget('')$recommend.linkedUrlList.get(0).url"/>
+                                        #end
+                                    </td>
+                                #else
+                                    <td class="add"
+                                        onclick="selectHomeAreaTypeById($recommend.linkedUrlList.get(0).id,$recommend.homeAreaType,1);">
+                                        <img class="vot_img" src="/appstore-man/images/vot/vot_5.png"/></td>
+                                #end
+                                #if($!recommend.linkedUrlList.get(1).url)
+                                    <td class="add"
+                                        onclick="editPhoneRecommend($recommend.linkedUrlList.get(1).id,$recommend.linkedUrlList.get(1).linkType,$recommend.homeAreaType,2);">
+                                       #if($recommend.linkedUrlList.get(1).linkType==0&&$recommend.linkedUrlList.get(1).isAppLogo == 0)
+                                            <img class="voth_img" style="width:338px; height:168px;"
+                                                 src="$imgserver.getTarget('')cover/$recommend.linkedUrlList.get(1).url"/>
+                                        #elseif($recommend.linkedUrlList.get(1).linkType==1&&$recommend.linkedUrlList.get(1).isAppLogo == 0)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$topicimageserver.getTarget('')$recommend.linkedUrlList.get(1).url"/>
+                                        #elseif($recommend.linkedUrlList.get(1).linkType==2&&$recommend.linkedUrlList.get(1).isAppLogo == 0)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$categoryserver.getTarget('')$recommend.linkedUrlList.get(1).url"/>
+                                        #elseif($recommend.linkedUrlList.get(1).isAppLogo == 1)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$recimageserver.getTarget('')$recommend.linkedUrlList.get(1).url"/>
+                                        #end
+                                    </td>
+                                #else
+                                    <td class="add"
+                                        onclick="selectHomeAreaTypeById($recommend.linkedUrlList.get(1).id,$recommend.homeAreaType,2);">
+                                        <img class="vot_img" src="/appstore-man/images/vot/vot_6.png"/></td>
+                                #end
+                                #if($!recommend.linkedUrlList.get(2).url)
+                                    <td class="add"
+                                        onclick="editPhoneRecommend($recommend.linkedUrlList.get(2).id,$recommend.linkedUrlList.get(2).linkType,$recommend.homeAreaType,3);">
+                                         #if($recommend.linkedUrlList.get(2).linkType==0&&$recommend.linkedUrlList.get(2).isAppLogo == 0)
+                                            <img class="voth_img" style="width:338px; height:168px;"
+                                                 src="$imgserver.getTarget('')cover/$recommend.linkedUrlList.get(2).url"/>
+                                        #elseif($recommend.linkedUrlList.get(2).linkType==1&&$recommend.linkedUrlList.get(2).isAppLogo == 0)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$topicimageserver.getTarget('')$recommend.linkedUrlList.get(2).url"/>
+                                        #elseif($recommend.linkedUrlList.get(2).linkType==2&&$recommend.linkedUrlList.get(2).isAppLogo == 0)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$categoryserver.getTarget('')$recommend.linkedUrlList.get(2).url"/>
+                                        #elseif($recommend.linkedUrlList.get(2).isAppLogo == 1)
+                                            <img class="voth_img" style="width: 338px;height: 168px;"
+                                                 src="$recimageserver.getTarget('')$recommend.linkedUrlList.get(2).url"/>
+                                        #end
+                                    </td>
+                                #else
+                                    <td class="add"
+                                        onclick="selectHomeAreaTypeById($recommend.linkedUrlList.get(2).id,$recommend.homeAreaType,3);">
+                                        <img class="vot_img" src="/appstore-man/images/vot/vot_7.png"/></td>
+                                #end
+                            </tr>
+                        </table>
+                    #end
+                </td>
+                #if($recommend.pubedStatus==0)
+                    <td>未上线</td>
+                #else
+                    <td>已上线</td>
+                #end
+                <td><input style="width:20px;" type="text" value="$recommend.homeAreaId"
+                           onblur="updatePhoneRecommendSeq($recommend.homeAreaId,this.value,$recommend.seq);"/></td>
+            <td><a href="javascript:void(0)" onclick="deletePhoneRecommend($recommend.homeAreaId);">删除</a>
+                |
+                #if($recommend.pubedStatus==0)
+                    #if($recommend.homeAreaType==1&&$!recommend.linkedUrlList.get(0).url)
+                        <a href="javascript:void(0)"
+                           onclick="updatePhoneRecommendPubedStatus($recommend.homeAreaId,1);">上线</a></td>
+                    #elseif($recommend.homeAreaType==2&&$!recommend.linkedUrlList.get(0).url&&$!recommend.linkedUrlList.get(1).url&&$!recommend.linkedUrlList.get(2).url)
+                        <a href="javascript:void(0)"
+                           onclick="updatePhoneRecommendPubedStatus($recommend.homeAreaId,1);">上线</a></td>
+                    #elseif($recommend.homeAreaType==3&&$!recommend.linkedUrlList.get(0).url&&$!recommend.linkedUrlList.get(1).url&&$!recommend.linkedUrlList.get(2).url)
+                        <a href="javascript:void(0)"
+                           onclick="updatePhoneRecommendPubedStatus($recommend.homeAreaId,1);">上线</a></td>
+                    #else
+                        <a href="javascript:void(0)" onclick="alert('请完善推荐内容后方可上线');">上线</a></td>
+                    #end
+                #else
+                    <a href="javascript:void(0)"
+                       onclick="updatePhoneRecommendPubedStatus($recommend.homeAreaId,0)">下线</a></td>
+                #end
+            </tr>
+        #end
+    </table>
+</div>
+</div>
+<div class="paging fr">
+    <div class="paging-box_2"> #set($pageModule=$domain.getTarget("/recommendManager/getPhoneRecommend.action").addQueryData("pageSize",$!pageSize))
+        #showPage($pageModule $recommends) </div>
+</div>
+<div class="classPop" style="width:500px;height:500px;" id="confirmPop">
+
+</div>
+
+
+

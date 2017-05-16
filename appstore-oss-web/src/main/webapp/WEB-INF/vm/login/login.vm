@@ -1,0 +1,55 @@
+#set($title = "登录")
+#set($layout="content.vm")
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>全网营销体验平台支撑系统</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7"/>
+    <script type="text/javascript" src="$assetModule.getTarget("/appstore-man/js/jquery-1.4.2.min.js")"></script>
+    <link rel="stylesheet" type="text/css" href="$assetModule.getTarget("/appstore-man/css/base.css")"/>
+    <link rel="stylesheet" type="text/css" href="$assetModule.getTarget("/appstore-man/css/login.css")"/>
+    <script type="text/javascript" src="$assetModule.getTarget("/appstore-man/js/login/login.js")"></script>
+</head>
+<body scroll="no">
+<form name="form1" method="post">
+    <div id="login">
+        <div class="box">
+            <div class="logo fl"><p style="font-size: 20px; font-weight:bolder;color:#327ea3;margin-top:30px;">全网营销体验平台支撑系统</p></div>
+            <div class="login-box fr">
+                <div class="log-content">
+                    <div class="form-row">
+                        <label class="label fl">用户名:</label>
+                        <div class="input-bg fl">
+                            <input id="username" class="input" type="text" name="supportUsers.account" value="$!stringEscapeUtils.escapeHtml($!ossAccount)"  onclick="cleanMsg();"/>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="label fl">密&#12288;码:</label>
+
+                        <div class="input-bg fl">
+                            <input id="password" class="input" type="password" name="supportUsers.password" value="$!stringEscapeUtils.escapeHtml($!password)"  onclick="cleanMsg();"/>
+                        </div>
+                    </div>
+                    
+                     <p class="form-row_2">
+                        <label class="ts red" id="msg"></label>
+                    </p>
+
+                    <p class="form-row_3">
+                        <label class="mar">
+                            <input id="chkRememberUsername" class="checkbox" type="checkbox" checked="checked">
+                            记住我的登录状态 </label>
+                    </p>
+
+                    <p class="btn"><input id="input_submit" class="to-login" type="button" onclick="checkSubmit();"></p>
+
+                    <div class="clr"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+</body>
+</html>

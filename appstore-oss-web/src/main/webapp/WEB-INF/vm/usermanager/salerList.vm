@@ -1,0 +1,14 @@
+#set($layout="content.vm")
+<td width="100"><label>上级促销员ID：</label></td>
+<td width="250">
+    <select style="margin-left: 2px" id="parentId">
+        #foreach($saler in $salerList)
+            <option value="$saler.salerNo"
+                #if($saler.salerNo == $salerDetails.parentId)
+                    selected
+                #end>
+                $saler.salerName
+            </option>
+        #end
+    </select>
+</td>

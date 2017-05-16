@@ -1,0 +1,41 @@
+package com.jd.cms.manager.contains;
+
+/**
+ * Created by IntelliJ IDEA.
+ * User: Administrator
+ * Date: 12-7-18
+ * Time: 下午5:46
+ * To change this template use File | Settings | File Templates.
+ */
+public class CategoryConstants {
+    public static final String CMS_ACCOUNTMANAGER_PAGER_CACHED = "CMS_ACCOUNTMANAGER_PAGER_CACHED";
+    public static final String CMS_ROLEMANAGER_PAGER_CACHED = "CMS_ROLEMANAGER_PAGER_CACHED";
+    public static final String CMS_CATEGORYMAINTENANCE_PAGER_CACHED = "CMS_CATEGORYMAINTENANCE_PAGER_CACHED";
+    public static final String CMS_ERPTASK_PAGER_CACHED = "CMS_ERPTASK_PAGER_CACHED";
+    public static final String CMS_LOOPTASK_PAGER_CACHED = "CMS_LOOPTASK_PAGER_CACHED";
+    public static final int CMS_EXPIRE_TIME = 1800;
+    public static final String CMS_RECOMMENDMANAGER_PAGER_CACHED = "CMS_RECOMMENDMANAGER_PAGER_CACHED";
+    public static final String CMS_RECOMMENDMANAGER_PHONE_PAGER_CACHED = "CMS_RECOMMENDMANAGER_PHONE_PAGER_CHACHED";
+    public static final String CMS_RECOMMENDMANAGER_PAD_PAGER_CACHED = "CMS_RECOMMENDMANAGER_PAD_PAGER_CACHED";
+    public static final String CMS_RECOMMENDMANAGER_PC_PAGER_CACHED = "CMS_RECOMMENDMANAGER_PC_PAGER_CACHED";
+    public static final String CMS_RECOMMENDMANAGER_WEB_PAGER_CACHED = "CMS_RECOMMENDMANAGER_WEB_PAGER_CACHED";
+    public static final String CMS_TOPICMANAGER_PAGER_CACHED = "CMS_TOPICMANAGER_PAGER_CACHED";
+    public static final String CMS_TOPICMANAGER_PUB_PAGER_CACHED = "CMS_TOPICMANAGER_PUB_PAGER_CACHED";
+    public static final String CMS_RANKINGAPPMANAGER_PAGER_CACHED = "CMS_RANKINGAPPMANAGER_PAGER_CACHED";
+    public static final String CMS_NOTICEMANAGER_PAGER_CACHED = "CMS_NOTICEMANAGER_PAGER_CACHED";
+    public static final String CMS_NOTICEMANAGER_PUB_PAGER_CACHED = "CMS_NOTICEMANAGER_PUB_PAGER_CACHED";
+    public static final String CMS_HOTWORD_PAGER_CACHED = "CMS_HOTWORD_PAGER_CACHED";
+    /*zhounan-begin*/
+    public static final String CMS_OS_PAGER_CACHED = "CMS_OS_PAGER_CACHED";
+    public static final String CMS_SCREEN_PAGER_CACHED = "CMS_SCREEN_PAGER_CACHED";
+    public static final String CMS_CPQUALITY_PAGER_CACHED = "CMS_CPQUALITY_PAGER_CACHED";
+    public static final String CMS_CPCHARGE_PAGER_CACHED = "CMS_CPCHARGE_PAGER_CACHED";
+    public static final String CMS_APP_PAGER_CACHED = "CMS_APP_PAGER_CACHED";
+    public static final String CMS_APPMOBILE_PAGER_CACHED= "CMS_APPMOBILE_PAGER_CACHED";
+    public static final String CMS_APPWEB_PAGER_CACHED= "CMS_APPWEB_PAGER_CACHED";
+    public static final String CMS_FEEDBACK_CACHED = "CMS_FEEDBACK_CACHED";
+    /*zhounan-end*/
+
+    public static final String CMS_CLIENTVERSIONMANAGER_PAGER_CACHED = "CMS_CLIENTVERSIONMANAGER_PAGER_CACHED";
+    public static final String CMS_ANDROIDDRIVERMANAGER_PAGER_CACHED = "CMS_ANDROIDDRIVERMANAGER_PAGER_CACHED";
+}

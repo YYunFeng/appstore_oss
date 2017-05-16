@@ -1,0 +1,56 @@
+#set($layout="content.vm")
+<div class="tb-box" id="marketStatic">
+    <div class="newStat">
+        <ul>
+            <li style="cursor: pointer" onclick="incomeStatisticContent()">结算统计</li>
+            <li style="cursor: pointer" onclick="incomeStatisticChannelType($cid)">按渠道类型查看</li>
+            <li style="cursor: pointer" onclick="incomeBySaler($channelType)">
+                #if($channelType==0)
+                    按督导查看
+                #elseif($channelType==1)
+                    按店长查看
+                #end</li>
+            </li>
+            <li class="current">
+                按店员查看
+            </li>
+        </ul>
+    </div>
+<div>
+<table class="tb" cellspacing="0" cellpadding="0">
+    <tr class="tit-bg">
+        <td>唯一号</td>
+        <td>姓名</td>
+        <td>店名</td>
+        <td>促销员类型</td>
+        <td>安装手机台数</br>(单位：台)</td>
+        <td>安装应用个数</br>(单位：个)</td>
+        <td>有效安装个数</br>(单位：个)</td>
+    </tr>
+    #if($provinceIncomeStatistic.size()>0)
+        #foreach($!incomeStatistic in $!provinceIncomeStatistic)
+            <tr>
+                <td>$!incomeStatistic.salerNo</td>
+                <td>$!incomeStatistic.salerName</td>
+                <td>$!incomeStatistic.shopName</td>
+                <td>
+                    #if($!incomeStatistic.salerType==0)
+                        督导
+                    #elseif($!incomeStatistic.salerType==1)
+                        店长
+                    #elseif($!incomeStatistic.salerType==2)
+                        店员
+                    #end
+                </td>
+                <td>$!incomeStatistic.phoneCounts</td>
+                <td>$!incomeStatistic.appCounts</td>
+                <td>$!incomeStatistic.arriveCounts</td>
+            </tr>
+        #end
+    #else
+         <tr>
+            <td colspan="8"><span style="color:#F65D00 ">暂无结算数据</span></td>
+         </tr>
+    #end
+
+</table>

@@ -1,0 +1,661 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="ErpSchedule">
+
+    <typeAlias alias="TaskInfoResult" type="com.jd.cms.domain.taskmanager.TaskInfoResult"/>
+    <typeAlias alias="TaskInfoQuery" type="com.jd.cms.domain.taskmanager.TaskInfoQuery"/>
+    <typeAlias alias="AppLog" type="com.jd.appstore.domain.AppLog"/>
+    <typeAlias alias="Apps" type="com.jd.appstore.domain.Apps"/>
+    <typeAlias alias="AppDetailsLog" type="com.jd.appstore.domain.AppDetailsLog"/>
+    <typeAlias alias="AppDetails" type="com.jd.appstore.domain.AppDetails"/>
+    <typeAlias alias="BackendTask" type="com.jd.appstore.domain.BackendTask"/>
+    <typeAlias alias="AppResource" type="com.jd.appstore.domain.AppResource"/>
+
+    <resultMap id="TaskInfoResultMap" class="TaskInfoResult">
+        <result property="id" column="id" />
+        <result property="taskTypeId" column="taskTypeId"/>
+        <result property="taskTypeName" column="taskTypeName"/>
+        <result property="relatedId" column="relatedId" />
+        <result property="status" column="status" />
+        <result property="adminId" column="adminId"/>
+        <result property="ip" column="ip"/>
+        <result property="startTimePlan" column="startTimePlan"/>
+        <result property="startTimeFact" column="startTimeFact"/>
+        <result property="comment" column="comment"/>
+        <result property="retryTimes" column="retryTimes"/>
+        <result property="autoRetry" column="autoRetry"/>
+        <result property="isLoop" column="isLoop"/>
+        <result property="loopPeriod" column="loopPeriod"/>
+        <result property="created" column="created"/>
+        <result property="modified" column="modified"/>
+    </resultMap>
+<select id="findTaskInfoResult" parameterClass="TaskInfoQuery" resultMap="ErpSchedule.TaskInfoResultMap">
+    select
+            tbt.id as id,
+            tbt.task_type_id as taskTypeId,
+            tat.task_type_name as taskTypeName,
+            tbt.related_id as relatedId,
+            tbt.status as status,
+            tbt.admin_id as adminId,
+            tbt.ip as ip,
+            tbt.start_time_plan as startTimePlan,
+            tbt.start_time_fact as startTimeFact,
+            tbt.comment as comment,
+            tbt.retry_times as retryTimes,
+            tbt.auto_retry as autoRetry,
+            tat.is_loop as isLoop,
+            tat.loop_period as loopPeriod,
+            tbt.created as created,
+            tbt.modified as modified
+    from
+            tb_backend_task tbt
+    left join
+            tb_task_type tat
+    on
+            tbt.task_type_id=tat.task_type_id
+    where
+            tat.is_loop =0
+    and
+            tbt.status=#status#
+    and
+            <![CDATA[retry_times>0]]>
+    order by
+            tbt.created
+</select>
+<select id="findAppDetailsLog" parameterClass="com.jd.common.util.Query" resultClass="AppDetailsLog">
+        select
+			tadl.id as id,
+			tadl.appid as appId,
+			tadl.accountid as accountId,
+			tcb.account as account,
+			tadl.fee_mode as feeMode,
+			tadl.price as price,
+            tadl.zhuowangMark as zhuoWangMark,
+            tadl.apkcode as apkCode,
+			tadl.percent as percent,
+			tadl.period1_begin as period1Begin,
+			tadl.period1_end as period1End,
+			tadl.percent2 as percent2,
+			tadl.period2_begin as period2Begin,
+			tadl.period2_end as period2End,
+			tadl.percent3 as percent3,
+			tadl.period3_begin as period3Begin,
+			tadl.period3_end as period3End,
+			tadl.prepay as prepay,
+			tadl.buyout as buyout,
+			tadl.buyout_begin as buyoutBegin,
+			tadl.buyout_end as buyoutEnd,
+            tadl.price_sync_flag as priceSyncFlag,
+			tadl.logo_url as logoUrl,
+            tadl.is_app_logo as appLogo,
+			tadl.app_version as appVersion,
+            tadl.app_version_code as appVersioCode,
+			tadl.os_version_id as osVersionId,
+			tadl.pkg_size as pkgSize,
+			tadl.pub_time as pubTime,
+			tadl.ad_text as adText,
+			tadl.app_tag as appTag,
+			tadl.new_features as newFeatures,
+			tadl.app_introduce as appIntroduce,
+			tadl.online as online,
+			tadl.update_status as updateStatus,
+			tadl.comment as comment,
+			tadl.valid as valId
+        from
+			tb_app_detail_log tadl
+		left join
+			tb_cp_baseinfo tcb
+		on
+			tadl.accountid=tcb.id
+        where
+			tadl.id=#id#
+        limit 1
+</select>
+<select id="findAppDetailsLogByAppId" parameterClass="com.jd.common.util.Query" resultClass="AppDetailsLog">
+    select
+			id as id,
+			appid as appId,
+			accountid as accountId,
+			fee_mode as feeMode,
+			price as price,
+			percent as percent,
+			period1_begin as period1Begin,
+			period1_end as period1End,
+			percent2 as percent2,
+			period2_begin as period2Begin,
+			period2_end as period2End,
+			percent3 as percent3,
+			period3_begin as period3Begin,
+			period3_end as period3End,
+			prepay as prepay,
+			buyout as buyout,
+			buyout_begin as buyoutBegin,
+			buyout_end as buyoutEnd,
+            price_sync_flag as priceSyncFlag,
+			logo_url as logoUrl,
+            is_app_logo as appLogo,
+			app_version as appVersion,
+            app_version_code as appVersioCode,
+			os_version_id as osVersionId,
+			pkg_size as pkgSize,
+			pub_time as pubTime,
+			ad_text as adText,
+			app_tag as appTag,
+			new_features as newFeatures,
+			app_introduce as appIntroduce,
+			online as online,
+			update_status as updateStatus,
+			comment as comment,
+			valid as valId
+    from
+			tb_app_detail_log
+    where
+			appId=#id#
+    order by
+            created desc
+    limit 1
+</select>
+<select id="findAppDetails" parameterClass="com.jd.common.util.Query" resultClass="AppDetails">
+    select
+			appid as appId,
+			accountid as accountId,
+			fee_mode as feeMode,
+			price as price,
+			percent as percent,
+			period1_begin as period1Begin,
+			period1_end as period1End,
+			percent2 as percent2,
+			period2_begin as period2Begin,
+			period2_end as period2End,
+			percent3 as percent3,
+			period3_begin as period3Begin,
+			period3_end as period3End,
+			prepay as prepay,
+			buyout as buyout,
+			buyout_begin as buyoutBegin,
+			buyout_end as buyoutEnd,
+			logo_url as logoUrl,
+            is_app_logo as appLogo,
+			app_version as appVersion,
+			os_version_id as osVersionId,
+			pkg_size as pkgSize,
+			pub_time as pubTime,
+			ad_text as adText,
+			app_tag as appTag,
+			new_features as newFeatures,
+			app_introduce as appIntroduce
+    from
+			tb_app_details
+    where
+			appid=#id#
+    and
+            accountid=#startRow#
+    limit 1
+</select>
+<select id="findAppLog" parameterClass="com.jd.common.util.Query" resultClass="AppLog">
+    select
+			appid as appId,
+			app_name as appName,
+            package as appPackage,
+            app_type as appType,
+            categoryid_l2 as categoryIdl2,
+			categoryid1 as categoryId1,
+			categoryid2 as categoryId2,
+            default_detail_id as defaultDetailId,
+            base_check_status as baseCheckStatus,
+            base_sync_flag as baseSyncFlag,
+            online_sync_flag as onlineSyncFlag,
+            online_opt_type as onlineOptType
+    from
+			tb_app_log
+    where
+			id=#id#
+    limit 1
+</select>
+<select id="getAppDetails" parameterClass="com.jd.common.util.Query" resultClass="int">
+    select
+			count(*)
+    from
+			tb_app_details
+    where
+			appid=#id#
+</select>
+<select id="findAppResourceCopy" parameterClass="com.jd.common.util.Query" resultClass="int">
+    select
+			count(*)
+    from
+			tb_app_resource
+    where
+        appid=#startRow#
+    and
+        accountid=#endRow#
+    and
+        is_copy=1
+</select>
+<select id="findUploadCoverTaskById" parameterClass="com.jd.common.util.Query" resultClass="int">
+    <!--select-->
+			<!--count(*)-->
+    <!--from-->
+			<!--tb_backend_task tbt-->
+    <!--left join-->
+			<!--tb_app_detail_log tad-->
+    <!--on-->
+			<!--tbt.related_id=tad.id-->
+    <!--left join-->
+			<!--tb_app_log tal-->
+    <!--on-->
+			<!--tad.appid=tal.appid-->
+    <!--where-->
+			<!--tal.id=#id#-->
+    <!--and-->
+			<!--tbt.task_type_id=#value#-->
+    <!--and-->
+			<!--tbt.status=2-->
+    SELECT
+	    tad.is_app_logo
+    from
+        tb_app_detail_log tad
+    where
+        ( (tad.update_status=0 and tad.valid=1) or (tad.update_status=1 and tad.valid=0) )
+    and
+        tad.appid = (select appid
+            FROM
+	            tb_app_log tal
+            WHERE
+	            tal.id =#id#
+            )
+    union ALL
+    (select 0 as is_app_logo from tb_task_type limit 1)
+    order by is_app_logo desc
+    limit 1
+</select>
+<select id="findUploadCoverTaskByRelatedId" parameterClass="com.jd.common.util.Query" resultClass="int">
+    <!--select-->
+			<!--count(*)-->
+    <!--from-->
+			<!--tb_backend_task-->
+    <!--where-->
+		    <!--related_id=#id#-->
+    <!--and-->
+			<!--task_type_id=#value#-->
+    <!--and-->
+        <!--status=2-->
+    select count(*) from tb_backend_task  t1,
+        (select a.id from tb_app_detail_log as a,
+            (select appid from tb_app_detail_log  where id=#id#) as b
+            where a.appid=b.appid
+        ) as t2
+    where t1.related_id=t2.id
+    and task_type_id=#value#  and  status=2
+
+</select>
+
+
+<select id="getAppLogoUrl" parameterClass="com.jd.common.util.Query" resultClass="java.lang.String">
+    select logo_url from(
+    select logo_url from tb_app_details where appid=#id# and is_app_logo=1
+    union ALL
+    (select logo_url from tb_app_detail_log where appid=#id# and is_app_logo=1 order by id desc limit 1)
+    )as t limit 1
+
+</select>
+
+<select id="baseSyncFlagIsSuccess" parameterClass="com.jd.common.util.Query" resultClass="AppLog">
+    select
+		tal.base_sync_flag as baseSyncFlag
+    from
+		tb_app_log tal
+    where
+		tal.appid=#id#
+    and
+		tal.newst_flag=1
+    limit 1
+</select>
+<update id="updateApps" parameterClass="Apps" >
+        update
+            tb_apps
+        set
+            app_name=#appName#,
+            package=#appPackage#,
+            app_type=#appType#,
+            categoryid_l2=#categoryIdl2#,
+            categoryid1=#categoryId1#,
+            categoryid2=#categoryId2#,
+            modified=now()
+        where
+            appid=#appId#
+</update>
+<update id="updateAppLog" parameterClass="com.jd.common.util.Query" >
+        update
+            tb_app_log
+        set
+            base_sync_flag=0,
+            modified=now()
+        where
+            id=#id#
+</update>
+<update id="updateTaskInfo" parameterClass="TaskInfoQuery">
+        update
+            tb_backend_task
+        set
+            status=#status#,
+            start_time_fact=#startTimeFact#,
+            start_time_plan=#startTimePlan#,
+            comment=#comment#,
+            retry_times=#retryTimes#
+        where
+            id=#id#
+        and
+            <![CDATA[status<>2]]>
+</update>
+
+<update id="removeInvalidTask" parameterClass="com.jd.common.util.Query">
+        delete from
+            tb_backend_task
+        where
+            id=#id#
+        and
+            <![CDATA[status<>2]]>
+</update>
+
+<update id="removeInvalidApp_1" parameterClass="com.jd.common.util.Query">
+        delete from  tb_apps where appid=#id#
+</update>
+<update id="removeInvalidApp_2" parameterClass="com.jd.common.util.Query">
+        delete from  tb_app_details  where appid=#id#
+</update>
+<update id="removeInvalidApp_3" parameterClass="com.jd.common.util.Query">
+        delete from  tb_app_log  where appid=#id#
+</update>
+<update id="removeInvalidApp_4" parameterClass="com.jd.common.util.Query">
+        delete from  tb_app_detail_log  where appid=#id#
+</update>
+
+
+
+<update id="updateTaskStatus" parameterClass="TaskInfoQuery">
+        update
+            tb_backend_task
+        set
+            status=#status#,
+            start_time_plan=#startTimePlan#
+        where
+            id=#id#
+        and
+            <![CDATA[status<>2]]>
+</update>
+<update id="updateAppsOnlineStatus" parameterClass="com.jd.common.util.Query">
+        update
+            tb_apps
+        set
+            <isEqual property="startRow" compareValue="0">
+                default_detail_id=#endRow#
+            </isEqual>
+            <isNotEqual property="startRow" compareValue="0">
+                <isNotEqual property="endRow" compareValue="0">
+                    default_detail_id=#endRow#,
+                </isNotEqual>
+                online=#startRow#
+            </isNotEqual>
+        where
+            appid=#id#
+</update>
+<update id="updateAppsLogOnlineSyncFlag" parameterClass="com.jd.common.util.Query">
+        update
+            tb_app_log
+        set
+            online_sync_flag=0
+        where
+            id=#id#
+</update>
+<update id="updateAppPriceSyncFlag" parameterClass="com.jd.common.util.Query">
+        update
+            tb_app_detail_log
+        set
+            price_sync_flag=0,
+            update_status=0,
+            online=1,
+            valid=1
+        where
+            id=#id#
+</update>
+<update id="updateAppDetails" parameterClass="AppDetails">
+        update
+            tb_app_details
+        set
+             fee_mode=#feeMode#
+            ,price=#price#
+            ,percent=#percent#
+            ,period1_begin=#period1Begin#
+            ,period1_end=#period1End#
+            ,percent2=#percent2#
+            ,period2_begin=#period2Begin#
+            ,period2_end=#period2End#
+            ,percent3=#percent3#
+            ,period3_begin=#period3Begin#
+            ,period3_end=#period3End#
+            ,prepay=#prepay#
+            ,buyout=#buyout#
+            ,buyout_begin=#buyoutBegin#
+            ,buyout_end=#buyoutEnd#
+            ,app_version=#appVersion#
+            ,app_version_code=#appVersioCode#
+            ,logo_url=#logoUrl#
+            ,os_version_id=#osVersionId#
+            ,pkg_size=#pkgSize#
+            ,online=#online#
+            ,update_status=#updateStatus#
+            ,pub_time=#pubTime#
+            ,ad_text=#adText#
+            ,app_tag=#appTag#
+            ,new_features=#newFeatures#
+            ,app_introduce=#appIntroduce#
+            ,is_app_logo=#appLogo#
+            ,modified=now()
+        where
+            appid=#appId#
+        and
+            accountid=#accountId#
+</update>
+<update id="updateAppPriceCheckStatus" parameterClass="com.jd.common.util.Query">
+        update
+            tb_app_detail_log
+        set
+            price_sync_flag=0,
+            update_status=2
+        where
+            id=#id#
+</update>
+
+<update id="updateAppDetailByDownStatus" parameterClass="com.jd.common.util.Query">
+        update
+            tb_app_details
+        set
+            online=2
+        where
+            appid=#id#
+</update>
+
+<update id="resetOfflineAppFromRecommend" parameterClass="com.jd.common.util.Query">
+        update
+            tb_recommend
+        set
+            home_areapos=null,url=null,is_app_logo=null,is_default_img=null,
+            link_type=null,linked_appid=null,linked_url=null,intro=null
+        where
+            link_type=0
+        and
+            linked_appid=#id#
+        and
+            (client_type=0  or client_type=1)
+</update>
+
+<update id="removeOfflineAppFromRecommend" parameterClass="com.jd.common.util.Query">
+        delete from
+            tb_recommend
+        where
+            link_type=0
+        and
+            linked_appid=#id#
+</update>
+
+<update id="removeOfflineAppFromRanking" parameterClass="com.jd.common.util.Query">
+        delete from
+            tb_ranking_app
+        where
+            appid=#id#
+</update>
+
+
+<update id="updateAppDetailByOnlineStatus" parameterClass="com.jd.common.util.Query">
+        update
+            tb_app_details
+        set
+            online=1
+        where
+            appid=#id#
+</update>
+
+<insert id="createBackendTask" parameterClass="BackendTask" >
+        insert into tb_backend_task
+            (id
+            ,task_type_id
+            ,related_id
+            ,status
+            ,admin_id
+            ,start_time_plan
+            ,start_time_fact
+            ,comment
+            ,retry_times
+            ,auto_retry
+            ,created
+            ,modified)
+        values
+            (#id#
+            ,#taskTypeId#
+            ,#relatedId#
+            ,#status#
+            ,#adminId#
+            ,#startTimePlan#
+            ,#startTimeFact#
+            ,#comment#
+            ,#retryTimes#
+            ,#autoRetry#
+            ,now()
+            ,now())
+</insert>
+<insert id="createAppDetails" parameterClass="AppDetails" >
+        insert into tb_app_details
+            (id
+            ,appid
+            ,accountid
+            ,fee_mode
+            ,price
+            ,percent
+            ,period1_begin
+            ,period1_end
+            ,percent2
+            ,period2_begin
+            ,period2_end
+            ,percent3
+            ,period3_begin
+            ,period3_end
+            ,prepay
+            ,buyout
+            ,buyout_begin
+            ,buyout_end
+            ,app_version
+            ,app_version_code
+            ,logo_url
+            ,os_version_id
+            ,pkg_size
+            ,online
+            ,update_status
+            ,pub_time
+            ,ad_text
+            ,app_tag
+            ,new_features
+            ,app_introduce
+            ,is_app_logo
+            ,zhuowangMark
+            ,apkcode
+            ,created
+            ,modified)
+        values
+            (#id#
+            ,#appId#
+            ,#accountId#
+            ,#feeMode#
+            ,#price#
+            ,#percent#
+            ,#period1Begin#
+            ,#period1End#
+            ,#percent2#
+            ,#period2Begin#
+            ,#period2End#
+            ,#percent3#
+            ,#period3Begin#
+            ,#period3End#
+            ,#prepay#
+            ,#buyout#
+            ,#buyoutBegin#
+            ,#buyoutEnd#
+            ,#appVersion#
+            ,#appVersioCode#
+            ,#logoUrl#
+            ,#osVersionId#
+            ,#pkgSize#
+            ,#online#
+            ,#updateStatus#
+            ,now()
+            ,#adText#
+            ,#appTag#
+            ,#newFeatures#
+            ,#appIntroduce#
+            ,#appLogo#
+            ,#zhuoWangMark#
+            ,#apkCode#
+            ,now()
+            ,now())
+</insert>
+<update id="updateTaskBySuccessStatus" parameterClass="com.jd.common.util.Query">
+    update
+        tb_backend_task
+    set
+        status=2
+    where
+        id=#id#
+</update>
+<update id="updateAppIsCopyStatus" parameterClass="com.jd.common.util.Query">
+    update
+        tb_app_resource
+    set
+        is_copy=0
+    where
+        appid=#startRow#
+    and
+        accountid=#endRow#
+</update>
+<update id="updateTaskInfoByRelatedId" parameterClass="com.jd.common.util.Query">
+    update
+        tb_backend_task
+    set
+        status=2
+    where
+        related_id=#id#
+</update>
+<update id="updateAppDetailsLogCover" parameterClass="com.jd.common.util.Query">
+    update
+        tb_app_detail_log
+    set
+        logo_url=#value#,
+        is_app_logo=1
+    where
+        id=#id#
+</update>
+<delete id="deleteAppResource" parameterClass="com.jd.common.util.Query">
+    delete from tb_app_resource where appid=#startRow# and accountid=#endRow# and is_copy=0
+</delete>
+</sqlMap>

@@ -1,0 +1,75 @@
+#set($title = "系统维护-周期性同步任务管理")
+#set($layout="content.vm")
+<div class="fr">
+        <div class="right-box rounded">
+          <div class="form-row">
+            <!--paging_start-->
+             <div class="paging fr">
+                      <div class="paging-box_1">
+                        #set($pageModule = $domain.getTarget("/taskManager/loopList.action").addQueryData("pageSize",$!pageSize))
+                            #showPage($pageModule $loopTasks)
+                      </div>
+                    </div>
+            <!--paging_end-->
+          </div>
+          <div class="tb-box">
+            <table class="tb" cellspacing="0" cellpadding="0">
+              <tr class="tit-bg">
+                <td>任务类型</td>
+                <td>任务周期</td>
+                <td>任务状态</td>
+                <td>上次完成时间</td>
+                <td>操作</td>
+              </tr>
+                #foreach($loopTask in $loopTasks)
+                    <tr>
+                        <td><div><label>$!loopTask.taskTypeName</label></div></td>
+                        <td><div><label>$!loopTask.loopPeriod</label></div></td>
+                        <td><div><label>
+                        #if(0==$!loopTask.status)
+                            已启用
+                        #elseif(4==$!loopTask.status)
+                            未启用
+                        #end
+                        </label></div></td>
+                        <td><div><label>
+                            #if($loopTask.startTimeFact)
+                                $!dateFormatUtils.format($!loopTask.startTimeFact)
+                            #end
+                        </label></div></td>
+                        <td>
+                        #if(0==$!loopTask.status)
+                            <a href="javascript:void(0)" class="pa" onclick="disable('$!loopTask.id');">停用</a>
+                        #elseif(4==$!loopTask.status)
+                            <a href="javascript:void(0)" class="pa" onclick="enable('$!loopTask.id');">启用</a>
+                        #end
+                            |<a href="javascript:void(0)" class="pa" onclick="immediatelyExec('$!loopTask.taskTypeId');">立即执行</a></td>
+                    </tr>
+                #end
+
+
+            </table>
+          </div>
+           <!--paging_start-->
+            <div class="paging fr">
+                     <div class="paging-box_2">
+                        #set($pageModule = $domain.getTarget("/taskManager/loopList.action").addQueryData("pageSize",$!pageSize))
+                        #showPage($pageModule $loopTasks)
+                    </div>
+                </div>
+            <!--paging_end-->
+        </div>
+      </div>
+<script type="text/javascript">
+    //分页
+function macroAjaxSubmit(url) {
+    jQuery.ajax({
+                type:'post',
+                url:url,
+                data:{"taskInfoQuery.appName":jQuery('input[name="taskInfoQuery.appName"]').val()},
+                success:function(data) {
+                    jQuery('#content').html(data);
+                }
+            });
+};
+</script>

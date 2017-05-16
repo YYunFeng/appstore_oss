@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+    <constant name="struts.enable.DynamicMethodInvocation" value="false"/>
+    <constant name="struts.devMode" value="${appstore.oss.struts.devMode}"/>
+    <constant name="struts.objectFactory" value="spring"/>
+    <constant name="struts.objectFactory.spring.autoWire " value="type"/>
+    <constant name="struts.i18n.encoding" value="UTF-8"/>
+    <constant name="struts.custom.i18n.resources" value="message/message"/>
+    <constant name="struts.multipart.maxSize" value="100000000"/>
+
+    <package name="appstore-default" extends="struts-default">
+        <result-types>
+            <result-type name="velocity" class="com.jd.common.struts.velocity.VelocityLayoutResult" default="true">
+                <param name="toolsBeanId">velocityTools</param>
+                <param name="urlBeanId">velocityUrl</param>
+            </result-type>
+        </result-types>
+        <interceptors>
+            <interceptor name="appStoreLoginInterceptor"  class="com.jd.cms.common.interceptor.AppStoreLoginInterceptor"></interceptor>
+            <interceptor name="jdAppStoreLoginContextInterceptor" class="com.jd.cms.common.interceptor.JdAppStoreLoginContextInterceptor"></interceptor>
+            <interceptor name="powerInterceptor" class="com.jd.cms.common.interceptor.PowerInterceptor"></interceptor>
+            <interceptor-stack name="appstorestack">
+                <interceptor-ref name="jdAppStoreLoginContextInterceptor"></interceptor-ref>
+                <interceptor-ref name="appStoreLoginInterceptor"></interceptor-ref>
+              <!--  <interceptor-ref name="appStoreLoginInterceptor">
+                    <param name="excludeMethods">
+                        init,start,login,exit,getAccount,uploadPic,uploadImg,uploadExcel,uploadClientVersion
+                    </param>
+                </interceptor-ref>-->
+                <interceptor-ref name="powerInterceptor">
+                    <!--配置不拦截方法-->
+                    <param name="excludeMethods">
+                        init,welcome,login,exit,getAccount,uploadPic,uploadImg,uploadExcel,uploadClientVersion,relevanceChannel,createChannelUser,changeStatusForApp,
+                        incomeTarget,changeCp,provinceArrStatis,provinceArrStatisTotal,provinceArrStatisByCid,provinceArrStatisBySaler,exportProvinceArrExcel,provinceMonthly,provinceMonthlyContent,
+                        newStatistic,salerList,incomeStatistic,incomeStatisticContent,incomeStatisticChannelType,incomeStatisticSaler,incomeStatisticBySalerDetails,incomeStatisExcel
+                    </param>
+                </interceptor-ref>
+                <interceptor-ref name="defaultStack"></interceptor-ref>
+            </interceptor-stack>
+        </interceptors>
+        <default-interceptor-ref name="appstorestack"></default-interceptor-ref>
+        <global-results>
+            <result name="exception">/WEB-INF/vm/error.vm</result>
+            <result name="error">/WEB-INF/vm/error.vm</result>
+            <result name="login" type="redirect">/index.htm</result>
+            <result name="none">/WEB-INF/vm/nopower.vm</result>
+        </global-results>
+        <global-exception-mappings>
+            <exception-mapping exception="java.lang.Exception" result="exception"/>
+        </global-exception-mappings>
+    </package>
+    <include file="struts-login.xml"/>
+    <include file="struts-usermanager.xml"/>
+    <include file="struts-systemmaintenance.xml"/>
+    <include file="struts-cpQualityManagement.xml"/>
+    <include file="struts-appManagement.xml"/>
+    <include file="struts-terminalManagement.xml"/>
+    <include file="struts-clientmanager.xml"/>
+    <include file="struts-upload.xml"/>
+    <include file="struts-search.xml"/>
+    <include file="struts-validmachines.xml"/>
+    <include file="struts-exceptionlog.xml"/>
+</struts>

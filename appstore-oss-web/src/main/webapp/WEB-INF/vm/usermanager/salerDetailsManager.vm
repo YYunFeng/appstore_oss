@@ -1,0 +1,154 @@
+#set($title = "用户管理-促销员信息管理")
+#set($layout="content.vm")
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.2 });
+    });
+
+    function macroAjaxSubmit(url) {
+        document.getElementById("Loading").style.display = "block";
+        document.getElementById("Loading2").style.display = "block";
+        var channelId=$("#channelId").val();
+        var channelType=$("#channelType").val();
+        var salerType=$("#salerType").val();
+        var salerNo=$("#salerNo").val();
+        jQuery.ajax({
+            type: 'post',
+            url: url,
+            data:{
+                "salerDetailsParameter.cid":channelId,
+                "salerDetailsParameter.salerType":salerType,
+                "salerDetailsParameter.channelType":channelType,
+                "salerDetailsParameter.salerNo":salerNo
+            },
+            success: function (data) {
+                jQuery('#content').html(data);
+                document.getElementById("Loading").style.display = "none";
+                document.getElementById("Loading2").style.display = "none";
+            }
+        });
+    }
+</script>
+<div class="fr">
+    <div class="right-box rounded">
+        <div class="form-row">
+            <label style="margin-left: 4px;font-weight:bold;line-height: 26px;font-family: Microsoft YaHei;">促销员个数:</label>
+            <span style="color:#E77D32;font-weight:bold;">$salerDetailsList.getTotalItem()  个</span>
+            <label style="margin-left: 4px;font-weight:bold;line-height: 26px;font-family: Microsoft YaHei;">省份:</label>
+            <select id="channelId">
+                   <option value="">全部</option>
+                    #foreach($channel in $channelList)
+                        <option value="$channel.id"
+                            #if($channel.id==$salerDetailsParameter.cid)
+                                selected
+                            #end>$channel.cname</option>
+                    #end
+            </select>
+            <label style="margin-left: 4px;font-weight:bold;line-height: 26px;font-family: Microsoft YaHei;">渠道类型:</label>
+            <select id="channelType">
+                    <option value="">全部</option>
+                    <option value="0" #if($salerDetailsParameter.channelType==0)
+                        selected
+                    #end>分销</option>
+                    <option value="1" #if($salerDetailsParameter.channelType==1)
+                            selected
+                    #end>零售</option>
+            </select>
+            <label style="margin-left: 4px;font-weight:bold;line-height: 26px;font-family: Microsoft YaHei;">促销员类型:</label>
+            <select id="salerType">
+                <option value="">全部</option>
+                <option value="0" #if($salerDetailsParameter.salerType==0)
+                        selected
+                #end>督导</option>
+                <option value="1"#if($salerDetailsParameter.salerType==1)
+                        selected
+                #end>店长</option>
+                <option value="2"#if($salerDetailsParameter.salerType==2)
+                        selected
+                #end>促销员</option>
+            </select>
+            <label style="margin-left: 4px;line-height: 26px;font-weight: bold;font-family: Microsoft YaHei;">唯一号:</label>
+            <input id="salerNo" type="text" class="input" value="$!salerDetailsParameter.salerNo"/>
+            <input type="button" onclick="salerDetailsManager()" value="查 询" class="to-select"/>
+        </div>
+        <div class="tb-box" id="userList">
+            <table class="tb" cellspacing="0" cellpadding="0">
+                <tr class="tit-bg">
+                    <td width="100">省份</td>
+                    <td width="100">唯一号</td>
+                    <td width="100">姓名</td>
+                    <td width="100">渠道类型</td>
+                    <td width="100">促销员类型</td>
+                    <td width="100">上级促销员ID</td>
+                    <td width="100">门店地址</td>
+                    <td width="100">操作</td>
+                </tr>
+                #if($salerDetailsList.size()>0)
+                    #foreach($salerDetails in $salerDetailsList)
+                        <tr>
+                            <td>
+                                <div><label>$!salerDetails.cname</label></div>
+                            </td>
+                            <td>
+                                <div><label>$!salerDetails.salerNo</label></div>
+                            </td>
+                            <td>
+                                <div><label>$!salerDetails.salerName</label></div>
+                            </td>
+                            <td>
+                                <div>
+                                    <label>
+                                        #if($!salerDetails.channelType==0)
+                                            分销
+                                        #elseif($!salerDetails.channelType==1)
+                                            零售
+                                        #end
+                                    </label>
+                                </div>
+                            </td>
+                            <td>
+                                <div>
+                                    <label>
+                                        #if($!salerDetails.salerType==0)
+                                            督导
+                                        #elseif($!salerDetails.salerType==1)
+                                            店长
+                                        #elseif($!salerDetails.salerType==2)
+                                            促销员
+                                        #end
+                                    </label>
+                                </div>
+                            </td>
+                            <td>
+                                <div><label>$!salerDetails.parentId</label></div>
+                            </td>
+                            <td>
+                                <div><label>$!salerDetails.shopName</label></div>
+                            </td>
+                            <td>
+                                <a class="open" href="javascript:void(0)" onclick="modifySalerDetails('$!salerDetails.salerNo');">修改</a>
+                                |
+                                <a href="javascript:void(0)" onclick="deleteSalerDetails('$!salerDetails.salerNo');">删除</a>
+                            </td>
+                        </tr>
+                    #end
+                #else
+                    <tr>
+                         <td colspan="8"><span style="color:#F65D00">无促销员数据！</span></td>
+                    </tr>
+                #end
+
+            </table>
+        </div>
+        <!--paging_start-->
+        <div class="paging fr">
+            <div class="paging-box_2">
+                #set($pageModule = $domain.getTarget("/salerDetailsManager/salerDetailsManager.action").addQueryData("pageSize",$!pageSize))
+                    #showPage($pageModule $salerDetailsList)
+            </div>
+        </div>
+        <!--paging_end-->
+    </div>
+    <!--right_end-->
+</div>

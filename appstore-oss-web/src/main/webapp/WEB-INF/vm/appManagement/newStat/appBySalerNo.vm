@@ -1,0 +1,38 @@
+<!--按应用查看-->
+#set($layout="content.vm")
+<div class="newStat">
+    <ul>
+        #if($userCid==138)
+            <li style="cursor: pointer" onclick="appInstallTotal()">应用的安装总量</li>
+            <li style="cursor: pointer" onclick="totalByChannel()">按渠道查看</li>
+        #end
+        <li style="cursor: pointer" onclick="totalByChannel($cid)">按渠道类型查看</li>
+        <li style="cursor: pointer" onclick="channelBySaler($cid,$channelType)">
+            #if($channelType==0)
+                按督导查看
+            #elseif($channelType==1)
+                按店长查看
+            #end
+        </li>
+        <li style="cursor: pointer" onclick="channelBySalerDetails($saler)">按店员查看</li>
+        <li class="current">按应用查看</li>
+    </ul>
+</div>
+<div class="tb-box">
+    <table class="tb" cellspacing="0" cellpadding="0">
+        <tr class="tit-bg">
+            <td>应用图标</td>
+            <td>应用名称</td>
+            <td>安装的手机台数</td>
+        </tr>
+        #foreach($marketings in $appBySalerNo)
+            <tr>
+                <td>
+                    <img width="75" height="75" src="$imgserver.getTarget('')cover/$!marketings.logoUrl"/>
+                </td>
+                <td>$!marketings.appName</td>
+                <td>$!marketings.phoneCounts</td>
+            </tr>
+        #end
+    </table>
+</div>

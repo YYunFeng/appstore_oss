@@ -1,0 +1,40 @@
+#set($layout="content.vm")
+<script type="text/javascript">
+    $(document).ready(function () {
+        var b = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "add", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+</script>
+<div class="fr">
+    <div class="right-box rounded">
+        <div class="form-row">
+            <span style="color: #F65D00;margin-left: 15px;font-weight: bold"> 安装精彩推荐和装机必备中的任何一个应用,以下应用将被强制安装进去:</span>
+            <input class="to-del add fr" type="button" value="添加应用" onclick="addInstallApp();"/>
+        </div>
+        <div class="tb-box">
+            <table class="tb" cellspacing="0" cellpadding="0">
+                <tr class="tit-bg">
+                    <td width="120">应用图片</td>
+                    <td width="92">应用名称</td>
+                    <td width="40">CP名称</td>
+                    <td width="92">操作</td>
+                </tr>
+                #foreach($apps in $installApps)
+                    <tr>
+                        <td>
+                            <img width="75" height="75"
+                                 src="$imgserver.getTarget('')cover/$apps.logoUrl">
+                        </td>
+                        <td>
+                            $apps.appName
+                        </td>
+                        <td>$apps.cpName</td>
+                        <td><a href="javascript:void(0)" onclick="deleteCompulsoryApp($apps.id)">移除</a></td>
+                    </tr>
+                #end
+            </table>
+        </div>
+    </div>
+</div>
+<div class="classPop" style="width:800px;height:500px;" id="confirmPop">
+
+</div>

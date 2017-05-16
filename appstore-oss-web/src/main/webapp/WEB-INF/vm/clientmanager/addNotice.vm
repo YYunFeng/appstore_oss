@@ -1,0 +1,40 @@
+#set($layout="content.vm")
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        
+//        $('<textarea id="editor" name="editor1" class="cke_editor"></textarea>').appendTo('content');
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+    
+
+</script>
+
+<div class="pop-top">
+    <div class="ac">
+        <h2>编辑资讯</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+        <div class="con">
+            <table cellspacing="0" cellpadding="0">
+                <tr>
+                    <td width="95"><label>标题：</label></td>
+                    <td width="650"><p>
+                        <input class="input" style="width:300px;" type="text"/>
+                    </p></td>
+                </tr>
+                <tr>
+                    <td><label>内容：</label></td>
+                    <td><p><div id="content"></div></p></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="btn-box">
+    <input class="btn" type="button" value="确 认">
+    <input id="close" class="close" type="button" value="取 消">
+</div>
+

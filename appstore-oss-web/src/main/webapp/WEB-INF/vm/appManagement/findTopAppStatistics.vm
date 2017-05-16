@@ -1,0 +1,21 @@
+#set($layout="content.vm")
+<div class="paging fr">
+    <div class="paging-box_2">
+    </div>
+</div>
+<div class="tb-box">
+    <table class="tb" cellspacing="0" cellpadding="0">
+        <tr class="tit-bg">
+            <td width="50">商品编号</td>
+            <td width="75">商品名称</td>
+            <td width="75">下载次数</td>
+        </tr>
+        #foreach($allCounts in $result)
+            <tr>
+                <td>$allCounts.appId</td>
+                <td>$allCounts.appName</td>
+                <td>$allCounts.downloadTimes</td>
+            </tr>
+        #end
+    </table>
+</div>

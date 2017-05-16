@@ -1,0 +1,12 @@
+<html>
+<table class="tb" cellspacing="0" cellpadding="0">
+    <tr class="tit-bg">
+        <td width="500">同步基本信息结果</td>
+    </tr>
+    #foreach($App in $Apps)
+        <tr>
+            <td>$!stringEscapeUtils.escapeHtml($!App)</td>
+        </tr>
+    #end
+</table>
+</html>

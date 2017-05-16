@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profilesXml xmlns="http://maven.apache.org/PROFILES/1.0.0"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://maven.apache.org/PROFILES/1.0.0 http://maven.apache.org/xsd/profiles-1.0.0.xsd">
+    <profiles>
+        <profile>
+            <id>huasheng</id>
+            <properties>
+                <!-- 开始 第一部分: 登录相关设置 -->
+                <appstore.oss.cookie.domain>.360buy.net</appstore.oss.cookie.domain>
+                <!-- 系统的cookie加密密钥  -->
+                <appstore.oss.cookie.key>xLyhSVcQGix62o+t2fjZyx+bC+zQZCl2</appstore.oss.cookie.key>
+                <!-- 系统的cookie名称 -->
+                <appstore.oss.cookie.name>_applogin_</appstore.oss.cookie.name>
+                <!--登陆用户ID-->
+                <appstore.oss.cookie.id>_userid_</appstore.oss.cookie.id>
+                <!--登陆状态记住的名称-->
+                <appstore.oss.cookie.remembername>_remembername_</appstore.oss.cookie.remembername>
+                <!--登陆状态记住的密码-->
+                <appstore.oss.cookie.rememberpwd>_rememberpwd_</appstore.oss.cookie.rememberpwd>
+                <!--erp登录cookie名称 -->
+                <appstore.oss.hrm.auth.cookie.name>ceshi3.com</appstore.oss.hrm.auth.cookie.name>
+                <!--erp登录cookie域 -->
+                <appstore.oss.hrm.auth.cookie.domain>.360buy.com</appstore.oss.hrm.auth.cookie.domain>
+                <!--erp登录cookie解密密钥 -->
+                <appstore.oss.hrm.login.auth.key>8B6697227CBCA902B1A0925D40FAA00B353F2DF4359D2099
+                </appstore.oss.hrm.login.auth.key>
+                <!--登录超时设置 -->
+                <appstore.oss.session.timeout>864000</appstore.oss.session.timeout>
+
+                <appstore.oss.log.level>INFO</appstore.oss.log.level>
+                <appstore.oss.log.path>/alidata1/logs/huasheng/${appstore.oss.domain.name}</appstore.oss.log.path>
+                <!-- 开始 第一部分: 登录相关设置end -->
+
+                <!-- 结束 第二部分: 数据库配置，发布时需运维配置JNDI -->
+                <appstore.oss.jdbc.datasource.type>dbcp</appstore.oss.jdbc.datasource.type>
+                <appstore.oss.jdbc.driver>com.mysql.jdbc.Driver</appstore.oss.jdbc.driver>
+                <appstore.oss.jdbc.url>
+                    jdbc:mysql://rdserabfrerabfr.mysql.rds.aliyuncs.com/ppad_huasheng?characterEncoding=UTF-8
+                </appstore.oss.jdbc.url>
+                <appstore.oss.jdbc.username>ppad_huasheng</appstore.oss.jdbc.username>
+                <appstore.oss.jdbc.password>platomix6815</appstore.oss.jdbc.password>
+                <!-- 结束 第二部分: 数据库配置，发布时需运维配置end -->
+
+
+                <!-- Memcached缓存 -->
+                <appstore.oss.memcached1.address>127.0.0.1:11211</appstore.oss.memcached1.address>
+                <!--卓望数据导入时用的accountId-->
+                <appstore.oss.zhuoWangApp.accountId>1</appstore.oss.zhuoWangApp.accountId>
+
+
+                <!-- 开始 第四部分: 服务器配置，发布时需找运维确定 -->
+                <appstore.oss.domain.name>oss.appstore.taotaojing.cn</appstore.oss.domain.name>
+                <appstore.oss.asset.domain.name>oss.appstore.taotaojing.cn</appstore.oss.asset.domain.name>
+
+                <appstore.oss.quartz.threadPool>10</appstore.oss.quartz.threadPool>
+                <appstore.oss.quartz.startupDelay>3</appstore.oss.quartz.startupDelay>
+
+                <!-- 类目id -->
+                <appstore.oss.category.firstCategoryId>9115</appstore.oss.category.firstCategoryId>
+                <appstore.oss.category.mobileSoftId>10</appstore.oss.category.mobileSoftId>
+                <appstore.oss.category.mobileGameId>9</appstore.oss.category.mobileGameId>
+                <appstore.oss.category.webAppId>11</appstore.oss.category.webAppId>
+                <!-- 类目id end -->
+                <!-- 结束 第四部分: 服务器配置，发布时需找运维确定end -->
+
+
+                <!-- 开始 第五部分: 依赖的外部接口，发布时需找接口人确定 -->
+                <!-- 主图域名 -->
+                <appstore.oss.coverserver.domain.name>img.appstore.taotaojing.cn</appstore.oss.coverserver.domain.name>
+                <!-- 主图域名end -->
+
+                <!--卓望数据导入时用的accountId-->
+                <appstore.oss.zhuoWangApp.accountId>1</appstore.oss.zhuoWangApp.accountId>
+
+
+                <!-- 插图 -->
+                <!--<appstore.oss.imgserver.business.name>test</appstore.oss.imgserver.business.name>-->
+                <appstore.oss.imgserver.domain.name>img.appstore.taotaojing.cn
+                </appstore.oss.imgserver.domain.name>
+                <!-- 插图end -->
+
+                <appstore.oss.filepath.upload.excel>/alidata1/www/${appstore.oss.imgserver.domain.name}/excel
+                </appstore.oss.filepath.upload.excel>
+                <appstore.oss.filepath.android.apk>/alidata1/www/${appstore.oss.imgserver.domain.name}/apk/
+                </appstore.oss.filepath.android.apk>
+                <appstore.oss.filepath.web.swf>/alidata1/www/${appstore.oss.imgserver.domain.name}/swf/
+                </appstore.oss.filepath.web.swf>
+                <appstore.oss.filepath.cover.pic>/alidata1/www/${appstore.oss.imgserver.domain.name}/cover/
+                </appstore.oss.filepath.cover.pic>
+                <appstore.oss.filepath.img.pic>/alidata1/www/${appstore.oss.imgserver.domain.name}/img_pic/
+                </appstore.oss.filepath.img.pic>
+                <appstore.oss.upload.recImage>/alidata1/www/${appstore.oss.imgserver.domain.name}/recImage
+                </appstore.oss.upload.recImage>
+                <appstore.oss.upload.categoryImage>/alidata1/www/${appstore.oss.imgserver.domain.name}/categoryImage
+                </appstore.oss.upload.categoryImage>
+                <appstore.oss.upload.topicImage>/alidata1/www/${appstore.oss.imgserver.domain.name}/topicImage
+                </appstore.oss.upload.topicImage>
+                <appstore.oss.upload.androidDriver>/alidata1/www/${appstore.oss.imgserver.domain.name}/androidDriver
+                </appstore.oss.upload.androidDriver>
+                <appstore.oss.upload.activityImage>/alidata1/www/${appstore.oss.imgserver.domain.name}/activity
+                </appstore.oss.upload.activityImage>
+                <appstore.oss.upload.androidCilent>/alidata1/www/${appstore.oss.imgserver.domain.name}/androidClient
+                </appstore.oss.upload.androidCilent>
+                <!--营销日志安装记录导出excel-->
+                <appstore.oss.installlog.excel.path>/alidata1/www/${appstore.oss.imgserver.domain.name}/installlogExcel/
+                </appstore.oss.installlog.excel.path>
+                <appstore.oss.installlog.dayreport.path>/alidata1/www/${appstore.oss.imgserver.domain.name}/dayReport/
+                </appstore.oss.installlog.dayreport.path>
+
+                <appstore.oss.upload.suningPackAge>/alidata1/www/${appstore.oss.imgserver.domain.name}/suning
+                </appstore.oss.upload.suningPackAge>
+                <appstore.oss.upload.cpDateFile>/alidata1/www/${appstore.oss.imgserver.domain.name}/cpDateFile
+                </appstore.oss.upload.cpDateFile>
+
+                <appstore.oss.filepath.fanyueArriveData>/alidata1/www/${appstore.oss.imgserver.domain.name}/cpDateFile/fanyuearrive
+                </appstore.oss.filepath.fanyueArriveData>
+
+                <appstore.oss.companyIncomeExcel.excel.path>
+                    /alidata1/www/${appstore.oss.imgserver.domain.name}/companyIncomeExcel/
+                </appstore.oss.companyIncomeExcel.excel.path>
+
+
+                <appstore.oss.filepath.picPath>http://${appstore.oss.imgserver.domain.name}/
+                </appstore.oss.filepath.picPath>
+
+                <appstore.oss.aliyun.picPath>http://liuxingyuan-ppad-huasheng.oss-cn-beijing.aliyuncs.com/
+                </appstore.oss.aliyun.picPath>
+
+                <appstore.oss.filepath.recImage>http://${appstore.oss.imgserver.domain.name}/recImage/
+                </appstore.oss.filepath.recImage>
+
+                <appstore.oss.filepath.categoryImage>http://${appstore.oss.imgserver.domain.name}/categoryImage/
+                </appstore.oss.filepath.categoryImage>
+                <appstore.oss.filepath.topicImage>
+                    http://liuxingyuan-ppad-huasheng.oss-cn-beijing.aliyuncs.com/topicImage/
+                </appstore.oss.filepath.topicImage>
+                <appstore.oss.filepath.topicTempImage>
+                    http://liuxingyuan-ppad-temp.oss-cn-beijing.aliyuncs.com/topicImage/
+                </appstore.oss.filepath.topicTempImage>
+                <appstore.oss.filepath.androidDriver>http://${appstore.oss.imgserver.domain.name}/androidDriver/
+                </appstore.oss.filepath.androidDriver>
+                <appstore.oss.filepath.activityImage>http://${appstore.oss.imgserver.domain.name}/activity/
+                </appstore.oss.filepath.activityImage>
+                <!--上传路径end-->
+
+                <appstore-oss.aliyun.bucketName>liuxingyuan-ppad-huasheng</appstore-oss.aliyun.bucketName>
+                <appstore-oss.aliyun.accessKeyId>LgHZPO39U1Tl2htk</appstore-oss.aliyun.accessKeyId>
+                <appstore-oss.aliyun.accessKeySecret>sRcDCpDJRfVSxyXSSESeF8KoLkW8LM
+                </appstore-oss.aliyun.accessKeySecret>
+                <!--存放临时文件的bucket-->
+                <appstore-oss.aliyun.tempbucketName>liuxingyuan-ppad-temp</appstore-oss.aliyun.tempbucketName>
+                <!--endpoint-->
+                <appstore-oss.aliyun.endpoint>http://oss-cn-beijing-internal.aliyuncs.com</appstore-oss.aliyun.endpoint>
+
+                <!-- 上传主图end -->
+
+                <!-- 开始 第七部分: 开发设置 -->
+                <!--struts的运行模式。生产环境要改为false-->
+                <appstore.oss.struts.devMode>false</appstore.oss.struts.devMode>
+                <!-- 开始 第七部分: 开发设置end -->
+            </properties>
+        </profile>
+
+
+
+
+        <profile>
+            <id>development</id>
+            <properties>
+                <!-- 开始 第一部分: 登录相关设置 -->
+                <appstore.oss.cookie.domain>.360buy.net</appstore.oss.cookie.domain>
+                <!-- 系统的cookie加密密钥  -->
+                <appstore.oss.cookie.key>xLyhSVcQGix62o+t2fjZyx+bC+zQZCl2</appstore.oss.cookie.key>
+                <!-- 系统的cookie名称 -->
+                <appstore.oss.cookie.name>_applogin_</appstore.oss.cookie.name>
+                <!--登陆用户ID-->
+                <appstore.oss.cookie.id>_userid_</appstore.oss.cookie.id>
+                <!--登陆状态记住的名称-->
+                <appstore.oss.cookie.remembername>_remembername_</appstore.oss.cookie.remembername>
+                <!--登陆状态记住的密码-->
+                <appstore.oss.cookie.rememberpwd>_rememberpwd_</appstore.oss.cookie.rememberpwd>
+                <!--erp登录cookie名称 -->
+                <appstore.oss.hrm.auth.cookie.name>ceshi3.com</appstore.oss.hrm.auth.cookie.name>
+                <!--erp登录cookie域 -->
+                <appstore.oss.hrm.auth.cookie.domain>.360buy.com</appstore.oss.hrm.auth.cookie.domain>
+                <!--erp登录cookie解密密钥 -->
+                <appstore.oss.hrm.login.auth.key>8B6697227CBCA902B1A0925D40FAA00B353F2DF4359D2099
+                </appstore.oss.hrm.login.auth.key>
+                <!--登录超时设置 -->
+                <appstore.oss.session.timeout>864000</appstore.oss.session.timeout>
+
+                <appstore.oss.log.level>INFO</appstore.oss.log.level>
+                <appstore.oss.log.path>/export/home/tomcat/logs/${appstore.oss.domain.name}</appstore.oss.log.path>
+                <!-- 开始 第一部分: 登录相关设置end -->
+
+                <!-- 结束 第二部分: 数据库配置，发布时需运维配置JNDI -->
+                <appstore.oss.jdbc.datasource.type>dbcp</appstore.oss.jdbc.datasource.type>
+                <appstore.oss.jdbc.driver>com.mysql.jdbc.Driver</appstore.oss.jdbc.driver>
+                <appstore.oss.jdbc.url>jdbc:mysql://127.0.0.1/appstore_ppad?characterEncoding=UTF-8
+                </appstore.oss.jdbc.url>
+                <!--     <appstore.oss.jdbc.url>jdbc:mysql://192.168.1.119/appstore?characterEncoding=UTF-8
+                     </appstore.oss.jdbc.url>-->
+                <appstore.oss.jdbc.username>root</appstore.oss.jdbc.username>
+                <appstore.oss.jdbc.password>yyf890929</appstore.oss.jdbc.password>
+               <!-- 197  <appstore.oss.jdbc.password>platomix_mysql_test</appstore.oss.jdbc.password>-->
+                <!--  119  <appstore.oss.jdbc.password>platomix6815</appstore.oss.jdbc.password>-->
+
+                <!-- 结束 第二部分: 数据库配置，发布时需运维配置end -->
+
+
+                <!-- 开始 第四部分: 服务器配置，发布时需找运维确定 -->
+                <appstore.oss.domain.name>localhost:8085</appstore.oss.domain.name>
+                <appstore.oss.asset.domain.name>localhost:8085</appstore.oss.asset.domain.name>
+
+                <appstore.oss.quartz.threadPool>10</appstore.oss.quartz.threadPool>
+                <appstore.oss.quartz.startupDelay>3</appstore.oss.quartz.startupDelay>
+
+                <!-- 类目id -->
+                <!-- 类目id -->
+                <appstore.oss.category.firstCategoryId>9115</appstore.oss.category.firstCategoryId>
+                <appstore.oss.category.mobileSoftId>10</appstore.oss.category.mobileSoftId>
+                <appstore.oss.category.mobileGameId>9</appstore.oss.category.mobileGameId>
+                <appstore.oss.category.webAppId>11</appstore.oss.category.webAppId>
+                <!-- 类目id end -->
+
+                <!-- memcached缓存 -->
+                <appstore.oss.memcached1.address>182.92.79.56:11211</appstore.oss.memcached1.address>
+
+                <!--卓望数据导入时用的accountId-->
+                <appstore.oss.zhuoWangApp.accountId>1</appstore.oss.zhuoWangApp.accountId>
+
+
+                <appstore.oss.imgserver.domain.name>img.leyu.taotaojing.cn
+                </appstore.oss.imgserver.domain.name>
+                <!--上传文件保存位置的绝对路径-->
+                <appstore.oss.filepath.upload.excel>D:/data/excel</appstore.oss.filepath.upload.excel>
+                <appstore.oss.filepath.android.apk>D:/data/apk/</appstore.oss.filepath.android.apk>
+                <appstore.oss.filepath.web.swf>D:/data/swf/</appstore.oss.filepath.web.swf>
+                <appstore.oss.filepath.cover.pic>D:/data/cover/</appstore.oss.filepath.cover.pic>
+                <appstore.oss.filepath.img.pic>D:/data/img_pic/</appstore.oss.filepath.img.pic>
+                <appstore.oss.upload.recImage>D:/data/recImage</appstore.oss.upload.recImage>
+                <appstore.oss.upload.categoryImage>D:/data/categoryImage</appstore.oss.upload.categoryImage>
+                <appstore.oss.upload.topicImage>D:/data/topicImage</appstore.oss.upload.topicImage>
+                <appstore.oss.upload.androidDriver>D:/data/androidDriver</appstore.oss.upload.androidDriver>
+                <appstore.oss.upload.activityImage>D:/data/activityImage</appstore.oss.upload.activityImage>
+                <appstore.oss.upload.androidCilent>D:/data/androidClient</appstore.oss.upload.androidCilent>
+                <!--营销日志安装记录导出excel-->
+                <appstore.oss.installlog.excel.path>D:/data/installlogExcel/</appstore.oss.installlog.excel.path>
+                <appstore.oss.companyIncomeExcel.excel.path>D:/data/companyIncomeExcel/
+                </appstore.oss.companyIncomeExcel.excel.path>
+                <appstore.oss.upload.suningPackAge>D:/data/suning</appstore.oss.upload.suningPackAge>
+
+                <appstore.oss.filepath.fanyueArriveData>D:/data/fanyuearrive</appstore.oss.filepath.fanyueArriveData>
+
+                <appstore.oss.upload.cpDateFile>D:/data/cpDateFile</appstore.oss.upload.cpDateFile>
+
+                <appstore.oss.installlog.dayreport.path>D:/data/dayReport/
+                </appstore.oss.installlog.dayreport.path>
+
+                <!--上传文件保存位置的绝对路径end-->
+
+                <!--文件访问用http路径-->
+                <appstore.oss.filepath.picPath>http://img.appstore.taotaojing.cn/
+                </appstore.oss.filepath.picPath>
+
+                <appstore.oss.aliyun.picPath>http://liuxingyuan-ppad-huasheng.oss-cn-beijing.aliyuncs.com/
+                </appstore.oss.aliyun.picPath>
+
+                <appstore.oss.filepath.recImage>http://img.appstore.taotaojing.cn/recImage/
+                </appstore.oss.filepath.recImage>
+                <appstore.oss.filepath.categoryImage>http://img.appstore.taotaojing.cn/categoryImage/
+                </appstore.oss.filepath.categoryImage>
+                <appstore.oss.filepath.androidDriver>
+                    http://liuxingyuan-ppad-huasheng.oss-cn-beijing.aliyuncs.com/androidDriver/
+                </appstore.oss.filepath.androidDriver>
+                <appstore.oss.filepath.topicImage>
+                    http://liuxingyuan-ppad-huasheng.oss-cn-beijing.aliyuncs.com/topicImage/
+                </appstore.oss.filepath.topicImage>
+                <appstore.oss.filepath.topicTempImage>
+                    http://liuxingyuan-ppad-temp.oss-cn-beijing.aliyuncs.com/topicImage/
+                </appstore.oss.filepath.topicTempImage>
+                <appstore.oss.filepath.activityImage>http://img.appstore.taotaojing.cn/activityImage/
+                </appstore.oss.filepath.activityImage>
+                <!--文件访问用http路径end-->
+                <!-- 结束 第四部分: 服务器配置，发布时需找运维确定end -->
+
+
+                <!--struts的运行模式。生产环境要改为false-->
+                <appstore.oss.struts.devMode>true</appstore.oss.struts.devMode>
+
+
+                <!--阿里云的开放存储配置-->
+                <appstore-oss.aliyun.bucketName>liuxingyuan-ppad-huasheng</appstore-oss.aliyun.bucketName>
+                <appstore-oss.aliyun.accessKeyId>LgHZPO39U1Tl2htk</appstore-oss.aliyun.accessKeyId>
+                <appstore-oss.aliyun.accessKeySecret>sRcDCpDJRfVSxyXSSESeF8KoLkW8LM
+                </appstore-oss.aliyun.accessKeySecret>
+                <!--存放临时文件的bucket-->
+                <appstore-oss.aliyun.tempbucketName>liuxingyuan-ppad-temp</appstore-oss.aliyun.tempbucketName>
+                <!--endpoint-->
+                <appstore-oss.aliyun.endpoint>http://oss-cn-beijing-internal.aliyuncs.com</appstore-oss.aliyun.endpoint>
+            </properties>
+        </profile>
+
+
+    </profiles>
+
+</profilesXml>

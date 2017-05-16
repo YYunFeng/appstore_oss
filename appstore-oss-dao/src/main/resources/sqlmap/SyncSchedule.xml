@@ -1,0 +1,1187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="SyncSchedule">
+
+    <!--后台任务返回信息-->
+    <typeAlias alias="TaskInfoResult" type="com.jd.cms.domain.taskmanager.TaskInfoResult"/>
+    <!--后台任务查询条件-->
+    <typeAlias alias="TaskInfoQuery" type="com.jd.cms.domain.taskmanager.TaskInfoQuery"/>
+    <!--应用类目表-->
+    <typeAlias alias="Category" type="com.jd.appstore.domain.Category"/>
+    <!--应用下载统计结果表-->
+    <typeAlias alias="AppDownloadStat" type="com.jd.appstore.domain.AppDownloadStat"/>
+    <!--应用排行榜表-->
+    <typeAlias alias="RankingApp" type="com.jd.appstore.domain.RankingApp"/>
+    <!--cp信息返回类-->
+    <typeAlias alias="CpInfoResult" type="com.jd.cms.domain.taskmanager.CpInfoResult"/>
+    <!--CP基本信息表-->
+    <typeAlias alias="CpBaseInfo" type="com.jd.appstore.domain.CpBaseInfo"/>
+    <!--应用下载汇总表-->
+    <typeAlias alias="DownloadTotalstat" type="com.jd.appstore.domain.DownloadTotalstat"/>
+    <!--营销日志统计-->
+    <typeAlias alias="InstallStat" type="com.jd.appstore.domain.InstallStat"/>
+
+    <typeAlias alias="incomeStatistic" type="com.jd.cms.domain.systemmaintenance.IncomeStatistic"/>
+    <typeAlias alias="incomeStatisticNew" type="com.jd.cms.domain.systemmaintenance.IncomeStatisticNew"/>
+    <typeAlias alias="incomeParameter" type="com.jd.cms.domain.systemmaintenance.IncomeParameter"/>
+    <typeAlias alias="incomeRes" type="com.jd.cms.domain.systemmaintenance.IncomeRes"/>
+    <typeAlias alias="appPrice" type="com.jd.cms.domain.systemmaintenance.AppPrice"/>
+
+    <typeAlias alias="salerInstallLog" type="com.jd.cms.domain.systemmaintenance.SalerInstallLog"/>
+    <!--促销员到达统计-->
+    <typeAlias alias="arriveStatistic" type="com.jd.cms.domain.systemmaintenance.ArriveStatistic"/>
+    <typeAlias alias="arrAppObj" type="com.jd.appstore.domain.ArrAppObj"/>
+    <typeAlias alias="fanyueLog" type="com.jd.appstore.domain.FanyueLog"/>
+
+    <!--后台任务返回信息Map-->
+    <resultMap id="TaskInfoResultMap" class="TaskInfoResult">
+        <result property="id" column="id"/>
+        <result property="taskTypeId" column="taskTypeId"/>
+        <result property="taskTypeName" column="taskTypeName"/>
+        <result property="status" column="status"/>
+        <result property="adminId" column="adminId"/>
+        <result property="startTimePlan" column="startTimePlan"/>
+        <result property="startTimeFact" column="startTimeFact"/>
+        <result property="comment" column="comment"/>
+        <result property="retryTimes" column="retryTimes"/>
+        <result property="autoRetry" column="autoRetry"/>
+        <result property="isLoop" column="isLoop"/>
+        <result property="loopPeriod" column="loopPeriod"/>
+        <result property="created" column="created"/>
+        <result property="modified" column="modified"/>
+    </resultMap>
+    <!--应用下载统计结果表Map-->
+    <resultMap id="AppDownloadStatMap" class="AppDownloadStat">
+        <result property="appId" column="appId"/>
+        <result property="year" column="year"/>
+        <result property="month" column="month"/>
+        <result property="day" column="day"/>
+        <result property="downloadTimes" column="downloadTimes"/>
+    </resultMap>
+    <!--应用排行榜表Map-->
+    <resultMap id="RankingAppMap" class="RankingApp">
+        <result property="id" column="id"/>
+        <result property="appId" column="appId"/>
+        <result property="orderSeq" column="orderSeq"/>
+    </resultMap>
+    <!--应用排行榜表Map-->
+    <resultMap id="RankingAppByTypeMap" class="RankingApp">
+        <result property="appId" column="appId"/>
+    </resultMap>
+    <!--查询周期性同步任务信息-->
+    <select id="findTaskInfoResult" parameterClass="TaskInfoQuery" resultClass="TaskInfoResult">
+        select
+        tbt.id as id,
+        tbt.task_type_id as taskTypeId,
+        tat.task_type_name as taskTypeName,
+        tbt.status as status,
+        tbt.admin_id as adminId,
+        tbt.start_time_plan as startTimePlan,
+        tbt.start_time_fact as startTimeFact,
+        tbt.comment as comment,
+        tbt.retry_times as retryTimes,
+        tbt.auto_retry as autoRetry,
+        tat.is_loop as isLoop,
+        tat.loop_period as loopPeriod,
+        tbt.created as created,
+        tbt.modified as modified
+        from
+        tb_backend_task tbt
+        left join
+        tb_task_type tat
+        on
+        tbt.task_type_id=tat.task_type_id
+        where
+        tbt.task_type_id=#taskTypeId#
+        <isNotEqual property="status" compareValue="-1" prepend=" and ">
+            tbt.status=#status#
+        </isNotEqual>
+        order by
+        tbt.created desc
+        limit 1
+    </select>
+    <!--按应用统计前一天的下载次数-->
+    <select id="findAppDownloadStat" resultMap="SyncSchedule.AppDownloadStatMap">
+        select
+        count(appid) as downloadTimes,
+        appid as appId,
+        date_format(download_time,'%Y')as year,
+        date_format(download_time,'%m')as month,
+        date_format(download_time,'%d')as day
+        from
+        tb_app_download_log
+        where
+        download_time BETWEEN date_format(adddate(now(),-1),'%Y-%m-%d 00:00:00') and
+        date_format(adddate(now(),-1),'%Y-%m-%d 23:59:59')
+        and
+        download_succeed=1
+        group by
+        appid,
+        year,
+        month,
+        day
+    </select>
+    <!--查询排行榜锁定记录-->
+    <select id="findRankingApp" parameterClass="RankingApp" resultMap="SyncSchedule.RankingAppMap">
+        select
+        id as id,
+        appid as appId,
+        order_seq as orderSeq
+        from
+        tb_ranking_app
+        where
+        ranking_style=#rankingStyle#
+        and
+        ranking_type=#rankingType#
+        and
+        locked=1
+    </select>
+    <!--查询最新上架记录-->
+    <select id="findRankingAppNewest" parameterClass="RankingApp" resultMap="SyncSchedule.RankingAppByTypeMap">
+        select
+        appid as appId
+        from
+        tb_apps
+        where
+        online=1
+        <isNotNull property="lockedOrder" prepend="and">
+            appid not in ($lockedOrder$)
+        </isNotNull>
+        order by
+        created desc
+        limit 100
+    </select>
+    <!--查询热门收费记录-->
+    <select id="findRankingAppFee" parameterClass="RankingApp" resultMap="SyncSchedule.RankingAppByTypeMap">
+        select
+        dt.appid as appId
+        from
+        tb_download_totalstat as dt,tb_apps ta,tb_app_details tad
+        where
+        dt.appid= ta.appid
+        and
+        ta.default_detail_id = tad.id
+        and
+        ta.online=1
+        and
+        tad.price>0
+        and
+        ta.categoryid_l2=#rankingStyle#
+        <isNotNull property="lockedOrder" prepend="and">
+            ta.appid not in ($lockedOrder$)
+        </isNotNull>
+        ORDER BY
+        dt.download_times DESC
+        limit 100
+
+    </select>
+    <!--查询热门免费记录-->
+    <select id="findRankingAppFree" parameterClass="RankingApp" resultMap="SyncSchedule.RankingAppByTypeMap">
+        select
+        dt.appid as appId
+        from
+        tb_download_totalstat as dt,tb_apps ta,tb_app_details tad
+        where
+        dt.appid= ta.appid
+        and
+        ta.default_detail_id = tad.id
+        and
+        ta.online=1
+        and
+        tad.price=0
+        and
+        ta.categoryid_l2=#rankingStyle#
+        <isNotNull property="lockedOrder" prepend="and">
+            ta.appid not in ($lockedOrder$)
+        </isNotNull>
+        ORDER BY
+        dt.download_times DESC
+        limit 100
+
+    </select>
+    <!--查询上升最快记录-->
+    <select id="findRankingAppFastest" parameterClass="RankingApp" resultMap="SyncSchedule.RankingAppByTypeMap">
+        select
+        lw.appId
+        from
+        (select
+        appid as appId,
+        count(appid) as counts
+        from tb_offlineapp_install_stat
+        where
+        1=1
+        <isNotNull property="lockedOrder" prepend="and">
+            appid not in ($lockedOrder$)
+        </isNotNull>
+        group by appid
+        order by counts desc
+        limit 100) as lw
+    </select>
+    <!--查询合同预警期内CP信息-->
+    <select id="findCpInfoResult" resultClass="CpInfoResult">
+        select
+        accountid as accountId,
+        mobile as mobile,
+        mobile_binded as mobileBinded,
+        email as email,
+        email_checked as emailChecked,
+        mail_sent1 as mailSent1,
+        mail_sent2 as mailSent2,
+        sms_sent2 as smsSent2
+        from
+        tb_cp_baseinfo tcbi
+        left join
+        tb_cp_reginfo tcri
+        on
+        tcbi.id=tcri.accountid
+        where
+        tcbi.valid_period_end between date_format(adddate(now(),1),'%y-%m-%d 00:00:00') and
+        date_format(adddate(now(),interval 1 month),'%y-%m-%d 23:59:59')
+    </select>
+    <!--统计应用下载汇总-->
+    <select id="findDownloadTotalstat" resultClass="DownloadTotalstat">
+        select
+        appid as appId,
+        sum(download_times) as downloadTimes
+        from
+        tb_app_download_stat
+        group by
+        appid
+    </select>
+    <!--插入新类目到数据库-->
+    <insert id="createCategory" parameterClass="Category">
+        insert into tb_category
+        (categoryid
+        ,category_name
+        ,level
+        ,parent_id
+        ,is_leaf
+        ,pubed_status
+        ,created
+        ,modified
+        ,expired_status)
+        values
+        (#categoryId#
+        ,#categoryName#
+        ,#level#
+        ,#parentId#
+        ,#isLeaf#
+        ,#pubedStatus#
+        ,now()
+        ,now()
+        ,1)
+    </insert>
+    <!--创建应用下载统计结果-->
+    <insert id="createAppDownloadStat" parameterClass="AppDownloadStat">
+        insert into tb_app_download_stat
+        (id
+        ,appid
+        ,year
+        ,month
+        ,day
+        ,download_times
+        ,created
+        ,modified)
+        values
+        (#id#
+        ,#appId#
+        ,#year#
+        ,#month#
+        ,#day#
+        ,#downloadTimes#
+        ,now()
+        ,now())
+    </insert>
+    <!--更新排行榜-->
+    <insert id="createRankingApp" parameterClass="RankingApp">
+        insert into tb_ranking_app
+        (id
+        ,ranking_style
+        ,ranking_type
+        ,appid
+        ,pub_time
+        ,order_seq
+        ,pubed_status
+        ,locked
+        ,created
+        ,modified)
+        values
+        (#id#
+        ,#rankingStyle#
+        ,#rankingType#
+        ,#appId#
+        ,now()
+        ,#orderSeq#
+        ,#pubedStatus#
+        ,#locked#
+        ,now()
+        ,now())
+    </insert>
+    <!--插入应用下载汇总表-->
+    <insert id="createDownloadTotalstat" parameterClass="DownloadTotalstat">
+        insert into tb_download_totalstat
+        (id
+        ,appid
+        ,download_times
+        ,created
+        ,modified)
+        values
+        (#id#
+        ,#appId#
+        ,#downloadTimes#
+        ,now()
+        ,now())
+    </insert>
+    <!--更新合同预警状态-->
+    <update id="updateCpBaseInfo" parameterClass="CpBaseInfo">
+        update
+        tb_cp_baseinfo
+        set
+        <isNotNull property="mailSent1">
+            mail_sent1=#mailSent1#
+        </isNotNull>
+        <isNotNull property="mailSent2">
+            mail_sent2=#mailSent2#
+        </isNotNull>
+        <isNotNull property="smsSent2">
+            sms_sent2=#smsSent2#
+        </isNotNull>
+        where
+        id=#id#
+    </update>
+    <!--更新类目，并返回成功、失败标识-->
+    <update id="updateCategory" parameterClass="Category">
+        update
+        tb_category
+        set
+        category_name=#categoryName#,
+        level=#level#,
+        parent_id=#parentId#,
+        expired_status=1
+        where
+        categoryid=#categoryId#
+    </update>
+    <!--更新类目过期状态成未过期-->
+    <update id="updateAllCategory">
+        update
+        tb_category
+        set
+        expired_status=0
+    </update>
+    <!--更新周期性任务起动时间-->
+    <update id="updateTaskFactTime" parameterClass="TaskInfoQuery">
+        update
+        tb_backend_task
+        set
+        start_time_fact=#startTimeFact#
+        where
+        id=#id#
+    </update>
+    <!--删除下柜类目-->
+    <delete id="deleteCategory">
+        delete from tb_category where <![CDATA[expired_status<>1]]>
+    </delete>
+    <!--删除年月日一同样的下载统计记录-->
+    <delete id="deleteAppDownloadStat" parameterClass="AppDownloadStat">
+        delete from tb_app_download_stat where year=#year# and month=#month# and day=#day#
+    </delete>
+    <!--删除未被锁定记录-->
+    <delete id="deleteRankingApp" parameterClass="RankingApp">
+        delete from tb_ranking_app where ranking_style=#rankingStyle# and ranking_type=#rankingType# and locked=0
+    </delete>
+    <!--删除应用下载汇总表-->
+    <delete id="deleteDownloadTotalstat">
+        delete from tb_download_totalstat
+    </delete>
+    <!--统计离线应用安装次数-->
+    <select id="getOfflineSaleLog" resultClass="InstallStat" parameterClass="Integer">
+        SELECT
+        count(DISTINCT appid) AS installTimes,
+        phone_imei as phoneImei,
+        saler_name as salerName,
+        shop_name as shopName,
+        appid AS appId,
+        cid AS cid,
+        saler_no as saler,
+        date_format(install_time, '%Y') AS YEAR,
+        date_format(install_time, '%m') AS MONTH,
+        date_format(install_time, '%d') AS DAY
+        FROM
+        tb_offlineapp_sale_log
+        WHERE
+        statisticsflag = 0
+        and
+        <![CDATA[id<=#id#]]>
+        GROUP BY
+        appid,
+        saler,
+        cid,
+        YEAR,
+        MONTH,
+        phoneImei,
+        DAY
+    </select>
+    <!--统计在线应用安装次数-->
+    <select id="getOnlineSaleLog" resultClass="InstallStat" parameterClass="Integer">
+        SELECT
+        count(DISTINCT appid) AS installTimes,
+        phone_imei as phoneImei,
+        saler_name as salerName,
+        shop_name as shopName,
+        appid AS appId,
+        cid AS cid,
+        saler_no as saler,
+        date_format(install_time, '%Y') AS YEAR,
+        date_format(install_time, '%m') AS MONTH,
+        date_format(install_time, '%d') AS DAY
+        FROM
+        tb_onlineapp_sale_log
+        WHERE
+        statisticsflag = 0
+        and
+        <![CDATA[id<=#id#]]>
+        GROUP BY
+        appid,
+        saler,
+        cid,
+        YEAR,
+        MONTH,
+        phoneImei,
+        DAY
+    </select>
+    <!--更新离线应用统计状态-->
+    <update id="updateStatisticsStatusOffline" parameterClass="Integer">
+        update tb_offlineapp_sale_log set statisticsflag = 1,statisticstime=NOW() where statisticsflag = 0 and
+        <![CDATA[id<=#id#]]>
+    </update>
+    <!--更新在线应用统计状态-->
+    <update id="updateStatisticsStatusOnline" parameterClass="Integer">
+        update tb_onlineapp_sale_log set statisticsflag = 1,statisticstime=NOW() where statisticsflag = 0 and
+        <![CDATA[id<=#id#]]>
+    </update>
+    <!-- 创建离线营销日志统计结果-->
+    <insert parameterClass="InstallStat" id="createOfflineInstallStat">
+        insert into tb_offlineapp_install_stat
+        (id
+        ,appid
+        ,cid
+        ,saler
+        ,phone_imei
+        ,saler_name
+        ,shop_name
+        ,year
+        ,month
+        ,day
+        ,install_times
+        ,created
+        ,modified)
+        values
+        ( #id#,
+        #appId#,
+        #cid#,
+        #saler#,
+        #phoneImei#,
+        #salerName#,
+        #shopName#,
+        #year#,
+        #month#,
+        #day#,
+        #installTimes#,
+        now(),
+        now())
+    </insert>
+    <!-- 创建在线营销日志统计结果-->
+    <insert parameterClass="InstallStat" id="createOnlineInstallStat">
+        insert into tb_onlineapp_install_stat
+        (id
+        ,appid
+        ,cid
+        ,saler
+        ,phone_imei
+        ,saler_name
+        ,shop_name
+        ,year
+        ,month
+        ,day
+        ,install_times
+        ,created
+        ,modified)
+        values
+        (#id#,
+        #appId#,
+        #cid#,
+        #saler#,
+        #phoneImei#,
+        #salerName#,
+        #shopName#,
+        #year#,
+        #month#,
+        #day#,
+        #installTimes#,
+        now(),
+        now())
+    </insert>
+
+    <select id="getOfflineLogMaxId" resultClass="Integer">
+        <!--SELECT max(id) from tb_offlineapp_sale_log WHERE statisticsflag = 0-->
+        select sql_no_cache id
+        from tb_offlineapp_sale_log
+        where statisticsflag= 0
+        order by id desc
+        limit 1
+    </select>
+
+    <select id="getAppInstallLogMaxId" resultClass="Integer">
+        SELECT SQL_NO_CACHE
+        id
+        FROM
+        tb_app_install_log
+        WHERE
+        statistic_flag = 0
+        ORDER BY
+        id DESC
+        LIMIT 1
+    </select>
+
+    <select id="getonlineLogMaxId" resultClass="Integer">
+        select sql_no_cache id
+        from tb_onlineapp_sale_log
+        where statisticsflag= 0
+        order by id desc
+        limit 1
+    </select>
+    <delete id="deleteRankingNotInApps">
+        DELETE
+        FROM
+        tb_ranking_app
+        WHERE
+        locked = 1
+        AND appid NOT IN (SELECT appid FROM tb_apps)
+    </delete>
+
+    <!--收入统计定时任务-->
+    <select id="getIncomeStatistic" resultClass="incomeStatistic" parameterClass="incomeParameter">
+        SELECT
+        c.installAppsCounts AS installAppsCounts,
+        c.installTime AS installTime,
+        c.salerNo AS salerNo,
+        c.salerName AS salerName,
+        c.shopName AS shopName,
+        c.cid AS cid,
+        c.flag AS flag
+        FROM
+        (
+        SELECT
+        count(
+        DISTINCT saleLog.appid,
+        saleLog.phone_imei
+        ) AS installAppsCounts,
+        saleLog.saler AS salerNo,
+        saleLog.saler_name AS salerName,
+        saleLog.shop_name AS shopName,
+        STR_TO_DATE(
+        CONCAT(
+        saleLog. YEAR,
+        '-',
+        saleLog. MONTH,
+        '-',
+        saleLog. DAY
+        ),
+        '%Y-%c-%e'
+        ) AS installTime,
+        saleLog.cid AS cid,
+        0 AS flag
+        FROM
+        tb_offlineapp_install_stat AS saleLog
+        WHERE
+        appid IN (
+        SELECT
+        c.appid
+        FROM
+        (
+        SELECT
+        appid
+        FROM
+        tb_topic_app
+        WHERE
+        topicid IN (67)
+        ) AS c
+        )
+        AND STR_TO_DATE(
+        CONCAT(
+        saleLog. YEAR,
+        '-',
+        saleLog. MONTH,
+        '-',
+        saleLog. DAY
+        ),
+        '%Y-%c-%e'
+        ) BETWEEN STR_TO_DATE(
+        #startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(
+        #endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(saleLog.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        GROUP BY
+        saler,
+        installTime
+        UNION ALL
+        SELECT
+        count(
+        DISTINCT saleLog.appid,
+        saleLog.phone_imei
+        ) AS installAppsCounts,
+        saleLog.saler AS salerNo,
+        saleLog.saler_name AS salerName,
+        saleLog.shop_name AS shopName,
+        STR_TO_DATE(
+        CONCAT(
+        saleLog. YEAR,
+        '-',
+        saleLog. MONTH,
+        '-',
+        saleLog. DAY
+        ),
+        '%Y-%c-%e'
+        ) AS installTime,
+        saleLog.cid AS cid,
+        1 AS flag
+        FROM
+        tb_offlineapp_install_stat AS saleLog
+        WHERE
+        appid IN (
+        SELECT
+        c.appid
+        FROM
+        (
+        SELECT
+        appid
+        FROM
+        tb_topic_app
+        WHERE
+        topicid IN (106)
+        ) AS c
+        )
+        AND STR_TO_DATE(
+        CONCAT(
+        saleLog. YEAR,
+        '-',
+        saleLog. MONTH,
+        '-',
+        saleLog. DAY
+        ),
+        '%Y-%c-%e'
+        ) BETWEEN STR_TO_DATE(
+        #startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(
+        #endTime#, '%Y-%c-%e')
+        AND
+        STR_TO_DATE(saleLog.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        GROUP BY
+        saler,
+        installTime
+        ) AS c
+        ORDER BY
+        installTime,
+        salerNo
+    </select>
+
+
+    <!--按促销员和日期查看精彩推荐应用的appid和手机串号-->
+    <select id="getSalePhoneImeiForRecommend" resultClass="incomeRes" parameterClass="incomeParameter">
+        SELECT
+        appid as appid,
+        phone_imei as phoneImei
+        FROM
+        tb_offlineapp_install_stat as saleLog
+        WHERE
+        STR_TO_DATE(
+        CONCAT(
+        saleLog. YEAR,
+        '-',
+        saleLog. MONTH,
+        '-',
+        saleLog. DAY
+        ),
+        '%Y-%c-%e'
+        ) = #installTime#
+        AND
+        appid IN (
+        select c.appid from ( SELECT
+        appid
+        FROM
+        tb_topic_app
+        WHERE
+        topicid=67) as c
+        )
+        AND
+        saleLog.saler = #salerNo#
+        GROUP BY
+        appid,phoneImei
+    </select>
+    <select id="topicAppIds" resultClass="String">
+        select
+        appid as appId
+        from
+        tb_topic_app
+        where
+        topicid in (106,67)
+    </select>
+    <!--计算某天促销员安装的台数-->
+    <select id="getPhoneInstallCounts" parameterClass="incomeParameter" resultClass="Integer">
+        select
+        count(DISTINCT phone_imei) as phoneCounts
+        from tb_offlineapp_install_stat as saleLog
+        where
+        STR_TO_DATE(
+        CONCAT(
+        saleLog. YEAR,
+        '-',
+        saleLog. MONTH,
+        '-',
+        saleLog. DAY
+        ),
+        '%Y-%c-%e'
+        ) = #installTime#
+        AND
+        appid IN
+        <iterate open="(" close=")" conjunction="," property="appids">
+            #appids[]#
+        </iterate>
+        AND
+        saleLog.saler = #salerNo#
+    </select>
+    <!--按促销员和日期查看装机必备应用的appid和手机串号-->
+    <select id="getSalePhoneImeiForNeed" resultClass="incomeRes" parameterClass="incomeParameter">
+        SELECT
+        appid as appid,
+        phone_imei as phoneImei
+        FROM
+        tb_offlineapp_install_stat as saleLog
+        WHERE
+        STR_TO_DATE(
+        CONCAT(
+        saleLog. YEAR,
+        '-',
+        saleLog. MONTH,
+        '-',
+        saleLog. DAY
+        ),
+        '%Y-%c-%e'
+        ) = #installTime#
+        AND
+        appid IN (
+        select c.appid from ( SELECT
+        appid
+        FROM
+        tb_topic_app
+        WHERE
+        topicid=106) as c
+        )
+        AND
+        saleLog.saler = #salerNo#
+        GROUP BY
+        appid,phoneImei
+    </select>
+
+    <!--按区域得到APP价格和计费模式-->
+    <select id="getAppPrice" parameterClass="Integer" resultClass="appPrice">
+        select
+        charge_model as chargeModel,
+        appid as appid,
+        price as price,
+        charge_company as chargeCompany
+        from
+        tb_app_price
+        where
+        charge_area=#chargeArea#
+    </select>
+
+    <!--精彩应用下的某应用的激活数量-->
+    <select id="countForAct" resultClass="Integer" parameterClass="incomeRes">
+        select
+        count(*)
+        from
+        tb_cp_phoneimei
+        WHERE
+        phone_imei in ($phoneImei$)
+        AND
+        appid=#appid#
+    </select>
+
+
+    <!--精彩推荐下的某应用到达数量-->
+    <select id="contForArr" resultClass="Integer" parameterClass="incomeRes">
+        SELECT
+            count(*)
+        from
+           tb_count_app
+        WHERE
+           phone_imei in ($phoneImei$)
+        AND
+           appid=#appid#
+    </select>
+
+    <!--HTC 手机IMEI号有*，去掉*查询-->
+    <select id="contForArrWithStar" resultClass="Integer" parameterClass="incomeRes">
+        select
+        count(*)
+        from
+        tb_count_app
+        WHERE
+        SUBSTR(phone_imei,8) in ($phoneImei$)
+        AND
+        appid=#appid#
+    </select>
+
+
+    <insert id="createIncomeStatistic" parameterClass="incomeStatistic">
+        INSERT tb_income_statistic (
+        saler,
+        saler_name,
+        vaild_counts,
+        rec_app_counts,
+        need_app_counts,
+        rec_app_income_company,
+        rec_app_income_province,
+        need_app_income_company,
+        need_app_income_province,
+        cid,
+        install_time,
+        arr_counts,
+        huasheng_app_counts,
+        mine_app_counts,
+        created,
+        modifyed
+        )VALUE(
+        #salerNo#,
+        #salerName#,
+        #vaildMachineCounts#,
+        #recommendAppCounts#,
+        #needAppCounts#,
+        #recommendAppIncomeForCompany#,
+        #recommendAppIncomeForProvince#,
+        #needAppIncomeForCompany#,
+        #needAppIncomeForProvince#,
+        #cid#,
+        #installTime#,
+        #arrCounts#,
+        #huashengAppCounts#,
+        #mineAppCounts#,
+        NOW(),
+        NOW()
+        )
+    </insert>
+
+    <update id="updateIncomeStatistic" parameterClass="incomeStatistic">
+        update
+        tb_income_statistic
+        set
+        vaild_counts=#vaildMachineCounts#,
+        rec_app_counts=#recommendAppCounts#,
+        need_app_counts=#needAppCounts#,
+        rec_app_income_company=#recommendAppIncomeForCompany#,
+        rec_app_income_province=#recommendAppIncomeForProvince#,
+        need_app_income_company=#needAppIncomeForCompany#,
+        need_app_income_province=#needAppIncomeForProvince#,
+        arr_counts =#arrCounts#,
+        huasheng_app_counts=#huashengAppCounts#,
+        mine_app_counts=#mineAppCounts#,
+        modifyed=now()
+        where
+        saler=#salerNo#
+        and
+        cid=#cid#
+        and
+        date_format(install_time, '%Y-%m-%d')=#installTime#
+    </update>
+
+    <!--查找是否库中有记录-->
+    <select id="getIncomtStatistic" parameterClass="incomeStatistic" resultClass="Integer">
+        select
+        count(*)
+        from
+        tb_income_statistic
+        where
+        saler=#salerNo#
+        and
+        cid=#cid#
+        and
+        date_format(install_time, '%Y-%m-%d')=#installTime#
+    </select>
+
+    <select id="getCompanyAppInstallCounts" resultClass="Integer" parameterClass="incomeParameter">
+        SELECT
+        count(DISTINCT saleLog.appid,
+        saleLog.phone_imei) as installTimes
+        FROM
+        tb_offlineapp_install_stat as saleLog
+        WHERE
+        STR_TO_DATE(
+        CONCAT(
+        saleLog. YEAR,
+        '-',
+        saleLog. MONTH,
+        '-',
+        saleLog. DAY
+        ),
+        '%Y-%c-%e'
+        ) = #installTime#
+        AND
+        saler=#salerNo#
+        AND
+        appid IN
+        <iterate open="(" close=")" conjunction="," property="appids">
+            #appids[]#
+        </iterate>
+        AND
+        STR_TO_DATE(saleLog.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+
+    </select>
+    <select id="getCompanyAppid" parameterClass="Integer" resultClass="String">
+        select appid from tb_app_price where charge_area=0 and
+        charge_company=#chargeCompany#
+    </select>
+
+    <select id="getTopicAppid" resultClass="String" parameterClass="Integer">
+        SELECT
+        appid
+        FROM
+        tb_topic_app
+        WHERE
+        topicid=#topicId#
+    </select>
+
+
+    <select id="getSalePhoneImei" resultClass="incomeRes" parameterClass="incomeParameter">
+        SELECT
+         appid as appid,
+         phone_imei as phoneImei
+        FROM
+         tb_offlineapp_install_stat as saleLog
+        WHERE
+        STR_TO_DATE(
+        CONCAT(
+        saleLog. YEAR,
+        '-',
+        saleLog. MONTH,
+        '-',
+        saleLog. DAY
+        ),
+        '%Y-%c-%e'
+        ) = #installTime#
+        AND
+        STR_TO_DATE(saleLog.created,'%Y-%c-%e') BETWEEN STR_TO_DATE(#startTime#, '%Y-%c-%e')
+        AND STR_TO_DATE(#endTime#, '%Y-%c-%e')
+        AND
+        appid in
+        <iterate open="(" close=")" conjunction="," property="topicAppids">
+            #topicAppids[]#
+        </iterate>
+        AND
+        saleLog.saler = #salerNo#
+        GROUP BY
+        appid,phoneImei
+    </select>
+
+
+    <select id="salerInstallLog" parameterClass="Integer" resultClass="salerInstallLog">
+        SELECT
+            DISTINCT
+            phone_imei AS phoneImei,
+            saler_no AS salerNo,
+            install_time as installTime,
+            device_no as deviceNo,
+            appid as appid
+        FROM
+            tb_app_install_log
+        WHERE
+            statistic_flag = 0
+        AND
+           <![CDATA[id<=#id#]]>
+    </select>
+
+
+    <insert id="createAppStatistic" parameterClass="salerInstallLog">
+        INSERT tb_app_statistic (device_no,saler_no,phone_imei,appid,install_time,log_type,created)
+        values
+        (#deviceNo#,#salerNo#,#phoneImei#,#appid#,#installTime#,#logType#,now())
+    </insert>
+
+    <update id="updateAppStatisticFlag" parameterClass="Integer">
+        update tb_app_install_log set statistic_flag = 1 where statistic_flag = 0 and
+        <![CDATA[id<=#id#]]>
+    </update>
+
+
+    <select id="salerArriveStatistic" parameterClass="incomeParameter" resultClass="arriveStatistic">
+        SELECT
+            saler_no as salerNo,
+            count(DISTINCT appid,phone_imei) as appCounts,
+            COUNT(DISTINCT phone_imei) as phoneCounts,
+            install_time as installTime
+        FROM
+            tb_app_statistic
+        where
+             install_time BETWEEN #startTime# AND  #endTime#
+        GROUP BY
+            install_time,saler_no
+    </select>
+
+    <!--到达应用的包名和appid-->
+    <select id="arrAppPackage" resultClass="java.util.HashMap">
+        SELECT
+            apps.package as package,
+            apps.appid as appid
+        FROM
+            tb_app_price AS appPrice,
+            tb_apps AS apps
+        WHERE
+          apps.appid=appPrice.appid
+        AND
+            appPrice.charge_model=2
+    </select>
+
+    <insert id="createFanyueArriveApp" parameterClass="arrAppObj">
+           insert into tb_count_app
+             (phone_imei,appid,created)
+           values
+             (#phoneImei#,#appid#,#created#)
+    </insert>
+
+
+    <insert id="createFanyueLog" parameterClass="fanyueLog">
+        insert into tb_fanyue_log
+          (arrive_phone_counts,arrive_app_counts,arrive_time,arrive_file,created)
+        values
+          (#arrivePhoneCounts#,#arriveAppCounts#,#arriveTime#,#arriveFile#,now())
+    </insert>
+
+    <select id="modelApps" resultClass="String" parameterClass="Integer">
+        select appid from tb_app_price where charge_model=#chargeModel#
+    </select>
+
+
+    <!--计费应用-->
+    <select id="priceApps" resultClass="String">
+        select appid from tb_app_price
+    </select>
+
+    <select id="appsInstallList" resultClass="incomeStatisticNew" parameterClass="incomeParameter">
+        select
+            saler_no as salerNo,
+            install_time as installTime,
+            count(DISTINCT phone_imei) as phoneCounts,
+            count(DISTINCT appid,phone_imei) as appCounts
+        from
+           tb_app_statistic  as appStatistic
+        where
+             <![CDATA[install_time >= #startTime#]]>
+        AND
+             <![CDATA[install_time <= #endTime#]]>
+        AND
+        appid in
+            <iterate open="(" close=")" conjunction="," property="appids">
+                #appids[]#
+            </iterate>
+        GROUP BY
+           salerNo,installTime
+        order by
+           installTime
+    </select>
+
+
+    <!--获取店员某天的安装的appid和手机串号-->
+    <select id="phoneImeis" resultClass="incomeRes" parameterClass="incomeParameter">
+        SELECT
+            appid as appid,
+            phone_imei as phoneImei
+        FROM
+           tb_app_statistic as saleLog
+        WHERE
+           install_time = #installTime#
+        AND
+            appid in
+        <iterate open="(" close=")" conjunction="," property="appids">
+            #appids[]#
+        </iterate>
+        AND
+          saleLog.saler_no = #salerNo#
+        GROUP BY
+        appid,phoneImei
+    </select>
+
+    <insert id="createIncomeStatisticNew" parameterClass="incomeStatisticNew">
+        insert into tb_income_new
+         (saler_no,app_counts,phone_counts,arrive_counts,act_counts,act_counts_compute,install_time,created,modified)
+        values
+         (#salerNo#,#appCounts#,#phoneCounts#,#arriveCounts#,#actCounts#,#actCountsCompute#,#installTime#,now(),now())
+    </insert>
+
+
+    <select id="getIncomeNew" resultClass="Integer">
+        select
+           count(*)
+        from
+           tb_income_new
+        where
+           install_time=#installTime#
+        and
+           saler_no=#salerNo#
+    </select>
+
+    <update id="updateIncomeNew" parameterClass="incomeStatisticNew">
+        update
+           tb_income_new
+        set
+           app_counts=#appCounts#,
+           arrive_counts=#arriveCounts#,
+           act_counts=#actCounts#,
+           phone_counts=#phoneCounts#,
+           modified= now()
+        where
+           saler_no=#salerNo#
+        and
+           install_time=#installTime#
+    </update>
+
+
+    <select id="totalActCounts" parameterClass="incomeParameter" resultClass="Integer">
+         select
+            count(*)
+         from
+            tb_cp_phoneimei
+         where
+          date_format(activation_time,'%Y-%m-%d') BETWEEN #startTime#  AND #endTime#
+    </select>
+
+    <select id="actInstallCounts" resultClass="Integer" parameterClass="incomeParameter">
+         select
+            count(*)
+         from tb_app_statistic
+         where
+            appid in
+        <iterate open="(" close=")" conjunction="," property="appids">
+            #appids[]#
+        </iterate>
+        <isNotEmpty prepend="AND" property="salerNo">
+           saler_no=#salerNo#
+        </isNotEmpty>
+        AND
+          <![CDATA[install_time >= #startTime#]]>
+        AND
+          <![CDATA[install_time <= #endTime#]]>
+    </select>
+
+    <select id="actAppids" resultClass="String">
+        select appid from tb_app_price where charge_model=1 and appid not in (50000777,50000837,50000849)
+    </select>
+
+
+
+</sqlMap>

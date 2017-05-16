@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Login">
+    <!--运营支撑系统用户表-->
+    <typeAlias alias="SupportUsers" type="com.jd.appstore.domain.SupportUsers"/>
+    <!--运营支撑系统功能模块表-->
+    <typeAlias alias="SupportModule" type="com.jd.appstore.domain.SupportModule"/>
+    <!--查询用户权限条件-->
+    <typeAlias alias="PowerQuery" type="com.jd.cms.domain.usermanager.PowerQuery"/>
+    <!--运营支撑系统用户操作日志表-->
+    <typeAlias alias="AdminLog" type="com.jd.appstore.domain.AdminLog"/>
+    <!--运营支撑系统功能模块表MAP-->
+    <resultMap id="SupportModuleResultMap" class="SupportModule">
+        <result property="moduleId" column="moduleId" />
+        <result property="moduleName" column="moduleName"/>
+        <result property="moduleUrl" column="moduleUrl"/>
+    </resultMap>
+    <!--根据用户名、密码查询用户信息-->
+    <select id="findSupportUsers" parameterClass="SupportUsers" resultClass="SupportUsers">
+        select
+            <!--运营支撑系统用户表主键-->
+            id as id,
+            <!--用户名-->
+            account as account,
+            <!--密码-->
+            password as password,
+            <!--角色-->
+            roleId as roleId,
+            <!--账户状态-->
+            account_status as accountStatus,
+            <!--记录创建时间-->
+            created as created,
+            <!--记录修改时间-->
+            modified as modified
+        from
+            tb_support_users
+        where
+            account_status=0
+        and
+            account=#account#
+        and
+            password=#password#
+        limit 1
+    </select>
+    <!--根据用户名查询最后登录时间-->
+    <select id="findOperationTime" parameterClass="SupportUsers" resultClass="SupportUsers">
+        select
+            <!--用户名-->
+            tsu.account as account,
+            <!--最后登录时间-->
+            tal.operation_time as created
+        from
+            tb_support_users tsu
+        left join
+            tb_admin_log tal
+        on
+            tsu.id=tal.adminid
+        where
+            tsu.account_status=0
+        and
+            tsu.account=#account#
+        and
+            tal.operation_type=0
+        order by
+            tal.created desc
+        limit 1
+    </select>
+    <!--根据用户名查询拥有权限-->
+    <select id="findSupportUserModule" parameterClass="com.jd.common.util.Query" resultMap="Login.SupportModuleResultMap">
+        select
+            <!--模块ID-->
+		    tsm.moduleid as moduleId,
+            <!--模块名-->
+            tsm.module_name as moduleName,
+            <!--模块URL-->
+            tsm.module_url as moduleUrl
+        from
+            tb_support_users tsu
+		left join
+			tb_support_role_module tsrm
+		on
+			tsu.roleid=tsrm.roleid
+        left join
+            tb_support_module tsm
+        on
+            tsrm.moduleid=tsm.moduleid
+	    and
+			tsm.parentid=0
+        where
+            tsm.module_status=0
+        and
+		    tsu.account=#value#
+    </select>
+    <!--根据用户名、权限URL查询权限信息-->
+    <select id="findSupportUserPower" parameterClass="PowerQuery" resultClass="PowerQuery">
+            select
+                <!--用户名-->
+    			tsu.account as account,
+                <!--模块URL-->
+	    		tsm.module_url as moduleUrl
+            from
+			    tb_support_users tsu
+            left join
+			    tb_support_role_module tsrm
+            on
+			    tsu.roleid=tsrm.roleid
+            and
+			    tsu.roleid is not null
+            right join
+			    tb_support_module tsm
+            on
+			    tsrm.moduleid=tsm.moduleid
+            where
+			    tsu.account=#account#
+            and
+			    tsm.module_url=#moduleUrl#
+            limit 1
+    </select>
+    <!--插入运营支撑系统用户操作日志表-->
+    <insert id="createAdminLog" parameterClass="AdminLog">
+        insert into tb_admin_log
+        (id
+        ,adminid
+        ,operation_type
+        ,operation_time
+        ,ip
+        ,ua
+        ,memo
+        ,created
+        ,modified)
+        values
+        (#id#
+        ,#adminId#
+        ,#operationType#
+        ,#operationTime#
+        ,#ip#
+        ,#ua#
+        ,#memo#
+        ,now()
+        ,now())
+    </insert>
+</sqlMap>

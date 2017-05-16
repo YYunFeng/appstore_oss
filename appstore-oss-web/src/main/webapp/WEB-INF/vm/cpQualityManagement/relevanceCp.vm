@@ -1,0 +1,61 @@
+#set($title = "PAD渠道管理-关联CP")
+#set($layout="content.vm")
+<script type="text/javascript">
+    $(document).ready(function() {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.2 });
+    });
+
+    function searchCPList() {
+        var cpName = jQuery.trim(document.getElementById("cpName").value);
+        if (cpName != '') {
+            jQuery.ajax({
+                        type:'POST',
+                        url:'/bulkUpload/findCPList.action',
+                        data:'cpName=' + cpName,
+                        dataType:'html',
+                        success:function(data) {
+                            $('#cpList').html(data);
+                        }
+                    });
+        } else {
+            alert('请输入CP名再检索');
+        }
+    }
+</script>
+<style type="text/css">
+    .mupload-box {
+        margin: 0px auto;
+        width: 320px;
+    }
+    #cpList{
+        margin: 29px auto;
+        width:146px;
+    }
+    #cpList td{
+        width:100px;
+    }
+</style>
+<div class="pop-top">
+    <div class="ac">
+        <h2>关联CP</h2>
+    </div>
+</div>
+<div class="pop-box">
+    <div class="con">
+        <div id="upload" class="mupload-box">
+            <p>
+                <label class="label">输入CP名：</label>
+                <label class="label" style="width: 120px;"><input type="text" id="cpName"
+                                                                  style="width: 120px;"/></label>
+                <label class="label"><input type="button" value="检 索" onclick="searchCPList();"/></label>
+                <div id="cpList">
+
+                </div>
+            </p>
+        </div>
+    </div>
+</div>
+<div class="btn-box">
+    <input id="add" class="btn" type="button" value="确 定" onclick="saveRelevanceCp('$!padChannel.flag','$!padChannel.id');">
+    <input id="closeDiv" class="close" type="button" value="取 消">
+</div>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Logs">
+   <typeAlias alias="operateObj" type="com.jd.appstore.domain.OperateObj"/>
+   <!--获取应用的操作日志-->
+   <select id="getAppidLog" resultClass="Integer" parameterClass="Integer">
+       select id from tb_operate_log where appid=#appid#
+   </select>
+
+   <!--创建应用操作日志-->
+   <insert id="createOperateLog" parameterClass="operateObj">
+       insert into tb_operate_log
+         (appid,operate_code,operate_time,created)
+       values
+         (#appid#,#operateCode#,now(),now())
+   </insert>
+
+   <!--更新应用操作日志-->
+   <update id="updateOperateLog" parameterClass="operateObj">
+        update
+           tb_operate_log
+        set
+          operate_code = #operateCode#,
+          operate_time = now()
+        where
+          id=#id#
+   </update>
+
+</sqlMap>

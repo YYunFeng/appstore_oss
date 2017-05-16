@@ -1,0 +1,715 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="SystemMaintenance">
+
+    <!--应用类目表-->
+    <typeAlias alias="Category" type="com.jd.appstore.domain.Category"/>
+    <!--后台任务返回信息-->
+    <typeAlias alias="TaskInfoResult" type="com.jd.cms.domain.taskmanager.TaskInfoResult"/>
+    <!--CP基本信息表-->
+    <typeAlias alias="CPBaseInfoResult" type="com.jd.appstore.domain.CpBaseInfo"/>
+    <!--应用类目表-->
+    <typeAlias alias="CategoryResult" type="com.jd.appstore.domain.Category"/>
+    <typeAlias alias="FeedBack" type="com.jd.cms.domain.systemmaintenance.FeedBack"/>
+    <typeAlias alias="AndroidDriver" type="com.jd.cms.domain.systemmaintenance.AndroidDriver"/>
+    <typeAlias alias="padImeiNumber" type="com.jd.appstore.domain.PadImeiNumber"/>
+    <typeAlias alias="baseQuery" type="com.jd.common.util.base.BaseQuery"/>
+
+    <typeAlias alias="appPrice" type="com.jd.cms.domain.systemmaintenance.AppPrice"/>
+    <typeAlias alias="appPriceParameter" type="com.jd.cms.domain.systemmaintenance.AppPriceParameter"/>
+
+    <!--后台ERP任务返回信息Map-->
+    <resultMap id="ErpTaskResultMap" class="TaskInfoResult">
+        <result property="id" column="id"/>
+        <result property="appId" column="appId"/>
+        <!--<result property="logoUrl" column="logoUrl"/>-->
+        <result property="appName" column="appName"/>
+        <result property="taskTypeName" column="taskTypeName"/>
+        <result property="status" column="status"/>
+        <result property="retryTimes" column="retryTimes"/>
+        <result property="startTimeFact" column="startTimeFact"/>
+        <!--<result property="appLogo" column="appLogo"/>-->
+        <result property="created" column="created"/>
+    </resultMap>
+    <!--后台周期性任务返回信息Map-->
+    <resultMap id="LoopTaskResultMap" class="TaskInfoResult">
+        <result property="id" column="id"/>
+        <result property="taskTypeId" column="taskTypeId"/>
+        <result property="relatedId" column="relatedId"/>
+        <result property="taskTypeName" column="taskTypeName"/>
+        <result property="status" column="status"/>
+        <result property="startTimeFact" column="startTimeFact"/>
+        <result property="loopPeriod" column="loopPeriod"/>
+    </resultMap>
+    <!--应用类目表Map-->
+    <resultMap id="CategoryResultMap" class="Category">
+        <result property="categoryId" column="categoryId"/>
+        <result property="categoryName" column="categoryName"/>
+        <result property="intro" column="intro"/>
+        <result property="parentId" column="parentId"/>
+        <result property="logoUrl" column="logoUrl"/>
+    </resultMap>
+    <!--查询类目列表-->
+    <select id="findCategoryByParentId" parameterClass="com.jd.common.util.Query"
+            resultMap="SystemMaintenance.CategoryResultMap">
+        select
+        <!--类目ID-->
+        categoryid as categoryId,
+        <!--类目名称-->
+        category_name as categoryName,
+        <!--类目描述-->
+        intro as intro,
+        <!--父ID-->
+        parent_id as parentId,
+        <!--类目图片-->
+        logo_url as logoUrl
+        from
+        tb_category
+        where
+        parent_id=#id#
+        ORDER BY
+        created desc
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+    <!--查询总记录数-->
+    <select id="getCategoryByParentId" parameterClass="com.jd.common.util.Query" resultClass="int">
+        select
+        count(*)
+        from
+        tb_category
+        where
+        parent_id=#id#
+    </select>
+    <!--查询ERP任务列表-->
+    <select id="findErpTaskList" parameterClass="com.jd.common.util.Query"
+            resultMap="SystemMaintenance.ErpTaskResultMap">
+        select
+        <!--任务ID-->
+        erp.id as id,
+        <!--应用ID-->
+        erp.appid as appId,
+        <!--主图URL-->
+        <!--'' as logoUrl,-->
+        <!--应用名称-->
+        erp.app_name as appName,
+        <!--任务类型名称-->
+        tat.task_type_name as taskTypeName,
+        <!--任务状态-->
+        erp.status as status,
+        <!--剩余次数-->
+        erp.retry_times as retryTimes,
+        <!--实际执行时间-->
+        erp.start_time_fact as startTimeFact,
+        <!--是否为主图标记-->
+        <!--1 as appLogo,-->
+        <!--创建时间-->
+        erp.created as created
+        from
+        (select
+        tbt.id,
+        tal.appid,
+        tal.app_name,
+        tbt.`status`,
+        tbt.retry_times,
+        tbt.start_time_fact,
+        tbt.task_type_id,
+        tbt.created
+        from
+        tb_backend_task tbt
+        left join
+        tb_app_log tal
+        on
+        tbt.related_id=tal.id
+        where
+        tbt.status=#id#
+        and
+        ( tbt.task_type_id=1 or tbt.task_type_id=3 )
+        union all
+        select
+        tbt.id,
+        tal.appid,
+        tal.app_name,
+        tbt.`status`,
+        tbt.retry_times,
+        tbt.start_time_fact,
+        tbt.task_type_id,
+        tbt.created
+        from
+        tb_backend_task tbt
+        left join
+        tb_app_detail_log tad
+        on
+        tbt.related_id=tad.id
+        left join
+        tb_app_log tal
+        on
+        tal.appid=tad.appid
+        where
+        tbt.status=#id#
+        and
+        ( tbt.task_type_id=2 or tbt.task_type_id=8 )
+        and tal.newst_flag=1
+        ) erp
+        left join
+        tb_task_type tat
+        on
+        erp.task_type_id=tat.task_type_id
+        where
+        tat.is_loop=0
+        <!--应用名称是否为NULL-->
+        <isNotNull property="value" prepend="and">
+            erp.app_name like #value#
+        </isNotNull>
+        order by
+        erp.created desc
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+    <!--查询ERP任务总数-->
+    <select id="getErpTasks" parameterClass="com.jd.common.util.Query" resultClass="int">
+        select
+        count(*)
+        from
+        ( select
+        <!--任务ID-->
+        erp.id as id,
+        <!--应用ID-->
+        erp.appid as appId,
+        <!--主图URL-->
+        <!--'' as logoUrl,-->
+        <!--应用名称-->
+        erp.app_name as appName,
+        <!--任务类型名称-->
+        tat.task_type_name as taskTypeName,
+        <!--任务状态-->
+        erp.status as status,
+        <!--剩余次数-->
+        erp.retry_times as retryTimes,
+        <!--实际执行时间-->
+        erp.start_time_fact as startTimeFact,
+        <!--是否为主图标记-->
+        <!--1 as appLogo,-->
+        <!--创建时间-->
+        erp.created as created
+        from
+        (select
+        tbt.id,
+        tal.appid,
+        tal.app_name,
+        tbt.`status`,
+        tbt.retry_times,
+        tbt.start_time_fact,
+        tbt.task_type_id,
+        tbt.created
+        from
+        tb_backend_task tbt
+        left join
+        tb_app_log tal
+        on
+        tbt.related_id=tal.id
+        where
+        tbt.status=#id#
+        and
+        ( tbt.task_type_id=1 or tbt.task_type_id=3 )
+        union all
+        select
+        tbt.id,
+        tal.appid,
+        tal.app_name,
+        tbt.`status`,
+        tbt.retry_times,
+        tbt.start_time_fact,
+        tbt.task_type_id,
+        tbt.created
+        from
+        tb_backend_task tbt
+        left join
+        tb_app_detail_log tad
+        on
+        tbt.related_id=tad.id
+        left join
+        tb_app_log tal
+        on
+        tal.appid=tad.appid
+        where
+        tbt.status=#id#
+        and
+        ( tbt.task_type_id=2 or tbt.task_type_id=8 )
+        and tal.newst_flag=1
+        ) erp
+        left join
+        tb_task_type tat
+        on
+        erp.task_type_id=tat.task_type_id
+        where
+        tat.is_loop=0
+        <!--应用名称是否为NULL-->
+        <isNotNull property="value" prepend="and">
+            erp.app_name like #value#
+        </isNotNull>
+
+        ) temp
+    </select>
+    <!--查询周期性任务列表-->
+    <select id="findLoopTaskList" parameterClass="com.jd.common.util.Query"
+            resultMap="SystemMaintenance.LoopTaskResultMap">
+        select
+        <!--任务ID-->
+        tbt.id as id,
+        <!--任务类型ID-->
+        tbt.task_type_id as taskTypeId,
+        <!--关联ID-->
+        tbt.related_id as relatedId,
+        <!--任务类型名称-->
+        tat.task_type_name as taskTypeName,
+        <!--任务状态-->
+        tbt.status as status,
+        <!--实际执行时间-->
+        tbt.start_time_fact as startTimeFact,
+        <!--周期时间-->
+        tat.loop_period as loopPeriod
+        from
+        tb_backend_task tbt
+        left join
+        tb_task_type tat
+        on
+        tbt.task_type_id=tat.task_type_id
+        where
+        tat.is_loop=1
+        order by
+        tbt.created desc
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+    <!--查询周期性任务总数-->
+    <select id="getLoopTasks" parameterClass="com.jd.common.util.Query" resultClass="int">
+        select
+        count(*)
+        from
+        tb_backend_task tbt
+        left join
+        tb_task_type tat
+        on
+        tbt.task_type_id=tat.task_type_id
+        where
+        tat.is_loop=1
+        order by
+        tbt.created desc
+    </select>
+    <!--根据任务ID查询任务信息-->
+    <select id="findLoopTaskInfoById" parameterClass="com.jd.common.util.Query" resultClass="TaskInfoResult">
+        select
+        <!--任务ID-->
+        tbt.id as id,
+        <!--任务类型ID-->
+        tbt.task_type_id as taskTypeId,
+        <!--周期时间-->
+        tat.loop_period as loopPeriod
+        from
+        tb_backend_task tbt
+        left join
+        tb_task_type tat
+        on
+        tbt.task_type_id=tat.task_type_id
+        where
+        tbt.id=#id#
+        and
+        tbt.status=#startRow#
+        limit 1
+    </select>
+    <!--重新同步ERP后台任务-->
+    <update id="resetErpTask" parameterClass="com.jd.common.util.Query">
+        update
+        tb_backend_task
+        set
+        <!--任务状态-->
+        status=0,
+        <!--剩余次数-->
+        retry_times=10
+        where
+        id=#id#
+    </update>
+    <!--根据任务ID修改任务状态为停用-->
+    <update id="updateLoopTaskStatus" parameterClass="com.jd.common.util.Query">
+        update
+        tb_backend_task
+        set
+        status=#startRow#
+        where
+        id=#id#
+    </update>
+    <!--添加类目-->
+    <insert parameterClass="Category" id="createCategory">
+        INSERT INTO tb_category
+        (
+        categoryid,
+        category_name,
+        level,
+        parent_id,
+        is_leaf,
+        pubed_status,
+        created,
+        modified,
+        logo_url,
+        expired_status,
+        intro
+        )
+        VALUES
+        (
+        #categoryId#,#categoryName#,#level#,#parentId#
+        ,#isLeaf#,#pubedStatus#,NOW(),NOW(),#logoUrl#,#expiredStatus#,#intro#)
+    </insert>
+
+    <!--删除类目-->
+    <delete id="deleteCategory" parameterClass="int">
+        delete from
+        tb_category
+        where
+        categoryid = #categoryId#
+    </delete>
+
+    <!--修改类目图片路径-->
+    <update id="updateCategoryPicUrl" parameterClass="com.jd.common.util.Query">
+        update
+        tb_category
+        set
+        logo_url=#value#
+        where
+        categoryid=#id#
+    </update>
+    <!--修改类目描述-->
+    <update id="doUpdateCategoryIntro" parameterClass="Category">
+        update
+        tb_category
+        set
+        intro=#intro#,
+        category_name =#categoryName#
+        where
+        categoryid=#categoryId#
+    </update>
+    <select id="findCPBaseInfoList" resultClass="CPBaseInfoResult">
+        select
+        cp_name as cp_name,
+        id as id
+        from
+        tb_cp_baseinfo
+        where
+        account_status = 1
+    </select>
+
+    <select id="findCPList" resultClass="CPBaseInfoResult" parameterClass="com.jd.common.util.Query">
+        select
+        cp_name as cp_name,
+        id as id,
+        account as accout
+        from
+        tb_cp_baseinfo
+        where
+        cp_name like '%$value$%' and account_status = 1
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+
+    <select id="getCPCount" resultClass="int" parameterClass="com.jd.common.util.Query">
+        select
+        count(*)
+        from
+        tb_cp_baseinfo
+        where
+        cp_name like '%$value$%' and account_status = 1
+    </select>
+
+    <select id="findCategoryList" resultClass="CategoryResult" parameterClass="int">
+        select
+        categoryid as categoryId,
+        category_name as categoryName
+        from
+        tb_category
+        where
+        level = 3 and parent_id = #id#
+    </select>
+    <!--初始化修改类目描述页-->
+    <select id="fintCategoryIntro" parameterClass="com.jd.common.util.Query" resultClass="Category">
+        select
+        category_name as categoryName,
+        categoryid as categoryId,
+        intro as intro
+        from
+        tb_category
+        where
+        categoryid = #id#
+        limit 1
+    </select>
+
+    <!--取得问题反馈总记录数-->
+    <select id="getFeedBackCount" parameterClass="com.jd.common.util.Query" resultClass="Integer">
+        select
+        count(*)
+        from
+        tb_feedback
+    </select>
+
+    <!--取得问题反馈信息集合-->
+    <select id="findFeedBackList" parameterClass="com.jd.common.util.Query" resultClass="FeedBack">
+        select
+        id as id,
+        ftype as ftype,
+        content as content,
+        fuser as fuser,
+        created as created
+        from
+        tb_feedback
+        order by created desc
+        limit #endRow# offset #startRow#
+    </select>
+
+    <!--删除问题反馈-->
+    <delete id="delFeedBack" parameterClass="int">
+        delete from
+        tb_feedback
+        where
+        id = #id#
+    </delete>
+
+    <select id="findAndroidDriver" parameterClass="com.jd.common.util.Query" resultClass="AndroidDriver">
+        select
+        id as id,
+        vid as vid,
+        vname as vname,
+        pid as pid,
+        pname as pname,
+        driver_url as driverUrl,
+        mainfile as mainFile,
+        created as created,
+        modified as modified
+        from
+        tb_android_driver
+        order by
+        created desc
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+
+    <select id="getAndroidDriverCount" resultClass="int">
+        select count(*) from tb_android_driver
+    </select>
+
+    <delete id="deleteAndroidDriver" parameterClass="AndroidDriver">
+        delete from
+        tb_android_driver
+        where
+        id = #id#
+    </delete>
+
+    <insert id="createAndroidDriver" parameterClass="AndroidDriver">
+        insert into
+        tb_android_driver
+        (id, vid, vname, pid, pname, mainfile, driver_url, created, modified)
+        values
+        (#id#,#vid#,#vname#,#pid#,#pname#,#mainFile#,#driverUrl#,now(),now())
+    </insert>
+
+    <select id="findAndroidDriverById" parameterClass="AndroidDriver" resultClass="AndroidDriver">
+        select
+        id as id,
+        vid as vid,
+        vname as vname,
+        pid as pid,
+        pname as pname,
+        driver_url as driverUrl,
+        mainfile as mainFile,
+        created as created,
+        modified as modified
+        from
+        tb_android_driver
+        where
+        id = #id#
+    </select>
+
+    <update id="updateAndroidDriver" parameterClass="AndroidDriver">
+        update
+        tb_android_driver
+        set vid = #vid#, vname = #vname#, pid = #pid#, pname = #pname#, mainfile = #mainFile#, driver_url = #driverUrl#
+        where id = #id#
+    </update>
+
+    <!--插入padimei号-->
+    <insert id="createPadImeiNumber" parameterClass="padImeiNumber">
+        insert into tb_pad_imei(id,imei_number)values(#id#,#imeiNumber#)
+    </insert>
+    <select id="getPadImeiList" resultClass="padImeiNumber" parameterClass="baseQuery">
+        select
+        id as id,
+        imei_number as imeiNumber,
+        update_time as updateTime,
+        update_time as updateTime,
+        upload_log_time as uploadLogTime,
+        update_version_time as updateVersionTime
+        from
+        tb_pad_imei
+        ORDER BY
+        update_time
+        limit
+        #endRow#
+        offset
+        #startRow#
+    </select>
+    <select id="padImeiCount" resultClass="Integer">
+        select
+        count(*)
+        from
+        tb_pad_imei
+    </select>
+    <update id="updatePadImei" parameterClass="padImeiNumber">
+        update tb_pad_imei
+        set
+        imei_number =#imeiNumber#
+        where
+        id=#id#
+    </update>
+    <!--得到PADimei号-->
+    <select id="getPadImeiNumber" parameterClass="String" resultClass="padImeiNumber">
+        select
+        id as id,
+        imei_number as imeiNumber
+        from
+        tb_pad_imei
+        where
+        imei_number=#imeiNumber#
+    </select>
+    <delete id="deletePadImeiNumber" parameterClass="Integer">
+        delete
+        from tb_pad_imei
+        where
+        id=#id#
+    </delete>
+
+    <select id="getPadNoUpdateCount" resultClass="Integer">
+        SELECT
+        count(*)
+        FROM
+        tb_pad_imei
+        WHERE
+        update_time is NULL
+        OR
+        <![CDATA[ date_format(update_time, '%Y-%m-%d')  <= date_format(CurDate()-3, '%Y-%m-%d') ]]>
+        ORDER BY
+        update_time
+    </select>
+
+
+    <select id="appPriceList" resultClass="appPrice" parameterClass="appPriceParameter">
+         SELECT
+            appPrice.id as id,
+            appPrice.charge_model as chargeModel,
+            appPrice.appid as appid,
+            apps.app_name as appName,
+            appPrice.charge_area as chargeArea,
+            appPrice.charge_company as chargeCompany,
+            appPrice.price as price,
+            appPrice.created as created,
+            appDetails.logo_url as logoUrl
+         from
+            tb_app_price as appPrice,
+            tb_app_details as appDetails,
+            tb_apps as apps
+          where
+             appDetails.appid = appPrice.appid
+          AND
+            apps.appid= appPrice.appid
+          AND
+            appDetails.id=apps.default_detail_id
+         <isNotEmpty prepend="and" property="chargeModel">
+             appPrice.charge_model=#chargeModel#
+         </isNotEmpty>
+        <isNotEmpty prepend="and" property="topicId">
+            apps.appid in (select c.appid from ( SELECT
+            appid
+            FROM
+            tb_topic_app
+            WHERE
+            topicid=#topicId# ) as c)
+        </isNotEmpty>
+         <isNotEmpty prepend="and" property="chargeArea">
+             appPrice.charge_area =#chargeArea#
+         </isNotEmpty>
+         <isNotEmpty prepend="and" property="appName">
+            apps.app_name  like  '%$appName$%'
+         </isNotEmpty>
+    </select>
+
+
+    <insert id="createAppPrice" parameterClass="appPrice">
+        INSERT INTO tb_app_price
+          (charge_model,appid,charge_area,price,
+           <isNotEmpty prepend="" property="chargeCompany">
+                charge_company,
+           </isNotEmpty>
+           created)
+        VALUES
+          (#chargeModel#,#appid#,#chargeArea#,#price#,
+           <isNotEmpty prepend="" property="chargeCompany">
+            #chargeCompany#,
+           </isNotEmpty>
+          now());
+    </insert>
+
+    <delete id="deleteAppPrice" parameterClass="Integer">
+        DELETE from tb_app_price where id=#id#
+    </delete>
+
+    <select id="modifyAppPrice" parameterClass="Integer" resultClass="appPrice">
+        SELECT
+            appPrice.id as id,
+            appPrice.charge_model as chargeModel,
+            appPrice.appid as appid,
+            apps.app_name as appName,
+            appPrice.charge_area as chargeArea,
+            appPrice.price as price,
+            appPrice.created as created,
+            appPrice.charge_company as chargeCompany,
+            appDetails.logo_url as logoUrl
+        from
+            tb_app_price as appPrice,
+            tb_app_details as appDetails,
+            tb_apps as apps
+        where
+             appDetails.appid = appPrice.appid
+            AND
+             apps.appid= appPrice.appid
+            AND
+             appDetails.id=apps.default_detail_id
+            AND
+              appPrice.id=#id#
+    </select>
+
+    <update id="updateAppPrice" parameterClass="appPrice">
+        update
+           tb_app_price
+        set
+          charge_model=#chargeModel#,
+          appid=#appid#,
+          charge_area=#chargeArea#,
+          price=#price#
+          <isNotEmpty prepend="" property="chargeCompany">
+           ,charge_company=#chargeCompany#
+          </isNotEmpty>
+        where
+           id=#id#
+    </update>
+
+
+</sqlMap>

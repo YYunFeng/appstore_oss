@@ -1,0 +1,217 @@
+#set($title = "系统维护-多文件上传")
+#set($layout="content.vm")
+<link rel="stylesheet" href="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/uploadify.css")" type="text/css"
+      media="screen"/>
+<script type="text/javascript" src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/swfobject.js")"></script>
+<script type="text/javascript"
+        src="$assetModule.getTarget("/appstore-man/js/uploadify-v2.1.4/jquery.uploadify.v2.1.4.min.js")"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var flag = 1;
+        if (flag == 1) {
+            uploadExcel();
+            flag ++;
+        }
+
+
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+        if ($importLog.downloaded==0)
+        {
+            loadStatus();
+        }
+        else
+        {
+            document.getElementById('upload').style.display = 'block';
+            document.getElementById('uploading').style.display = 'none';
+            document.getElementById('uploaded').style.display = 'none';
+        }
+    });
+
+    function loadStatus() {
+        var html = '';
+        if ($importLog.status == 0 || $importLog.status ==1 )
+        {
+            document.getElementById('upload').style.display = 'none';
+            document.getElementById('uploading').style.display = 'block';
+            document.getElementById('uploaded').style.display = 'none';
+        }
+    else
+        if ($importLog.status==2)
+        {
+            document.getElementById('upload').style.display = 'none';
+            document.getElementById('uploading').style.display = 'none';
+            document.getElementById('uploaded').style.display = 'block';
+        }
+
+    }
+
+
+    function downExcel(url, id) {
+        updateImport(id);
+        window.open('$imgserver.getTarget($importLog.excelUrl)');
+    }
+
+
+    function updateImport(id) {
+        jQuery.ajax({
+                    type:'POST',
+                    url:'/bulkUpload/updateImport.action',
+                    data:'id=' + id,
+                    dataType:'html',
+                    success:function(data) {
+                    }
+                });
+    }
+
+    function Cancel() {
+        $('#close').click();
+    }
+    ;
+    function uploadExcel() {
+        $("#file_upload").uploadify({
+                    'uploader':'/appstore-man/js/uploadify-v2.1.4/uploadify.swf',    //组件自带的flash，路径根据情况自行调整
+                    'script':'$assetModule.getTarget("/bulkUpload/uploadExcel.action")',
+                    'cancelImg':'/appstore-man/js/uploadify-v2.1.4/cancel.png',
+                    'fileDataName':'uploadFile',
+                    'queueID':'fileQueue',     //放置上传文件及上传进度的Html元素Id
+                    'queueSizeLimit':1,        //-次最多选择多少个文件上传，这里限定为一个
+                    'fileDesc':'*.xlsx',
+                    'fileExt':'*.xlsx',
+                    'buttonImg' : '/appstore-man/images/uploadExcel.png',
+                    'auto':false,            //是否选取文件后自动上传
+                    'multi':false,           //多文件上传时必须打开
+                    'onError':function(event, queueID, fileObj, errorObj) {
+                        alert(" 上传失败" + errorObj.info + " 错误类型" + errorObj.type);
+                    },
+                    'onComplete':function(event, queueID, fileObj, response, data) {
+                        alert(response);
+                    }
+                });
+    }
+
+
+
+    function import_excel() {
+        var accountId = null;
+        var cpResult = document.getElementsByName('cpResult');
+        for (var i = 0; i < cpResult.length; i++) {
+            if (cpResult[i].checked) {
+                accountId = cpResult[i].value;
+                break;
+            }
+        }
+        if (accountId != null) {
+            var adminId = document.getElementById('adminId').value;
+            var account = $("#" + accountId).val();
+            var ip = document.getElementById('ip').value;
+            $('#file_upload').uploadifySettings('scriptData', {'accountId':accountId,'account':account,'appType':$('input[name=\'app-type\'].[checked]').val(),'adminId':adminId,'ip':ip});
+            $('#file_upload').uploadifyUpload();
+        } else {
+            alert("请选择CP");
+        }
+    }
+
+    function deleteImportLog(id) {
+        jQuery.ajax({
+                    type:'POST',
+                    url:'/bulkUpload/deleteImportLog.action',
+                    data:'id=' + id,
+                    dataType:'html',
+                    success:function(data) {
+                        bulkUploadStart();
+                    }
+                });
+    }
+    ;
+
+    function searchCPList() {
+        var cpName = jQuery.trim(document.getElementById("cpName").value);
+        if (cpName != '') {
+            jQuery.ajax({
+                        type:'POST',
+                        url:'/bulkUpload/findCPList.action',
+                        data:'cpName=' + cpName,
+                        dataType:'html',
+                        success:function(data) {
+                            $('#cpList').html(data);
+                        }
+                    });
+        } else {
+            alert('请输入CP名再检索');
+        }
+    }
+
+</script>
+
+<div class="fr">
+    <div class="right-box rounded">
+        <div id="upload" class="mupload-box show">
+            <p>
+                <label class="label">输入CP名：</label>
+                <label class="label" style="width: 120px;"><input type="text" id="cpName"
+                                                                  style="width: 120px;"/></label>
+                <label class="label"><input type="button" value="检 索" onclick="searchCPList();"/></label>
+            </p>
+
+            <div id="cpList"></div>
+            <input id="adminId" type="hidden" value="$adminId"/>
+            <input id="ip" type="hidden" value="$ip"/>
+
+            <p>
+                <label class="label">应用类型：</label>
+                <label><input name="app-type" type="radio" value="2" checked="true"/> 移动应用</label>
+                <label><input name="app-type" type="radio" value="3"/> WEB应用</label>
+            </p>
+
+            <p>
+                <label class="label">选择文件：</label>
+                <label>
+                    <input id="file_upload" name="photo" type="file"/>
+
+                    <div id="fileQueue" style="width: 400px;"></div>
+                </label>
+            </p>
+
+            <p class="ac"><input class="to-del" type="button" value="确 定" onclick="import_excel();"></p>
+        </div>
+        <div id="uploading" class="mupload-box hide">
+
+            <div class="ac"><h2>上传进行中...</h2></div>
+
+            <p class="ac">总计'$importLog.total'个应用</p>
+
+            <p class="ac">成功'$importLog.succeed'个</p>
+
+            <p class="ac">失败'$importLog.failed'个</p>
+
+            <p class="ac">
+                <input class="btn" type="button" value="忽略此次操作"
+                       onclick="deleteImportLog('$importLog.adminId');"/>
+            </p>
+        </div>
+        <div id="uploaded" class="mupload-box hide">
+
+            <div class="ac"><h2>上传完成</h2></div>
+
+            <p class="ac">总计'$importLog.total'个应用</p>
+
+            <p class="ac">成功'$importLog.succeed'个</p>
+
+            <p class="ac">失败'$importLog.failed'个</p>
+
+            <p class="ac">
+            #*    <a href="$imgserver.getTarget($importLog.excelUrl)" class="btn">下载Excel</a>*#
+                <input class="btn" type="button" value="下载Excel"
+                       onclick="downExcel('$importLog.excelUrl','$importLog.id');"/>
+            </p>
+
+
+        </div>
+    </div>
+</div>
+
+<!--弹出层-->
+<div class="hide">
+    <input id="open" class="open" type="button">
+    <input id="close" class="close" type="button" value="取 消">
+</div>

@@ -1,0 +1,159 @@
+#set($layout="content.vm")
+<script language="javascript">
+    function macroAjaxSubmit(url) {
+        var price = jQuery("[name=appPageInput.price]").val();
+        var p;
+        var n;
+        if(-1 == price){
+            n = 0;
+        }else if(0 == price){
+            n = 1;
+            p = 0
+        }else if(1 == price){
+            n = 1;
+            p = 1;
+        }
+    jQuery.ajax({
+                type:'post',
+                url:url,
+                data:{
+                    "appPageInput.type":jQuery.trim(jQuery("[name=markType]").val()),
+                    "appPageInput.cpName":jQuery.trim(jQuery("[name=appPageInput.cpName]").val()),
+                    "appPageInput.appName":jQuery.trim(jQuery("[name=appPageInput.appName]").val()),
+                    "appPageInput.packageName":jQuery.trim(jQuery("[name=appPageInput.packageName]").val()),
+                    "appPageInput.updateStatus":jQuery.trim(jQuery("[name=appPageInput.updateStatus]").val()),
+                    "appPageInput.price":p,
+                    "appPageInput.nullPrice":n
+                    },
+                success:function(data) {
+                    jQuery('#appTable').html(data);
+                }
+            });
+    };
+
+    $(document).ready(function(){
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+        var img = new Array();
+        #foreach($AppPageOutput in $AppPageOutputs)
+        img[$AppPageOutput.did] = false;
+        #end
+    function img_chk(sb){
+    if(eval("img["+sb+"]")==false){
+    document.getElementById(sb).src = "$assetModule.getTarget("/appstore-man/images/checkbox_hover.png")";
+    eval("img["+sb+"]=true");
+    }else{
+    document.getElementById(sb).src="$assetModule.getTarget("/appstore-man/images/checkbox.png")";
+    eval("img["+sb+"]=false");
+    }
+    }
+</script>
+<div class="right-box rounded">
+          <div class="form-row">
+            <label class="label">CP用户名:</label>
+            <input class="input" type="text" name="appPageInput.cpName" value="$!appPageInput.cpName"/>
+            <label class="label">应用名称:</label>
+            <input class="input" type="text" name="appPageInput.appName" value="$!appPageInput.appName"/>
+            <label class="label" style="width: 80px;">应用安装包名:</label>
+            <input class="input" type="text" name="appPageInput.packageName" value="$!appPageInput.packageName"/>
+            <input class="to-select" type="button" value="查 询" onclick="findMobileDetailsTree()">
+          </div>
+            <!--paging_start-->
+            <div class="form-row">
+               <div class="paging fr">
+                    <div class="paging-box_2">
+                     #set($pageModule = $domain.getTarget("/appManagement/findMobileDetailsPage.action").addQueryData("pageSize",$!pageSize))
+                     #showPage($pageModule $AppPageOutputs)
+                    </div>
+               </div>
+            </div>
+            <!--paging_end-->
+          <div class="tb-box">
+            <table class="tb" cellspacing="0" cellpadding="0">
+              <tr class="tit-bg">
+                <td width="40">选择</td>
+                <td width="50">CP<br>用户名</td>
+                <td width="75">应用图标</td>
+                <td width="95">应用名称</td>
+                <td width="50">版本</td>
+                <td width="170">应用安装包名</td>
+                <td width="60">价格<br>
+                    <select name="appPageInput.price" onchange="findMobileDetailsTree()">
+                    <option value="-1" #if($!AppPageInput.nullPrice == 0) selected #end>全部
+                    </option>
+                    <option value="0" #if($!AppPageInput.price == 0 && $!AppPageInput.nullPrice == 1) selected #end>免费
+                    </option>
+                    <option value="1" #if($!AppPageInput.price == 1 && $!AppPageInput.nullPrice == 1) selected #end>收费
+                    </option>
+                </select>
+                </td>
+                <td width="70">审核状态<br>
+                    <select name="appPageInput.updateStatus" onchange="findMobileDetailsTree()">
+                    <option value="-1" #if($!AppPageInput.updateStatus == -1) selected #end>全部
+                    </option>
+                    <option value="1" #if($!AppPageInput.updateStatus == 1) selected #end>待审核
+                    </option>
+                    <option value="2" #if($!AppPageInput.updateStatus == 2) selected #end>审核不通过
+                    </option>
+                    <option value="3" #if($!AppPageInput.updateStatus == 3) selected #end>审核中
+                    </option>
+                </select>
+                </td>
+                <td width="80">提交时间</td>
+                <td width="100">操作</td>
+              </tr>
+              #foreach($AppPageOutput in $AppPageOutputs)
+              <tr>
+                <td><img id="$!AppPageOutput.did" name="chkUpdatePrompt"
+                         src="$assetModule.getTarget("/appstore-man/images/checkbox.png")"
+                         onclick="img_chk(this.id);" /></td>
+                <td>$!stringEscapeUtils.escapeHtml($!AppPageOutput.cpName)</td>
+                  <td>
+                    <img width="75" height="75" #if($AppPageOutput.zhuoWangMark==1)
+                          src="${AppPageOutput.logoUrl}"
+                        #else
+                        src="$imgserver.getTarget('')cover/${AppPageOutput.logoUrl}" #end   />
+                  </td>
+                <td>$!stringEscapeUtils.escapeHtml($!AppPageOutput.appName)</td>
+                <td>$!stringEscapeUtils.escapeHtml($!AppPageOutput.appVersion)</td>
+                <td><p style="width:170px;overflow: hidden;">$!stringEscapeUtils.escapeHtml($!AppPageOutput.packageName)</p></td>
+                <td>
+                  #if($!AppPageOutput.price == 0)
+                        免费
+                  #elseif($!AppPageOutput.price != 0)
+                        #set( $inter = $!AppPageOutput.price / 100 )
+                        #set( $deci = $!AppPageOutput.price % 100 )
+                        ￥${inter}.#if($deci < 10)0#end${deci}
+                  #end
+                </td>
+                <td>
+                  #if($!AppPageOutput.updateStatus == 1)
+                        待审核
+                  #elseif($!AppPageOutput.updateStatus == 2)
+                        审核不通过
+                  #elseif($!AppPageOutput.updateStatus == 3)
+                        审核中
+                  #end
+                </td>
+                <td>$!dateFormatUtils.format($!AppPageOutput.created,"yyyy-MM-dd")<br>
+                    $!dateFormatUtils.format($!AppPageOutput.created,"HH:mm")<br>
+                </td>
+                <td>
+                    <a href="javascript:void(0);" onclick="selAppMobileDetailsTree($!AppPageOutput.did,$!AppPageOutput.appid,$!AppPageOutput.accountid)" class="pa red open">审核</a>
+                    <br>
+                    <a href="$imgserver.getTarget('')apk/$!AppPageOutput.resUrl">下载</a>
+                </td>
+              </tr>
+              #end
+            </table>
+          </div>
+       </div>
+<!--paging_start-->
+       <div class="paging fr">
+            <div class="paging-box_2">
+             #set($pageModule = $domain.getTarget("/appManagement/findMobileDetailsPage.action").addQueryData("pageSize",$!pageSize))
+             #showPage($pageModule $AppPageOutputs)
+            </div>
+       </div>
+<!--paging_end-->

@@ -1,0 +1,163 @@
+#set($layout="content.vm")
+<script type="text/javascript">
+    $(document).ready(function () {
+        getDownLoad();
+    });
+    function isNumber(oNum) {
+        if (!oNum) return false;
+        var strP = /^\d+(\.\d+)?$/;
+        if (!strP.test(oNum)) return false;
+        try {
+            if (parseFloat(oNum) != oNum) return false;
+        }
+        catch (ex) {
+            return false;
+        }
+        return true;
+    }
+    function getDownLoad() {
+        jQuery.ajax({
+            type:"POST",
+            url:'/appStatistics/getDownload.action',
+            dataType:"json",
+            success:function (data) {
+                $('#allCount').html(data.allStatisticsCount);
+                $('#never7DaysStatisticsCount').html(data.never7DaysStatisticsCount);
+            }
+        });
+    }
+    function clearMess() {
+        $('#d5221').val('');
+        $('#d5222').val('');
+        $('#appId').val('');
+        $('#appName').val('');
+        $('#topCount').val('50');
+    }
+    function getAppStatistics() {
+        var type = $('#type').val();
+        var starTime = $('#d5221').val();
+        var endTime = $('#d5222').val();
+        var boolean = (starTime != '' && endTime != '') || (starTime == '' && endTime == '');
+        var appType = $('#appType').val();
+        // 全站总下载量
+        if (type == '') {
+            alert('请选择统计类型!');
+        } else {
+            if (type == 0) {
+                if (!boolean) {
+                    alert('请选择时间!');
+                } else {
+                    $('#loading').removeClass('hide');
+                    $('#appStatic').addClass('hide');
+                    jQuery.ajax({
+                        type:"POST",
+                        url:'/appStatistics/allStatisticsCount.action',
+                        data:'starTime=' + starTime + "&endTime=" + endTime + "&appType=" + appType,
+                        dataType:"html",
+                        success:function (msg) {
+                            $('#appStatic').html(msg);
+                            $('#appStatic').removeClass('hide');
+                            $('#loading').addClass('hide');
+                        }
+                    });
+                }
+            }
+            // 应用统计查询
+            if (type == 1) {
+                var appId = $('#appId').val();
+                var appName = $('#appName').val();
+                if (appId == '' && appName == '') {
+                    alert('请输入商品编号或者商品名称');
+                } else if (!boolean) {
+                    alert('请选择时间!');
+                } else if (appId != '' && !isNumber(appId)) {
+                    alert('商品编号格式不对');
+                } else {
+                    $('#loading').removeClass('hide');
+                    $('#appStatic').addClass('hide');
+                    jQuery.ajax({
+                        type:"POST",
+                        url:'/appStatistics/findAppStatisticsByDate.action',
+                        data:"appId=" + appId + '&appName=' + appName + '&starTime=' + starTime + "&endTime=" + endTime,
+                        dataType:"html",
+                        success:function (msg) {
+                            $('#appStatic').html(msg);
+                            $('#appStatic').removeClass('hide');
+                            $('#loading').addClass('hide');
+                        }
+                    });
+                }
+            }
+        }
+
+        // top统计查询
+        if (type == 2) {
+            var topCount = $('#topCount').val();
+            var appType = $('#appType').val();
+            if (!boolean) {
+                alert('请选择时间!');
+            } else {
+                $('#loading').removeClass('hide');
+                $('#appStatic').addClass('hide');
+                jQuery.ajax({
+                    type:"POST",
+                    url:'/appStatistics/findTopAppStatisticsByDate.action',
+                    data:"topCount=" + topCount + '&starTime=' + starTime + "&endTime=" + endTime + "&appType=" + appType,
+                    dataType:"html",
+                    success:function (msg) {
+                        $('#appStatic').html(msg);
+                        $('#appStatic').removeClass('hide');
+                        $('#loading').addClass('hide');
+                    }
+                });
+            }
+        }
+    }
+</script>
+<div class="right-box rounded">
+    <div class="form-row">
+        <label class="label1">统计类型：</label>
+        <select class="input" id="type">
+            <option selected value="">请选择</option>
+            <option value="0">全站总下载</option>
+            <option value="1">应用统计</option>
+            <option value="2">top统计</option>
+        </select>
+        <label class="label1">应用类型：</label>
+        <select class="input" id="appType">
+            <option selected value="0">全部</option>
+            <option value="1">移动应用</option>
+            <option value="2">网页应用</option>
+        </select>
+
+        <input id="del" class="to-select" type="button" onclick="getAppStatistics();" value="查 询">
+        <input class="to-select" type="button" onclick="clearMess();" value="重置">
+    </div>
+    <div class="form-row">
+
+        <label class="label1">商品编号：</label>
+        <input id="appId" class="input" type="text" name="appId"/>
+        <label class="label1">商品名称：</label>
+        <input id="appName" class="input" type="text" name="appName"/>
+
+        <label class="label2">时间：</label>
+        <input id="d5221" class="Wdate input" type="text" readonly="readonly"
+               onFocus="var d5222=$dp.$('d5222');WdatePicker({onpicked:function(){d5222.focus();},maxDate:'#F{$dp.$D(\'d5222\')}'})"/>
+        <span>--</span>
+        <input id="d5222" class="Wdate input" type="text" readonly="readonly"
+               onFocus="WdatePicker({minDate:'#F{$dp.$D(\'d5221\')}'})"/>
+        <label class="label1">top数量：</label>
+        <input id="topCount" class="input" type="text" name="topCount" value="50"/>
+        <label class="label3">&nbsp;&nbsp;全站总下载量：<span id="allCount"><img
+                src="$assetModule.getTarget("/appstore-man/images/loading-count.gif")"/></span></label>&nbsp&nbsp
+        <label class="label3">过去7天下载量：<span id="never7DaysStatisticsCount"><img
+                src="$assetModule.getTarget("/appstore-man/images/loading-count.gif")"/></span></label>
+    </div>
+
+    <div id="loading" class="loadingPic hide">
+        <img src="$assetModule.getTarget("/appstore-man/images/loading.gif")">
+    </div>
+    <div id="appStatic" class="tb-box">
+    </div>
+
+</div>

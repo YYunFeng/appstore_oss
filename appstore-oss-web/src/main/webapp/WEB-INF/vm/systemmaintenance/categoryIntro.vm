@@ -1,0 +1,45 @@
+#set($title = "类目管理-编辑类目")
+#set($layout="content.vm")
+<script type="text/javascript">
+    $(document).ready(function() {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.2 });
+        num();
+    });
+    function num() {
+        var maxLength = 100;
+        var textLength = jQuery('#categoryIntro').val().length;
+        if (textLength <= maxLength) {
+            jQuery('#msg').html(maxLength - textLength);
+        } else {
+            jQuery('#categoryIntro').val(jQuery('#categoryIntro').val().substr(0, maxLength));
+        }
+    }
+</script>
+<div class="pop-top">
+    <div class="ac">
+        <h2>编辑类目</h2>
+    </div>
+</div>
+<div class="pop-box">
+    <div class="con">
+        <table class="tb" cellspacing="0" cellpadding="0" id="content" width="100%" height="100%">
+            <tr>
+                <td width="100"><label>类目名称：</label></td>
+                <td width="250">
+                    <input id="categoryName" name="categoryName" class="input" style="margin-left: 8px;" value="$!categoryInfo.categoryName"/>
+                </td>
+            </tr>
+            <tr>
+                <td width="100"><label>类目描述：</label></td>
+                <td width="250"><p><textarea name="categoryIntro" cols="45" rows="8" id="categoryIntro" onkeyup="num();"
+                                             onkeypress="num();">$!categoryInfo.intro</textarea></br><span
+                        style="color: #FF0000;">剩余字数：<span id="msg">100</span> 字</span></p></td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="btn-box">
+    <input id="add" class="btn" type="button" value="确 定" onclick="doUpdateCategoryIntro();">
+    <input id="closeDiv" class="close" type="button" value="取 消">
+</div>
+<input type="hidden" id="categoryId" value="$!categoryInfo.categoryId"/>

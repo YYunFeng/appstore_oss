@@ -1,0 +1,65 @@
+#set($layout="content.vm")
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+
+    function doAddHotWord(){
+        var word = document.getElementById('word').value;
+        var published = document.getElementById('publishedForAdd').value;
+        var orderSeq = document.getElementById('orderSeq').value;
+        if(word != ''){
+            jQuery.ajax({
+                        type:'POST',
+                        url:'/hotWordManager/doAddHotWord.action',
+                        data:'hotWord.word=' + word + '&hotWord.published=' + published + '&hotWord.orderSeq=' + orderSeq,
+                        success:function(data){
+                            getHotWordsByPub();
+                            $('#close').click();
+                        }
+                    });
+        }else{
+            alert('请填写搜索词之后再进行添加')
+        }
+
+    };
+
+
+
+</script>
+
+<div class="pop-top">
+    <div class="ac">
+        <h2>添加搜索词</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+        <div class="con">
+            <table class="tb" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td width="90"><label>搜索词：</label></td>
+                    <td width="585" colspan="2"><p>
+                        <input id="word" class="input" style="width:300px;" type="text"/>
+                    </p></td>
+                </tr>
+                <tr>
+                    <td><label>在线状态：</label></td>
+                    <td><p><select id="publishedForAdd">
+                        <option value="0">下线</option>
+                        <option value="1">上线</option>
+                    </select></p></td>
+                </tr>
+                <tr>
+                    <td><label>排序：</label></td><td><p><input type="text" id="orderSeq" value="1"/></p></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="btn-box">
+    <input class="btn" type="button" value="确 认" onclick="doAddHotWord();">
+    <input id="close" class="close" type="button" value="取 消">
+</div>
+

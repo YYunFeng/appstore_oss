@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN"
+        "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Screen">
+    <typeAlias alias="TerminalpageOutput" type="com.jd.cms.domain.terminalManagement.TerminalpageOutput"/>
+    <typeAlias alias="TerminalpageInput" type="com.jd.cms.domain.terminalManagement.TerminalpageInput"/>
+
+    <!--取得屏幕参数总记录数-->
+    <select id="getScreenCount" resultClass="int">
+        select
+	        count(*) as value
+        from
+	        tb_android_app_screentype
+    </select>
+
+    <!--取得屏幕参数集合-->
+    <select id="findScreenPage" parameterClass="com.jd.common.util.Query" resultClass="TerminalpageOutput">
+        select
+	        screen_size_id as screenSizeId,
+	        screen_size_name as screenSizeName,
+            online as online
+        from
+	        tb_android_app_screentype
+        order by created desc
+        limit #endRow# offset #startRow#
+    </select>
+
+    <!--创建屏幕信息-->
+    <insert id="createScreen" parameterClass="TerminalInsertInput" >
+        insert into
+	        tb_android_app_screentype
+            (screen_size_id,screen_size_name,intro,online,created,modified)
+        values
+	        (#screenSizeId#,#screenSizeName#,#intro#,#online#,now(),now())
+    </insert>
+
+    <!--更新屏幕上下架状态-->
+    <update id="upScreenOnline" parameterClass="TerminalpageInput" >
+		UPDATE
+		    tb_android_app_screentype
+		SET
+            online = #online#,
+            modified = now()
+	    WHERE
+		    screen_size_id = #screenSizeId#
+	</update>
+
+    <!--删除屏幕信息-->
+    <delete id="delScreen" parameterClass="TerminalpageInput">
+        delete from
+            tb_android_app_screentype
+        where
+            screen_size_id = #screenSizeId#
+    </delete>
+
+    <!--更新屏幕信息-->
+    <update id="upScreen" parameterClass="TerminalpageInput" >
+		UPDATE
+		    tb_android_app_screentype
+		SET
+            screen_size_name = #screenSizeName#,
+            intro = #intro#,
+            modified = now()
+	    WHERE
+		    screen_size_id = #screenSizeId#
+	</update>
+
+    <!--根据ID删除单条屏幕信息-->
+    <select id="findScreenById" parameterClass="int" resultClass="TerminalpageOutput">
+        select
+	        screen_size_id as screenSizeId,
+	        screen_size_name as screenSizeName,
+            intro as intro,
+            online as online
+        from
+	        tb_android_app_screentype
+        where
+            screen_size_id = #screenSizeId#
+    </select>
+
+    <!--检查屏幕版本名-->
+    <select id="checkScreenName" parameterClass="String" resultClass="String">
+        select
+	        screen_size_name as screenSizeName
+        from
+	        tb_android_app_screentype
+        where
+            screen_size_name = #screenSizeName#
+    </select>
+    
+</sqlMap>

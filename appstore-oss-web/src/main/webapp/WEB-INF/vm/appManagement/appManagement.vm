@@ -1,0 +1,100 @@
+<div class="w">
+    <div id="warp">
+        <div class="content">
+            <!--left_start-->
+            <div class="menu-box rounded fl" id="red">
+                <div id="menu-box">
+                    <div class="box">
+                        <div class="title_1">应用管理<span class="menu1"></span></div>
+                        <div class="list">
+                            <ul class="treeview-red">
+                                <li onclick="" class="opens"><span id="menu_1">应用浏览</span>
+                                    <ul>
+                                        <li onclick="findAppMobileBrowse($!mobileGameId)"><span id="menu_11"
+                                                                                                class="selected">移动游戏</span>
+                                        </li>
+                                        <li onclick="findAppMobileBrowse($!mobileSoftId)"><span
+                                                id="menu_1.2">移动软件</span></li>
+                                    #*    <li onclick="findAppWebBrowse($!webAppId)"><span id="menu_1.3">网页应用</span></li>*#
+                                    </ul>
+                                </li>
+                                <li onclick=""><span id="menu_2">审核应用</span>
+                                    <ul>
+                                        <li onclick="appMobileManagement()"><span id="menu_2.1">移动应用</span></li>
+                                    #*<li onclick="appWebManagement()"><span id="menu_2.2">网页应用</span></li>*#
+                                    </ul>
+                                </li>
+                            #* <li onclick="appStatistics();"><span id="menu_3">数据统计</span>
+                             </li>*#
+                                <li><span id="menu_4">营销分析</span>
+                                    <ul>
+                                        <li><span id="menu_4.1" onclick="marketStatistics(0)">离线应用</span></li>
+                                        <li><span id="menu_4.2" onclick="newStatistic()">数据统计</span></li>
+                                    #* <li><span id="menu_4.2" onclick="marketStatistics(1)">在线应用</span></li>*#
+                                    </ul>
+                                </li>
+                            #* <li onclick="salerRankingManager();"><span id="menu_5">促销员排名</span>
+                             </li>*#
+                              #*  <li onclick="phoneInstallMess();"><span id="menu_6">手机安装信息</span>
+                                </li>*#
+                               #* <li onclick="installMess();"><span id="menu_7">每天应用安装信息</span>
+                                </li>*#
+                               #* <li onclick="provinceMonthly();"><span id="menu_10">各省份统计信息</span>
+                                </li>*#
+                              #*  <li onclick="validMachines();"><span id="menu_3">总公司统计</span>
+                                </li>*#
+                                <li onclick="provinceStatis();"><span id="menu_9">省办统计</span>
+                                </li>
+
+                                <li onclick="incomeStatistic()"><span id="menu_10">结算统计</span>
+                                </li>
+                               #* <li onclick="provinceArrStatis();"><span id="menu_8">省办到达统计</span>
+                                </li>*#
+                               #* <li onclick="salerActive();"><span id="menu_12">促销员活跃度统计</span>
+                                </li>
+                                <li onclick="appCount();"><span id="menu_13">CP到达统计</span>
+                                </li>*#
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--left_end--><!--right_start-->
+            <input type="hidden" name="markType"/>
+            <input type="hidden" name="markCategoryl2"/>
+
+            <div id="appTable" class="fr">
+            </div>
+            <!--right_end-->
+        </div>
+    </div>
+</div>
+</div>
+<script type="text/javascript" src="$assetModule.getTarget("/appstore-man/js/appManagement/appManagement.js")"></script>
+<!--div_start-->
+<div id="Loading" class="hide"
+     style="width:100px;height:100px;position:fixed;left:50%;top:50%;margin: -50px -50px 0 0;z-index: 1001;">
+    <img src="$assetModule.getTarget("/appstore-man/images/loading.gif")"/>
+</div>
+<div id="Loading2" class="hide"
+     style="text-align:center;position:fixed;z-index: 1000;filter:alpha(opacity=10);background-color:#666;opacity: 0.1;-moz-opacity: 0.1;width:100%;height: 100%;top:0;left:0;">
+</div>
+<div id="EjectTable" class="classPop" style="width:705px;height: 500px">
+</div>
+<!--div_end-->
+<script type="text/javascript">
+    /**
+     * 页面提前加载项
+     */
+    (function () {
+        var object = document.getElementById("nav-app");
+        if (object)object.className += " curr";//当前导航
+        if ($cid !=138){
+            $("#menu_11").removeClass("selected");
+            $("#menu_9").addClass("selected");
+            provinceStatis();
+        }else{
+            findAppMobileBrowse($!mobileGameId);
+        }
+    })();
+</script>

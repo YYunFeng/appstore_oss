@@ -1,0 +1,81 @@
+#set($layout="content.vm")
+<script type="text/javascript">
+    var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+
+    function doAddPadHomeAreaType(id){
+        var homeAreaId = document.getElementById('homeAreaId').value;
+        var pubedStatus = document.getElementById('pubedStatus').value;
+        jQuery.ajax({
+                    type:'POST',
+                    url:'/recommendManager/doAddPadHomeAreaType.action',
+                    data:'recommendManagerResult.clientType=1&recommendManagerResult.moduleId=0&recommendManagerResult.areaId=11&recommendManagerResult.homeAreaId='+
+                            homeAreaId + '&recommendManagerResult.pubedStatus='+pubedStatus+'&recommendManagerResult.homeAreaType='+id,
+                    dataType:'html',
+                    success:function(data){
+                        jQuery('#close').click();
+                        getPadRecommend();
+                    }
+                });
+    }
+
+</script>
+<div class="pop-top">
+    <div class="ac">
+        <h2>请选择要增加的版型</h2>
+    </div>
+</div>
+<div class="pop-scrollbar">
+    <div class="pop-box">
+    <div class="con">
+        <div class="vot hide">
+            <table width="0" border="0" cellpadding="3" cellspacing="0">
+                <tr>
+                    <td width="177">
+                        <label>
+                            排序：<input type="text" id="homeAreaId" style="width: 32px;" value="1"/>
+                        </label>
+                    </td>
+                    <td>
+                        <label>
+                            发布状态：<select id="pubedStatus">
+                                <option value="0">下线</option>
+                                <option value="1">上线</option>
+                            </select>
+                        </label>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="vot" onclick="doAddPadHomeAreaType(1);">
+            <table border="0" cellspacing="3" cellpadding="0">
+            <tr>
+              <td><img class="vot_img" src="/appstore-man/images/vot/vot_8.png" /></td>
+              <td colspan="2"><img class="vot_img" src="/appstore-man/images/vot/vot_9.png" /></td>
+              <td><img class="vot_img" src="/appstore-man/images/vot/vot_10.png" /></td>
+            </tr>
+          </table>
+        </div>
+        <div class="vot" onclick="doAddPadHomeAreaType(2);">
+            <table border="0" cellspacing="3" cellpadding="0">
+            <tr>
+              <td colspan="2"><img class="vot_img" src="/appstore-man/images/vot/vot_11.png" /></td>
+              <td><img class="vot_img" src="/appstore-man/images/vot/vot_12.png" /></td>
+              <td><img class="vot_img" src="/appstore-man/images/vot/vot_13.png" /></td>
+            </tr>
+          </table>
+        </div>
+        <div class="vot" onclick="doAddPadHomeAreaType(3);">
+            <table border="0" cellspacing="3" cellpadding="0">
+            <tr>
+              <td><img class="vot_img" src="/appstore-man/images/vot/vot_14.png" /></td>
+              <td><img class="vot_img" src="/appstore-man/images/vot/vot_15.png" /></td>
+              <td><img class="vot_img" src="/appstore-man/images/vot/vot_16.png" /></td>
+              <td><img class="vot_img" src="/appstore-man/images/vot/vot_17.png" /></td>
+            </tr>
+          </table>
+        </div>
+    </div>
+</div></div>
+<div class="btn-box">
+    <input id="close" class="close" type="button" value="关 闭"/>
+</div>

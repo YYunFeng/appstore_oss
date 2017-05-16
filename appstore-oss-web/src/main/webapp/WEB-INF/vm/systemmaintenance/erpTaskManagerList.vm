@@ -1,0 +1,102 @@
+#set($title = "系统维护-ERP同步任务管理")
+#set($layout="content.vm")
+<div class="fr">
+        <div class="right-box rounded">
+          <div class="form-row">
+            <label class="label">应用名称:</label>
+            <input id="taskInfoQuery.appName" class="input" type="text" name="taskInfoQuery.appName" value="$!stringEscapeUtils.escapeHtml($!taskInfoQuery.appName)" />
+            <input id="del" class="to-select" type="button" value="查 询" onclick="findErpTaskList();">
+          </div>
+          <div class="form-row">
+
+            <!--paging_start-->
+             <div class="paging fr">
+                      <div class="paging-box_1">
+                        #set($pageModule = $domain.getTarget("/taskManager/erpList.action").addQueryData("pageSize",$!pageSize))
+                            #showPage($pageModule $erpTasks)
+                      </div>
+                    </div>
+            <!--paging_end-->
+          </div>
+          <div class="tb-box">
+            <table class="tb" cellspacing="0" cellpadding="0">
+              <tr class="tit-bg">
+
+                <td>应用名称</td>
+                <td>任务类型</td>
+                <td><p>任务状态</p>
+                  <label>
+                  <select name="select" id="status" onchange="findErpTaskList();">
+                      #if(3==$!taskInfoQuery.status)
+                          <option value="3" selected>执行失败</option>
+                      #else
+                          <option value="3">执行失败</option>
+                      #end
+                      #if(0==$!taskInfoQuery.status)
+                          <option value="0" selected="selected">未启动</option>
+                      #else
+                          <option value="0">未启动</option>
+                      #end
+                      #if(1==$!taskInfoQuery.status)
+                          <option value="1" selected="selected">已启动</option>
+                      #else
+                          <option value="1">已启动</option>
+                      #end
+
+                  </select>
+                </label></td>
+                <td>剩余重试次数</td>
+                <td>最后启动时间</td>
+                <td>操作</td>
+              </tr>
+                #foreach($erpTask in $erpTasks)
+                    <tr>
+                        <td><div><label>$!erpTask.appName</label></div></td>
+                        <td><div><label>$!erpTask.taskTypeName</label></div></td>
+                        <td><div><label>
+                            #if(3==$!erpTask.status)
+                                执行失败
+                            #elseif(1==$!erpTask.status)
+                                已启动
+                            #elseif(0==$!erpTask.status)
+                                未启动
+                            #end
+                        </label></div></td>
+                        <td><div><label>$!erpTask.retryTimes</label></div></td>
+                        <td><div><label>#if($erpTask.startTimeFact)
+                                $!dateFormatUtils.format($!erpTask.startTimeFact)
+                            #end
+                        </label></div></td>
+                        <td><div><label>
+                            #if(3==$!erpTask.status)
+                                <a href="javascript:void(0)" class="pa" onclick="resetErpTask('$!erpTask.id');">重新同步</a>
+                            #end
+                        </label></div></td>
+                     </tr>
+                #end
+
+            </table>
+          </div>
+           <!--paging_start-->
+            <div class="paging fr">
+                     <div class="paging-box_2">
+                        #set($pageModule = $domain.getTarget("/taskManager/erpList.action").addQueryData("pageSize",$!pageSize))
+                        #showPage($pageModule $erpTasks)
+                    </div>
+                </div>
+            <!--paging_end-->
+        </div>
+      </div>
+<script type="text/javascript">
+    function macroAjaxSubmit(url){
+         jQuery.ajax({
+                type:'post',
+                url:url,
+                data:{"taskInfoQuery.appName":jQuery('input[name="taskInfoQuery.appName"]').val(),
+                        "taskInfoQuery.status":jQuery("#status").val()},
+                success:function(data) {
+                    jQuery('#content').html(data);
+                }
+            });
+    }
+</script>

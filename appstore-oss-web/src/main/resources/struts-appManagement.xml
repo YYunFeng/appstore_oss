@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+        "-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+        "http://struts.apache.org/dtds/struts-2.0.dtd">
+<struts>
+    <package name="appManagement" namespace="/appManagement" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.appManagement.AppManagementAction">
+            <result>/WEB-INF/vm/appManagement/{1}.vm</result>
+            <result name="INIT">/WEB-INF/vm/appManagement/appManagement.vm</result>
+            <result name="MOBILEPAGE">/WEB-INF/vm/appManagement/findMobileDetailsPage.vm</result>
+            <result name="WEBPAGE">/WEB-INF/vm/appManagement/findWebDetailsPage.vm</result>
+            <result name="MOBILECHECKEXPATIATION">/WEB-INF/vm/appManagement/appCheckMobileExpatiation.vm</result>
+            <result name="WEBCHECKEXPATIATION">/WEB-INF/vm/appManagement/appCheckWebExpatiation.vm</result>
+            <result name="SYNCRESULT">/WEB-INF/vm/appManagement/appBaseInfoSyncResult.vm</result>
+        </action>
+    </package>
+    <package name="appBrowse" namespace="/appBrowse" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.appManagement.AppBrowseAction">
+            <result>/WEB-INF/vm/appManagement/{1}.vm</result>
+            <result name="INIT">/WEB-INF/vm/appManagement/appManagement.vm</result>
+            <result name="MOBILEPAGE">/WEB-INF/vm/appManagement/findMobilePage.vm</result>
+            <result name="WEBPAGE">/WEB-INF/vm/appManagement/findWebPage.vm</result>
+            <result name="MOBILEEXPATIATION">/WEB-INF/vm/appManagement/appMobileExpatiation.vm</result>
+            <result name="WEBEXPATIATION">/WEB-INF/vm/appManagement/appWebExpatiation.vm</result>
+            <result name="MOBILEEDIT">/WEB-INF/vm/appManagement/appMobileEdit.vm</result>
+            <result name="WEBEDIT">/WEB-INF/vm/appManagement/appWebEdit.vm</result>
+        </action>
+    </package>
+    <package name="appStatistics" namespace="/appStatistics" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.appManagement.AppStatisticsAction">
+            <result>/WEB-INF/vm/appManagement/{1}.vm</result>
+            <result name="INIT">/WEB-INF/vm/appManagement/appStatistics.vm</result>
+            <result name="allStatisticsCount">/WEB-INF/vm/appManagement/allStatisticsCount.vm</result>
+            <result name="findAppStatistics">/WEB-INF/vm/appManagement/findAppStatistics.vm</result>
+            <result name="findTopAppStatistics">/WEB-INF/vm/appManagement/findTopAppStatistics.vm</result>
+        </action>
+    </package>
+
+    <package name="marketStatistics" namespace="/marketStatistics" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.appManagement.MarketStatisticsAction">
+            <result>/WEB-INF/vm/appManagement/{1}.vm</result>
+            <result name="INIT">/WEB-INF/vm/appManagement/marketStatistics.vm</result>
+        </action>
+    </package>
+
+    <package name="salesStatistics" namespace="/salesStatistics" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.appManagement.SalesStatisticsAction">
+            <result>/WEB-INF/vm/appManagement/{1}.vm</result>
+        </action>
+    </package>
+
+
+    <package name="appCounts" namespace="/appCounts" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.appManagement.AppCountsAction">
+            <result>/WEB-INF/vm/appManagement/{1}.vm</result>
+        </action>
+    </package>
+
+    <package name="salerActive" namespace="/salerActive" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.appManagement.SalerActiveAction">
+            <result>/WEB-INF/vm/appManagement/{1}.vm</result>
+        </action>
+    </package>
+
+
+    <package name="provinceArrStatis" namespace="/provinceArrStatis" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.appManagement.ProvinceArrStatisAction">
+            <result>/WEB-INF/vm/appManagement/{1}.vm</result>
+        </action>
+    </package>
+
+    <!--新版本统计-->
+    <package name="newStat" namespace="/newStat" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.appManagement.NewStatisticAction">
+            <result>/WEB-INF/vm/appManagement/newStat/{1}.vm</result>
+        </action>
+    </package>
+
+    <!--结算统计-->
+    <package name="incomeStatistic" namespace="/incomeStatistic" extends="appstore-default">
+        <action name="*" method="{1}" class="com.jd.cms.web.action.appManagement.IncomeStatisticAction">
+            <result>/WEB-INF/vm/appManagement/incomeStatistic/{1}.vm</result>
+        </action>
+    </package>
+</struts>
+

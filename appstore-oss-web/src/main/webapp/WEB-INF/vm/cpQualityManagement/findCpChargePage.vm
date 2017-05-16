@@ -1,0 +1,147 @@
+#set($layout="content.vm")
+<script language="javascript">
+    function macroAjaxSubmit(url) {
+    jQuery.ajax({
+                type:'post',
+                url:url,
+                data:{
+                    "selCpPageInPut.account":jQuery.trim(jQuery("[name=selCpPageInPut.account]").val()),
+                    "selCpPageInPut.cpName":jQuery.trim(jQuery("[name=selCpPageInPut.cpName]").val()),
+                    "selCpPageInPut.contractNumber":jQuery.trim(jQuery("[name=selCpPageInPut.contractNumber]").val()),
+                    "selCpPageInPut.cpProperty":jQuery.trim(jQuery("[name=selCpPageInPut.cpProperty]").val()),
+                    "selCpPageInPut.feeStatus":jQuery.trim(jQuery("[name=selCpPageInPut.feeStatus]").val())
+                    },
+                success:function(data) {
+                    jQuery('#cpTable').html(data);
+                }
+            });
+    };
+
+    $(document).ready(function(){
+        var a = new Pop({ oPop: "classPop", zIndex: 1001, mode: ["center", "center"], idOpen: "open", idClose: ["close", "close"], cover: true, beCover: false, zIndexCover: 1000, colorCover: "#666", opactiyCover: 0.1 });
+    });
+    
+    var img = new Array();
+        #foreach($SelCpPageOutPut in $SelCpPageOutPuts)
+        img[$SelCpPageOutPut.id] = false;
+        #end
+
+    function img_chk(sb) {
+        if (eval("img[" + sb + "]") == false) {
+            document.getElementById(sb).src = "$assetModule.getTarget("/appstore-man/images/checkbox_hover.png")";
+            eval("img[" + sb + "]=true");
+        } else {
+            document.getElementById(sb).src = "$assetModule.getTarget("/appstore-man/images/checkbox.png")";
+            eval("img[" + sb + "]=false");
+        }
+    }
+</script>
+<!--right_start-->
+<div class="right-box rounded">
+        <div class="form-row">
+          <label class="label">CP帐号:</label>
+          <input id="account" class="input" type="text"
+               name="selCpPageInPut.account" value="$!selCpPageInPut.account"/>
+          <label class="label">CP用户名:</label>
+          <input id="cpName" class="input" type="text"
+               name="selCpPageInPut.cpName" value="$!selCpPageInPut.cpName"/>
+          <label class="label">合同号:</label>
+          <input id="contractNumber" class="input" type="text"
+               name="selCpPageInPut.contractNumber" value="$!selCpPageInPut.contractNumber"/>
+          <input id="sel" class="to-select" type="button" value="查 询" onclick="selCpChargeTree()">
+        </div>
+        <div class="form-row">
+          <label class="label">选中项:</label>
+          <input id="enabled" class="to-del" type="button" value="待审核" onclick="upCpFeeStatus(2)">
+          <div class="paging fr">
+            <div class="paging-box_2">
+                #set($pageModule = $domain.getTarget("/cpChargeQualification/findCpChargePage.action").addQueryData("pageSize",$!pageSize))
+                #showPage($pageModule $SelCpPageOutPuts)
+            </div>
+          </div>
+        </div>
+        <div class="tb-box">
+          <table class="tb" cellspacing="0" cellpadding="0">
+            <tr class="tit-bg">
+              <td width="40">选择</td>
+              <td width="90">CP帐号</td>
+              <td width="80">
+                CP性质<br>
+                <select name="selCpPageInPut.cpProperty" onchange="selCpChargeTree()">
+                    <option value="0" #if($!selCpPageInPut.cpProperty == 0) selected #end>全部
+                    </option>
+                    <option value="1" #if($!selCpPageInPut.cpProperty == 1) selected #end>个人
+                    </option>
+                    <option value="2" #if($!selCpPageInPut.cpProperty == 2) selected #end>公司
+                    </option>
+                </select>
+              </td>
+              <td width="100">CP用户名</td>
+              <td width="100">合同号</td>
+              <td width="80">分成比例</td>
+              <td width="120">
+                  审核状态<br>
+                <select name="selCpPageInPut.feeStatus" onchange="selCpChargeTree()">
+                  <option value="0" #if($!selCpPageInPut.feeStatus == 0) selected  #end>全部
+                  </option>
+                  <option value="2" #if($!selCpPageInPut.feeStatus == 2) selected  #end>审核中
+                  </option>
+                  <option value="3" #if($!selCpPageInPut.feeStatus == 3) selected  #end>审核通过
+                  </option>
+                  <option value="4" #if($!selCpPageInPut.feeStatus == 4) selected  #end>审核不通过
+                  </option>
+                </select>
+              </td>
+              <td width="100">合同期限</td>
+              <td>操作</td>
+            </tr>
+            #foreach($SelCpPageOutPut in $SelCpPageOutPuts)
+            <tr>
+              <td><img id="$!SelCpPageOutPut.id" name="chkUpdatePrompt"
+                           src="$assetModule.getTarget("/appstore-man/images/checkbox.png")"
+                           onclick="img_chk(this.id);"/></td>
+              <td>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.account)</td>
+              <td>
+                  #if($!SelCpPageOutPut.cpProperty == 0)
+                        全部
+                  #elseif($!SelCpPageOutPut.cpProperty == 1)
+                        个人
+                  #elseif($!SelCpPageOutPut.cpProperty == 2)
+                        公司
+                  #end
+              </td>
+              <td>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.cpName)</td>
+              <td><div><label>$!stringEscapeUtils.escapeHtml($!SelCpPageOutPut.contractNumber)</label></div></td>
+              <td>$!SelCpPageOutPut.defaultPercent%</td>
+              <td>
+                  #if($!SelCpPageOutPut.feeStatus == 1)
+                       未申请
+                  #elseif($!SelCpPageOutPut.feeStatus == 2)
+                       审核中
+                  #elseif($!SelCpPageOutPut.feeStatus == 3)
+                       审核通过
+                  #elseif($!SelCpPageOutPut.feeStatus == 4)
+                       审核不通过
+                  #end
+              </td>
+              <td>
+                  <div><label>
+                  $!dateFormatUtils.format($!SelCpPageOutPut.validPeriodBegin,"yyyy-MM-dd")<br>
+                  $!dateFormatUtils.format($!SelCpPageOutPut.validPeriodEnd,"yyyy-MM-dd")<br>
+                  </label></div>
+              </td>
+              <td><a href="javascript:void(0);" onclick="findCpChargeExpatiation($!SelCpPageOutPut.id,$!SelCpPageOutPut.feeStatus)" #if(3 != $!SelCpPageOutPut.feeStatus) class="pa red open" #elseif($!SelCpPageOutPut.feeStatus == 3) class="pa red" #end>审核</a></td>
+            </tr>
+            #end
+          </table>
+        </div>
+      </div>
+      <!--right_end-->
+      <!--paging_start-->
+      <div class="paging fr">
+            <div class="paging-box_2">
+                #set($pageModule = $domain.getTarget("/cpChargeQualification/findCpChargePage.action").addQueryData("pageSize",$!pageSize))
+                #showPage($pageModule $SelCpPageOutPuts)
+            </div>
+      </div>
+      <!--paging_end-->
